@@ -57,6 +57,15 @@ local Constants = require("libs.constants")
 
 function toggleFoW(event)
   -- game.print("Tick: " .. event.tick)
+  local forces = {}
+
+  for k,v in pairs(game.connected_players) do
+    forces[v.force.index] = true
+  end
+
+  for k,v in pairs(forces) do
+    game.forces[k].rechart()
+  end
 end
 
 script.on_nth_tick(60, toggleFoW)
