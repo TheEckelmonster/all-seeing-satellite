@@ -1,0 +1,12 @@
+-- local Constants = require("libs.constants")
+
+-- data:extend({
+--   -- {
+--   --   type = "int-setting",
+--   --   name = Constants.ON_NTH_TICK.setting,
+--   --   setting_type = "runtime-global",
+--   --   default_value = 60,
+--   --   maximum_value = 120,
+--   --   minimum_value = 0,
+--   -- },
+-- })

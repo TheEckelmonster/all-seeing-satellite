@@ -1,71 +1,86 @@
 local Constants = require("libs.constants")
 
--- local SHORTCUT_NAME = 'CSOP-toggle'
--- local HOTKEY_EVENT_NAME = 'CSOP-toggle'
+local nthTick = settings.startup[Constants.ON_NTH_TICK.setting]
+-- local nthTick = settings.global[Constants.ON_NTH_TICK.setting]
+local disableFoW = false
 
--- local SETTING_AVAILABLE_FROM_NAME = 'CSOP-available-from'
--- local SETTING_REVEAL_NAME = 'CSOP-reveal'
+if (not nthTick or nthTick.value <= 0) then
+  nthTick = Constants.ON_NTH_TICK.value
+end
 
--- function enabled(player_index, set)
---     local player = game.players[player_index]
---     -- game.print(game.table_to_json({player_index, set, 'is', player.is_shortcut_toggled(SHORTCUT_NAME)}))
---     local available_from = settings.global[SETTING_AVAILABLE_FROM_NAME].value
---     if set ~= nil then
---         local force = player.force
---         if not set or
---             available_from == 'Start' or
---             -- available_from == 'Construction robotics researched' and force.ghost_time_to_live > 0 or
---             available_from == 'Construction robotics researched' and force.technologies['construction-robotics'].researched or
---             available_from == 'Rocket launched' and force.rockets_launched > 0 or
---             available_from == 'Satellite launched' and force.get_item_launched('satellite') > 0
---             then
---             for _, p in pairs(force.players) do
---                 p.set_shortcut_toggled(SHORTCUT_NAME, set)
---             end
---         else
---             player.print('Clear skies available from '..available_from..'. (Runtime map settings)')
---         end
---     end
---     return player.is_shortcut_toggled(SHORTCUT_NAME)
--- end
+function init()
+  storage.satellites_launched = {
+    nauvis = 0,
+    fulgora = 0,
+    gleba = 0,
+    vulcanus = 0,
+    aquilo = 0
+  }
 
--- function toggle(event)
---     -- game.print(game.table_to_json(event))
---     if event.input_name ~= HOTKEY_EVENT_NAME and event.prototype_name ~= SHORTCUT_NAME then return end
---     enabled(event.player_index, not enabled(event.player_index))
--- end
+  storage.satellite_toggled_by_player = nil
 
--- script.on_nth_tick(60, function(event)
---     local forces = {}
---     for _, player in pairs(game.connected_players) do
---         if player.is_shortcut_toggled(SHORTCUT_NAME) then
---             forces[player.force.index] = true
---         end
---     end
---     local reveal = settings.global[SETTING_REVEAL_NAME].value
---     for force_index in pairs(forces) do
---         if reveal == 'Discovered' then
---             game.forces[force_index].rechart()
---         elseif reveal == 'Generated' then
---             game.forces[force_index].chart_all()
---         end
---     end
--- end)
+  -- storage._satellites_toggled = {}
+  -- for k,v in pairs(game.surfaces) do
+  --   table.insert(storage._satellites_toggled, {
+  --     surface = v,
+  --     toggled = false
+  --   })
+  -- end
 
--- script.on_event(defines.events.on_lua_shortcut, toggle)
--- script.on_event(HOTKEY_EVENT_NAME, toggle)
+  -- log(serpent.block(_satellites_toggled))
+
+  storage.satellites_toggled = {
+    nauvis = false,
+    fulgora = false,
+    gleba = false,
+    vulcanus = false,
+    aquilo = false
+  }
+
+  -- game.print("satellites_launched: " .. serpent.block(storage.satellites_launched))
+  -- game.print("satellites_toggled: " .. serpent.block(storage.satellites_toggled))
+end
 
 function toggleFoW(event)
-  -- game.print("Tick: " .. event.tick)
-  local forces = {}
+  local player = storage.satellite_toggled_by_player
 
-  for k,v in pairs(game.connected_players) do
-    forces[v.force.index] = true
+  for k, v in pairs(storage.satellites_toggled) do
+    -- If inputs are valid, and the surface the player is currently viewing is toggled
+    if (v and player and player.force and player.surface.name == k) then
+      game.forces[player.force.index].rechart(player.surface)
+    end
   end
 
-  for k,v in pairs(forces) do
-    game.forces[k].rechart()
+end
+
+function toggle(event)
+  -- Validate inputs
+  if (event.input_name ~= Constants.HOTKEY_EVENT_NAME.setting and event.prototype_name ~= Constants.HOTKEY_EVENT_NAME.setting) then
+    return
+  end
+
+  local player_from_storage = storage.player
+  local player = game.players[event.player_index]
+  local satellites_toggled = storage.satellites_toggled
+
+  if (player and player.surface and player.surface.name) then
+    storage.satellite_toggled_by_player = player
+
+    local surface_name = player.surface.name
+
+    if (satellites_toggled[surface_name]) then
+      game.print("Disabled satellites(s) for " .. surface_name)
+      satellites_toggled[surface_name] = false
+    elseif (not satellites_toggled[surface_name]) then
+      game.print("Enabled satellite(s) for " .. surface_name)
+      satellites_toggled[surface_name] = true
+    else
+      game.print("all-seeing-satellite: This shouldn't be possible")
+    end
   end
 end
 
-script.on_nth_tick(60, toggleFoW)
+-- Regist events
+script.on_init(init)
+script.on_nth_tick(nthTick, toggleFoW)
+script.on_event("all-seeing-satellite-toggle", toggle)
