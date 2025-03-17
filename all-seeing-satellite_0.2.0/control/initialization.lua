@@ -23,6 +23,8 @@ function initialization.init()
   for k,surface in pairs(game.surfaces) do
     -- Search for planets
     if (not String_Utils.find_invalid_substrings(surface.name)) then
+      -- table.insert(storage.satellites_launched, { surface.name = { 0 } })
+      storage.satellites_launched[surface.name] = 0
       table.insert(storage.satellites_toggled, { surface.name, false })
     end
 
@@ -48,6 +50,9 @@ function initialization.init()
 
   storage.all_seeing_satellite = {}
   storage.all_seeing_satellite.valid = true
+
+  -- log(serpent.block(storage))
+  -- game.print(serpent.block(storage))
 end
 
 function add_rocket_silo(--[[required]]rocket_silo, --[[optional]]is_init)
@@ -76,8 +81,8 @@ function add_rocket_silo(--[[required]]rocket_silo, --[[optional]]is_init)
   end
 
   if (storage.rocket_silos[rocket_silo.surface.name]) then
-    log("adding rocket silo to rocket_silos: ")
-    log(serpent.block(rocket_silo))
+    -- log("adding rocket silo to rocket_silos: ")
+    -- log(serpent.block(rocket_silo))
     table.insert(storage.rocket_silos[rocket_silo.surface.name], {
       unit_number = rocket_silo.unit_number,
       entity = rocket_silo,

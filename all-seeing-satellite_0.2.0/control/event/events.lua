@@ -4,11 +4,10 @@ local Rocket_Silo = require("control.event.rocket-silo")
 local Rocket_Utils = require("libs.rocket-utils")
 local Satellite = require("control.event.satellite")
 
-local nthTick = settings.startup[Constants.ON_NTH_TICK.setting]
--- local nthTick = settings.global[Constants.ON_NTH_TICK.setting]
+local nth_tick
 
-if (not nthTick or nthTick.value <= 0) then
-  nthTick = Constants.ON_NTH_TICK.value
+if (not nth_tick or nth_tick.value <= 0) then
+  nth_tick = Constants.ON_NTH_TICK.value
 end
 
 --
@@ -16,8 +15,8 @@ end
 
 script.on_init(init)
 
-script.on_nth_tick(nthTick, Fog_Of_War.toggle_FoW)
-script.on_nth_tick(nthTick, Rocket_Utils.launch_rocket)
+script.on_nth_tick(nth_tick + 1, Fog_Of_War.toggle_FoW)
+script.on_nth_tick(nth_tick, Rocket_Utils.launch_rocket)
 script.on_event("all-seeing-satellite-toggle", Fog_Of_War.toggle)
 script.on_event(defines.events.on_rocket_launch_ordered, Satellite.track_satellite_launches_ordered)
 
