@@ -4,6 +4,11 @@ if _validations and _validations.all_seeing_satellite then
 end
 
 local validations = {}
+
+function validations.is_storage_valid()
+  return storage.all_seeing_satellite and storage.all_seeing_satellite.valid
+end
+
 function validations.validate_satellites_launched(planet_name)
   if (not storage.satellites_launched) then
     storage.satellites_launched = {}
