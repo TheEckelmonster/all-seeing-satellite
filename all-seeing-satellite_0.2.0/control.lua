@@ -22,15 +22,12 @@ function init()
   storage.satellites_toggled = {}
   storage.rocket_silos = {}
 
-  -- for k,v in pairs(game.surfaces) do
   for k,surface in pairs(game.surfaces) do
     -- Search for planets
     if (not String_Utils.find_invalid_substrings(surface.name)) then
-      -- table.insert(storage.satellites_launched, { surface.name, 0 })
       table.insert(storage.satellites_toggled, { surface.name, false })
     end
-  -- end
-  -- for k, surface in pairs(game.surfaces) do
+
     local rocket_silos = surface.find_entities_filtered({type = "rocket-silo"})
     for i=1,#rocket_silos do
       local rocket_silo = rocket_silos[i]
@@ -43,18 +40,13 @@ function init()
         end
 
         if (storage.rocket_silos[rocket_silo.surface.name]) then
-          table.insert(storage.rocket_silos[rocket_silo.surface.name], {
-            unit_number = rocket_silo.unit_number,
-            entity = rocket_silo
-          })
+          add_rocket_silo(rocket_silo, true)
         else
           log(serpent.block(rocket_silo.surface.name))
         end
       end
     end
   end
-  log(serpent.block(storage.rocket_silos))
-  -- game.print(serpent.block(storage.rocket_silos))
 
   storage.all_seeing_satellite = {}
   storage.all_seeing_satellite.valid = true
@@ -100,21 +92,69 @@ function toggle(event)
 end
 
 function trackSatelliteLaunchesOrdered(event)
-  if (event and event.rocket and event.rocket.valid and event.rocket.cargo_pod) then
-    local inventory = event.rocket.cargo_pod.get_inventory(defines.inventory.cargo_unit)
-    if (inventory) then
-      for _, item in ipairs(inventory.get_contents()) do
-        if (item.name == "satellite") then
-          -- game.print(serpent.block(event.rocket_silo.surface))
-          -- if (not storage.satellites_launched[event.rocket_silo.surface.name]) then
-          --   storage.satellites_launched[event.rocket_silo.surface.name] = 0
-          -- end
-          -- storage.satellites_launched[event.rocket_silo.surface.name] = storage.satellites_launched[event.rocket_silo.surface.name] + 1
-          -- game.print(serpent.block(storage.satellites_launched))
-          satellite_launched(event.rocket_silo.surface.name)
+  if (event and event.rocket and event.rocket.valid and event.rocket.cargo_pod and event.rocket.cargo_pod.valid) then
+
+    log(serpent.block(event.rocket.cargo_pod))
+    game.print(serpent.block(event.rocket.cargo_pod))
+    log(serpent.block(event.rocket.cargo_pod.cargo_pod_destination))
+    game.print(serpent.block(event.rocket.cargo_pod.cargo_pod_destination))
+
+    -- Check for a satellite if the cargo pod doesn't have a station and has a destination type of 1
+    --   -> no station implies it was sent to "orbit"
+    --   -> .type is 1 for some reason, and not defines.cargo_destination.orbit as I would have thought
+    if (  event.rocket.cargo_pod.cargo_pod_destination
+      and not event.rocket.cargo_pod.cargo_pod_destination.station
+      and event.rocket.cargo_pod.cargo_pod_destination.type == 1)
+    then
+      local inventory = event.rocket.cargo_pod.get_inventory(defines.inventory.cargo_unit)
+
+      if (inventory) then
+        for _, item in ipairs(inventory.get_contents()) do
+          if (item.name == "satellite") then
+            satellite_launched(event.rocket_silo.surface.name)
+          end
         end
       end
     end
+  end
+end
+
+function add_rocket_silo(--[[required]]rocket_silo, --[[optional]]is_init)
+  -- Validate inputs
+  is_init = is_init or false -- default value
+
+  if (not rocket_silo or not rocket_silo.valid or not rocket_silo.surface) then
+    log("Call to add_rocket_silo with invalid input")
+    log(serpent.block(rocket_silo))
+    return
+  end
+
+  if (not storage.rocket_silos) then
+    if (is_init) then
+      storage.rocket_silos = {}
+    else
+      init()
+    end
+    return
+  end
+
+  if (  not String_Utils.find_invalid_substrings(rocket_silo.surface.name)
+    and not storage.rocket_silos[rocket_silo.surface.name])
+  then
+    storage.rocket_silos[rocket_silo.surface.name] = {}
+  end
+
+  if (storage.rocket_silos[rocket_silo.surface.name]) then
+    log("adding rocket silo to rocket_silos: ")
+    log(serpent.block(rocket_silo))
+    table.insert(storage.rocket_silos[rocket_silo.surface.name], {
+      unit_number = rocket_silo.unit_number,
+      entity = rocket_silo,
+      valid = rocket_silo.valid
+    })
+  else
+    log("This shouldn't be possible")
+    log(serpent.block(rocket_silo.surface.name))
   end
 end
 
@@ -125,37 +165,40 @@ function rocket_silo_built(event)
 		if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then
       init()
     else
-      table.insert(storage.rocket_silos[rocket_silo.surface.name], rocket_silo)
-      log(serpent.block(storage.rocket_silos))
-      game.print(serpent.block(storage.rocket_silos))
+      add_rocket_silo(rocket_silo)
+      log("Built rocket silo")
+      log(serpent.block(rocket_silo))
     end
   end
 end
 
 function rocket_silo_mined(event)
-	local rocket_silo = event.entity
-
-  if (rocket_silo and rocket_silo.valid and rocket_silo.surface) then
-		if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then
-      init()
-    else
-      storage.rocket_silos[rocket_silo.surface.name][rocket_silo] = nil
-      log(serpent.block(storage.rocket_silos))
-      game.print(serpent.block(storage.rocket_silos))
-    end
-  end
+  mine_rocket_silo(event)
 end
 
 function rocket_silo_mined_script(event)
-	local rocket_silo = event.entity
+  mine_rocket_silo(event)
+end
+
+function mine_rocket_silo(event)
+  local rocket_silo = event.entity
 
   if (rocket_silo and rocket_silo.valid and rocket_silo.surface) then
 		if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then
       init()
     else
-      storage.rocket_silos[rocket_silo.surface.name][rocket_silo] = nil
-      log(serpent.block(storage.rocket_silos))
-      game.print(serpent.block(storage.rocket_silos))
+      log("Before removal")
+      log(serpent.block(storage.rocket_silos[rocket_silo.surface.name]))
+      local surface_rocket_silos = storage.rocket_silos[rocket_silo.surface.name]
+
+      for i=1, #surface_rocket_silos do
+        if (surface_rocket_silos[i] and surface_rocket_silos[i].entity == rocket_silo) then
+          table.remove(surface_rocket_silos, i)
+        end
+      end
+
+      log("After removal")
+      log(serpent.block(storage.rocket_silos[rocket_silo.surface.name]))
     end
   end
 end
@@ -168,10 +211,10 @@ function launch_rocket(event)
   local tick = event.tick
   local nth_tick = event.nth_tick
 
+  local tick_mod = tick % nth_tick
+
   if (storage.rocket_silos) then
     for _, planet in pairs(Constants.get_planets(false)) do
-      log(serpent.block(storage.rocket_silos))
-      -- game.print(serpent.block(storage.rocket_silos))
       for _, rocket_silo_unit_numbers in pairs(storage.rocket_silos) do
         for i=1, #rocket_silo_unit_numbers do
           local rocket_silos = storage.rocket_silos[planet.name]
@@ -185,29 +228,16 @@ function launch_rocket(event)
             local inventory = rocket_silo.get_inventory(defines.inventory.rocket_silo_rocket)
             if (inventory) then
               for _, item in ipairs(inventory.get_contents()) do
-                -- log(serpent.block(item))
-                -- game.print(serpent.block(item))
                 if (item.name == "satellite") then
                   local rocket = rocket_silo.rocket
-                  -- log(serpent.block(rocket))
-                  -- game.print(serpent.block(rocket))
 
                   if (rocket and rocket.valid) then
                     local cargo_pod = rocket.attached_cargo_pod
-                    -- log(serpent.block(cargo_pod))
-                    -- game.print(serpent.block(cargo_pod))
 
                     if (cargo_pod and cargo_pod.valid) then
                       cargo_pod.cargo_pod_destination = { type = defines.cargo_destination.orbit }
-                      if (cargo_pod.cargo_pod_destination) then
-                        -- log(serpent.block(cargo_pod.cargo_pod_destination))
-                        -- game.print(serpent.block(cargo_pod.cargo_pod_destination))
-                      end
                     end
                   end
-
-                  -- log(serpent.block(rocket_silo))
-                  -- game.print(serpent.block(rocket_silo))
 
                   if (rocket_silo.launch_rocket()) then
                     log("Launched satellite: " .. serpent.block(rocket_silo))
@@ -242,8 +272,8 @@ script.on_init(init)
 
 script.on_nth_tick(nthTick, toggleFoW)
 script.on_nth_tick(nthTick, launch_rocket)
+-- script.on_evemt(defines.events.on_tick, launch_rocket)
 script.on_event("all-seeing-satellite-toggle", toggle)
--- script.on_event(defines.events.on_rocket_launched, trackSatelliteLaunches)
 script.on_event(defines.events.on_rocket_launch_ordered, trackSatelliteLaunchesOrdered)
 
 -- rocket-silo tracking
