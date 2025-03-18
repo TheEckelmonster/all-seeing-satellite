@@ -1,0 +1,15 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.2.0
+Date: 17. 03. 2025
+  Minor Features:
+    - Added satellite back as an item, recipe, and technology unlock (rocket silo research)
+    - A rocket with a satellite in its inventory will automatically launch into orbit
+    - Added setting to toggle satellite launch requirement
+    - Added configurable setting for minimum satellite launch threshold for all planets to enable fog-of-war (0 - 100), default 1
+  Misc:
+    - Added a thumbnail
+---------------------------------------------------------------------------------------------------
+Version: 0.1.0
+Date: 15. 03. 2025
+  Minor Features:
+    - Initial release
