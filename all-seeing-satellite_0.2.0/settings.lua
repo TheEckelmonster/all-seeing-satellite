@@ -1,12 +1,18 @@
--- local Constants = require("libs.constants")
+local Constants = require("libs.constants")
 
--- data:extend({
---   -- {
---   --   type = "int-setting",
---   --   name = Constants.ON_NTH_TICK.setting,
---   --   setting_type = "runtime-global",
---   --   default_value = 60,
---   --   maximum_value = 120,
---   --   minimum_value = 0,
---   -- },
--- })
+data:extend({
+  {
+    type = "bool-setting",
+    name = Constants.REQUIRE_SATELLITES_IN_ORBIT.name,
+    setting_type = "runtime-global",
+    default_value = true,
+  },
+  {
+    type = "int-setting",
+    name = Constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.name,
+    setting_type = "runtime-global",
+    default_value = 1,
+    maximum_value = 100,
+    minimum_value = 0,
+  },
+})

@@ -20,7 +20,7 @@ function fog_of_war.toggle_FoW(event)
       and player.surface
       and player.surface.name == surface_name)
     then
-      if (Validations.is_storage_valid() and storage.satellites_launched[surface_name] > 0) then
+      if (Validations.is_storage_valid() and allow_toggle(surface_name)) then
         game.forces[player.force.index].rechart(player.surface)
       end
     end
@@ -75,11 +75,21 @@ function print_toggle_message(message, surface_name)
 end
 
 function allow_toggle(surface_name)
+  if (not settings.global[Constants.REQUIRE_SATELLITES_IN_ORBIT.name].value) then
+    return true
+  end
+
   if (surface_name) then
     return  Validations.is_storage_valid()
         and storage.satellites_launched
         and storage.satellites_launched[surface_name]
-        and storage.satellites_launched[surface_name] > 0
+        and (
+              ( settings.global["all-seeing-satellite-" .. surface_name .. "-satellite-threshold"]
+            and storage.satellites_launched[surface_name] >= settings.global["all-seeing-satellite-" .. surface_name .. "-satellite-threshold"].value)
+          or
+              ( settings.global["all-seeing-satellite-global-launch-satellite-threshold"]
+            and storage.satellites_launched[surface_name] >= settings.global["all-seeing-satellite-global-launch-satellite-threshold"].value)
+        )
   end
   return false
 end
