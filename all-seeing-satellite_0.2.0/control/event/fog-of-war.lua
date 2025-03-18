@@ -12,16 +12,18 @@ local fog_of_war = {}
 function fog_of_war.toggle_FoW(event)
   local player = storage.satellite_toggled_by_player
 
-  for surface_name, enabled in pairs(storage.satellites_toggled) do
-    -- If inputs are valid, and the surface the player is currently viewing is toggled
-    if (  enabled
+  if (Validations.is_storage_valid()) then
+    for surface_name, enabled in pairs(storage.satellites_toggled) do
+      -- If inputs are valid, and the surface the player is currently viewing is toggled
+      if (  enabled
       and player
       and player.force
       and player.surface
       and player.surface.name == surface_name)
-    then
-      if (Validations.is_storage_valid() and allow_toggle(surface_name)) then
-        game.forces[player.force.index].rechart(player.surface)
+      then
+        if (allow_toggle(surface_name)) then
+          game.forces[player.force.index].rechart(player.surface)
+        end
       end
     end
   end
