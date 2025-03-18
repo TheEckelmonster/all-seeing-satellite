@@ -15,6 +15,8 @@ end
 
 script.on_init(init)
 
+script.on_event(defines.events.on_tick, Satellite.check_for_dead_satellites)
+
 script.on_nth_tick(nth_tick + 1, Fog_Of_War.toggle_FoW)
 script.on_nth_tick(nth_tick, Rocket_Utils.launch_rocket)
 script.on_event("all-seeing-satellite-toggle", Fog_Of_War.toggle)
