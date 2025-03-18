@@ -23,8 +23,9 @@ function satellite.track_satellite_launches_ordered(event)
       if (inventory) then
         for _, item in ipairs(inventory.get_contents()) do
           if (item.name == "satellite") then
-            satellite_launched(event.rocket_silo.surface.name)
-            start_satellite_countdown(item, event.tick, event.rocket_silo.surface.name)
+            -- satellite_launched(event.rocket_silo.surface.name)
+            satellite_launched(event.rocket_silo.surface.name, item, event.tick)
+            -- start_satellite_countdown(item, event.tick, event.rocket_silo.surface.name)
           end
         end
       end
@@ -67,7 +68,11 @@ function satellite.check_for_expired_satellites(event)
                   if (i <= #satellites and satellites[i] and satellites[i].entity == satellite.entity) then
                     if (Validations.validate_satellites_launched(planet.name) and #satellites > 0) then
                       table.remove(satellites, i)
-                      storage.satellites_launched[planet.name] = storage.satellites_launched[planet.name] - 1
+                      -- storage.satellites_launched[planet.name] = storage.satellites_launched[planet.name] - 1
+                      if (Validations.validate_satellites_in_orbit(satellite.planet_name)) then
+                        get_num_satellites_in_orbit(satellite.planet_name)
+                      end
+                      game.print("Satellite ran out of fuel orbiting " .. serpent.block(satellite.planet_name))
                       -- log("removing satellite: " .. serpent.block(satellite) .. " at index i = " .. serpent.block(i))
                       -- game.print("removing satellite: " .. serpent.block(satellite) .. " at index i = " .. serpent.block(i))
                     end
@@ -95,9 +100,12 @@ function satellite.check_for_expired_satellites(event)
   end
 end
 
-function satellite_launched(planet_name)
-  if (Validations.validate_satellites_launched(planet_name)) then
-    storage.satellites_launched[planet_name] = storage.satellites_launched[planet_name] + 1
+-- function satellite_launched(planet_name)
+function satellite_launched(planet_name, item, tick)
+  if (Validations.validate_satellites_launched(planet_name) and Validations.validate_satellites_in_orbit(planet_name)) then
+    -- storage.satellites_launched[planet_name] = storage.satellites_launched[planet_name] + 1
+    start_satellite_countdown(item, tick, planet_name)
+    -- storage.satellites_launched[planet_name] = #(storage.satellites_in_orbit[planet_name])
     -- log(serpent.block(storage.satellites_launched))
     -- game.print(serpent.block(storage.satellites_launched))
   else
@@ -113,6 +121,8 @@ function start_satellite_countdown(satellite, tick, planet_name)
   -- game.print(serpent.block(tick))
 
   if (  Validations.is_storage_valid()
+    and Validations.validate_satellites_launched(planet_name)
+    and Validations.validate_satellites_in_orbit(planet_name)
     and satellite
     and tick
     and planet_name)
@@ -120,8 +130,8 @@ function start_satellite_countdown(satellite, tick, planet_name)
     local death_tick = 0
     local quality_multiplier = 1
 
-    -- log(serpent.block(satellite))
-    -- game.print(serpent.block(satellite))
+    log(serpent.block(satellite))
+    game.print(serpent.block(satellite))
 
     if (satellite.quality == "normal") then
       quality_multiplier = 1
@@ -135,8 +145,8 @@ function start_satellite_countdown(satellite, tick, planet_name)
       quality_multiplier = 2.8561
     end
 
-    -- log("quality_multiplier = " .. serpent.block(quality_multiplier))
-    -- game.print("quality_multiplier = " .. serpent.block(quality_multiplier))
+    log("quality_multiplier = " .. serpent.block(quality_multiplier))
+    game.print("quality_multiplier = " .. serpent.block(quality_multiplier))
 
     if (settings.global[Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.name]) then
               -- =  tick + settings value * 60 * 60 * quality_multiplier -> 3600 ticks per minute
@@ -146,17 +156,30 @@ function start_satellite_countdown(satellite, tick, planet_name)
       death_tick = (tick + (Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.value * Constants.TICKS_PER_MINUTE * quality_multiplier))
     end
 
-    -- log("tick: " .. tick .. " : tick_to_die: " .. death_tick)
-    -- game.print(serpent.block("tick: " .. tick .. " : tick_to_die: " .. death_tick))
+    log("tick: " .. tick .. " : tick_to_die: " .. death_tick)
+    game.print(serpent.block("tick: " .. tick .. " : tick_to_die: " .. death_tick))
 
-    table.insert(storage.satellites_in_orbit[planet_name], {
-      entity = satellite,
-      tick_created = tick,
-      tick_to_die = death_tick
-    })
+    if (Validations.validate_satellites_in_orbit(planet_name)) then
+      table.insert(storage.satellites_in_orbit[planet_name], {
+        entity = satellite,
+        planet_name = planet_name,
+        tick_created = tick,
+        tick_to_die = death_tick
+      })
+
+      get_num_satellites_in_orbit(planet_name)
+    end
     -- log(serpent.block(storage.satellites_in_orbit))
     -- game.print(serpent.block(storage.satellites_in_orbit))
   end
+end
+
+function get_num_satellites_in_orbit(planet_name)
+  if (Validations.validate_satellites_launched(planet_name) and Validations.validate_satellites_in_orbit(planet_name)) then
+    storage.satellites_launched[planet_name] = #(storage.satellites_in_orbit[planet_name])
+    return storage.satellites_launched[planet_name]
+  end
+  return 0
 end
 
 satellite.all_seeing_satellite = true
