@@ -32,7 +32,7 @@ function satellite.track_satellite_launches_ordered(event)
   end
 end
 
-function satellite.check_for_dead_satellites(event)
+function satellite.check_for_expired_satellites(event)
   local tick = event.tick
   local offset = Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.value / 2
 
@@ -53,6 +53,8 @@ function satellite.check_for_dead_satellites(event)
                 if (not satellite or not satellite.entity) then
                   return
                 end
+                -- log("tick: " .. tick .. " : tick_to_die: " .. satellite.tick_to_die)
+                -- game.print(serpent.block("tick: " .. tick .. " : tick_to_die: " .. satellite.tick_to_die))
 
                 if (satellite.tick_created % offset ~= tick_modulo and satellite.tick_to_die % offset ~= tick_modulo) then
                   return
@@ -66,6 +68,8 @@ function satellite.check_for_dead_satellites(event)
                     if (Validations.validate_satellites_launched(planet.name) and #satellites > 0) then
                       table.remove(satellites, i)
                       storage.satellites_launched[planet.name] = storage.satellites_launched[planet.name] - 1
+                      -- log("removing satellite: " .. serpent.block(satellite) .. " at index i = " .. serpent.block(i))
+                      -- game.print("removing satellite: " .. serpent.block(satellite) .. " at index i = " .. serpent.block(i))
                     end
                   elseif (i > #satellites) then
                     -- log("Index out of bounds")
@@ -103,10 +107,10 @@ function satellite_launched(planet_name)
 end
 
 function start_satellite_countdown(satellite, tick, planet_name)
-  log(serpent.block(satellite))
-  game.print(serpent.block(satellite))
-  log(serpent.block(tick))
-  game.print(serpent.block(tick))
+  -- log(serpent.block(satellite))
+  -- game.print(serpent.block(satellite))
+  -- log(serpent.block(tick))
+  -- game.print(serpent.block(tick))
 
   if (  Validations.is_storage_valid()
     and satellite
@@ -114,14 +118,36 @@ function start_satellite_countdown(satellite, tick, planet_name)
     and planet_name)
   then
     local death_tick = 0
+    local quality_multiplier = 1
+
+    -- log(serpent.block(satellite))
+    -- game.print(serpent.block(satellite))
+
+    if (satellite.quality == "normal") then
+      quality_multiplier = 1
+    elseif (satellite.quality == "uncommon") then
+      quality_multiplier = 1.3
+    elseif (satellite.quality == "rare") then
+      quality_multiplier = 1.69
+    elseif (satellite.quality == "epic") then
+      quality_multiplier = 2.197
+    elseif (satellite.quality == "legendary") then
+      quality_multiplier = 2.8561
+    end
+
+    -- log("quality_multiplier = " .. serpent.block(quality_multiplier))
+    -- game.print("quality_multiplier = " .. serpent.block(quality_multiplier))
 
     if (settings.global[Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.name]) then
-      --         =  tick + settings value * 60 * 60) -> 3600 ticks per minute
-      death_tick = (tick + (settings.global[Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.name].value) * constants.TICKS_PER_MINUTE)
+              -- =  tick + settings value * 60 * 60 * quality_multiplier -> 3600 ticks per minute
+      death_tick = (tick + (settings.global[Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.name].value) * Constants.TICKS_PER_MINUTE * quality_multiplier)
     else
-      --         =  tick + Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.value * 3600 by default
-      death_tick = (tick + (Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.value * constants.TICKS_PER_MINUTE))
+              -- =  tick + Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.value * 3600 (by default) * quality_multiplier
+      death_tick = (tick + (Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.value * Constants.TICKS_PER_MINUTE * quality_multiplier))
     end
+
+    -- log("tick: " .. tick .. " : tick_to_die: " .. death_tick)
+    -- game.print(serpent.block("tick: " .. tick .. " : tick_to_die: " .. death_tick))
 
     table.insert(storage.satellites_in_orbit[planet_name], {
       entity = satellite,
