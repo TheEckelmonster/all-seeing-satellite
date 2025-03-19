@@ -5,7 +5,7 @@ end
 
 local Constants = require("libs.constants")
 local Initialization = require("control.initialization")
-local String_Utils = require("libs.string-utils")
+local String_Utils = require("libs.utils.string-utils")
 local Validations = require("libs.validations")
 
 local rocket_utils = {}
