@@ -21,7 +21,7 @@ constants.TICKS_PER_MINUTE = constants.TICKS_PER_SECOND * 60
 
 constants.HOTKEY_EVENT_NAME = {}
 constants.HOTKEY_EVENT_NAME.value = "N"
-constants.HOTKEY_EVENT_NAME.setting = "all-seeing-satellite-toggle"
+constants.HOTKEY_EVENT_NAME.name = "all-seeing-satellite-toggle"
 
 constants.REQUIRE_SATELLITES_IN_ORBIT = {}
 constants.REQUIRE_SATELLITES_IN_ORBIT.value = true
@@ -38,6 +38,9 @@ constants.DEFAULT_SATELLITE_TIME_TO_LIVE.value = 20
 -- constants.DEFAULT_SATELLITE_TIME_TO_LIVE.max = -- What should be the maximum, if any?
 constants.DEFAULT_SATELLITE_TIME_TO_LIVE.min = 1
 constants.DEFAULT_SATELLITE_TIME_TO_LIVE.name = "all-seeing-satellite-default-satellite-time-to-live"
+
+constants.DEFAULT_RESEARCH = {}
+constants.DEFAULT_RESEARCH.name = "rocket-silo"
 
 function constants.get_planets(reindex)
   if (not reindex and constants.planets) then

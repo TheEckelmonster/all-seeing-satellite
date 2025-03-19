@@ -3,11 +3,14 @@ if _satellite_utils and _satellite_utils.all_seeing_satellite then
   return _satellite_utils
 end
 
+local Constants = require("libs.constants")
+local Validations = require("libs.validations")
+
 local satellite_utils = {}
 
 function satellite_utils.satellite_launched(planet_name, item, tick)
   if (Validations.validate_satellites_launched(planet_name) and Validations.validate_satellites_in_orbit(planet_name)) then
-    start_satellite_countdown(item, tick, planet_name)
+    satellite_utils.start_satellite_countdown(item, tick, planet_name)
   else
     log("How did this happen?")
     log(serpent.block(planet_name))
@@ -22,7 +25,7 @@ function satellite_utils.start_satellite_countdown(satellite, tick, planet_name)
     and tick
     and planet_name)
   then
-    local death_tick = calculate_tick_to_die(tick, satellite)
+    local death_tick = satellite_utils.calculate_tick_to_die(tick, satellite)
     if (Validations.validate_satellites_in_orbit(planet_name)) then
       table.insert(storage.satellites_in_orbit[planet_name], {
         entity = satellite,
@@ -31,7 +34,7 @@ function satellite_utils.start_satellite_countdown(satellite, tick, planet_name)
         tick_to_die = death_tick
       })
 
-      get_num_satellites_in_orbit(planet_name)
+      satellite_utils.get_num_satellites_in_orbit(planet_name)
     end
   end
 end

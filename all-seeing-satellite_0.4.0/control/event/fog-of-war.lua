@@ -7,6 +7,8 @@ local Constants = require("libs.constants")
 local String_Utils = require("libs.utils.string-utils")
 local Validations = require("libs.validations")
 
+local Research = require("control.event.research")
+
 local fog_of_war = {}
 
 function fog_of_war.toggle_FoW(event)
@@ -31,15 +33,22 @@ end
 
 function fog_of_war.toggle(event)
   -- Validate inputs
-  if (event.input_name ~= Constants.HOTKEY_EVENT_NAME.setting and event.prototype_name ~= Constants.HOTKEY_EVENT_NAME.setting) then
+  if (event.input_name ~= Constants.HOTKEY_EVENT_NAME.name and event.prototype_name ~= Constants.HOTKEY_EVENT_NAME.name) then
     return
   end
 
-  local player_from_storage = storage.player
   local player = game.players[event.player_index]
   local satellites_toggled = storage.satellites_toggled
 
   if (player and player.surface and player.surface.name) then
+    if (not Research.has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name)) then
+      if (not storage.warn_technology_not_available_yet and player.force) then
+        player.force.print("Rocket Silo/Satellite not researched yet")
+      end
+      storage.warn_technology_not_available_yet = true
+      return
+    end
+
     storage.satellite_toggled_by_player = player
 
     local surface_name = player.surface.name
