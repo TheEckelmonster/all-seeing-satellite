@@ -19,12 +19,13 @@ function initialization.init()
   storage.satellites_launched = {}
   storage.satellites_toggled = {}
   storage.rocket_silos = {}
+  storage.satellites_in_orbit = {}
 
   for k,surface in pairs(game.surfaces) do
     -- Search for planets
     if (not String_Utils.find_invalid_substrings(surface.name)) then
-      -- table.insert(storage.satellites_launched, { surface.name = { 0 } })
       storage.satellites_launched[surface.name] = 0
+      storage.satellites_in_orbit[surface.name] = {}
       table.insert(storage.satellites_toggled, { surface.name, false })
     end
 
