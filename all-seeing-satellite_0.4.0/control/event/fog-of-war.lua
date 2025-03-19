@@ -41,7 +41,10 @@ function fog_of_war.toggle(event)
   local satellites_toggled = storage.satellites_toggled
 
   if (player and player.surface and player.surface.name) then
-    if (not Research.has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name)) then
+    local surface_name = player.surface.name
+
+    if (  not allow_toggle(surface_name)
+      and not Research.has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name)) then
       if (not storage.warn_technology_not_available_yet and player.force) then
         player.force.print("Rocket Silo/Satellite not researched yet")
       end
@@ -50,8 +53,6 @@ function fog_of_war.toggle(event)
     end
 
     storage.satellite_toggled_by_player = player
-
-    local surface_name = player.surface.name
 
     if (String_Utils.find_invalid_substrings(surface_name)) then
       -- game.print("Invalid surface")
