@@ -1,7 +1,7 @@
 local Constants = require("libs.constants")
 local Fog_Of_War = require("control.event.fog-of-war")
 local Rocket_Silo = require("control.event.rocket-silo")
-local Rocket_Utils = require("libs.rocket-utils")
+local Rocket_Utils = require("libs.utils.rocket-utils")
 local Satellite = require("control.event.satellite")
 local Settings_Changed = require("control.event.settings-changed")
 

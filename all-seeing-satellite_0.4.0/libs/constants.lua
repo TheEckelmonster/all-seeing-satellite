@@ -3,7 +3,7 @@ if _constants and _constants.all_seeing_satellite then
   return _constants
 end
 
-local String_Utils = require("libs.string-utils")
+local String_Utils = require("libs.utils.string-utils")
 
 local constants = {
   nauvis = {},

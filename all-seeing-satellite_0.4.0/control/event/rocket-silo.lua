@@ -3,7 +3,7 @@ if _rocket_silo and _rocket_silo.all_seeing_satellite then
   return _rocket_silo
 end
 
-local Rocket_Utils = require("libs.rocket-utils")
+local Rocket_Utils = require("libs.utils.rocket-utils")
 
 local rocket_silo = {}
 

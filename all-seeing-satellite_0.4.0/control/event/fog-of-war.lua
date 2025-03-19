@@ -4,7 +4,7 @@ if _fog_of_war and _fog_of_war.all_seeing_satellite then
 end
 
 local Constants = require("libs.constants")
-local String_Utils = require("libs.string-utils")
+local String_Utils = require("libs.utils.string-utils")
 local Validations = require("libs.validations")
 
 local fog_of_war = {}

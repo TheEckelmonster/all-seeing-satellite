@@ -6,7 +6,7 @@ end
 local initialization = {}
 
 local Constants = require("libs.constants")
-local String_Utils = require("libs.string-utils")
+local String_Utils = require("libs.utils.string-utils")
 
 function initialization.init()
   log("Initializing")
