@@ -8,8 +8,6 @@ local Satellite = require("control.event.satellite")
 local settings_changed = {}
 
 function settings_changed.mod_setting_changed(event)
-  log("Settings changed!")
-  game.print("Settings changed!")
   Satellite.recalculate_satellite_time_to_die(event.tick)
 end
 

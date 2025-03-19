@@ -28,15 +28,15 @@ constants.REQUIRE_SATELLITES_IN_ORBIT.value = true
 constants.REQUIRE_SATELLITES_IN_ORBIT.name = "all-see-satellite-require-satellites-in-orbit"
 
 constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD = {}
-constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.value = 1
+constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.value = 3
 constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.max = 100
 constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.min = 0
 constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.name = "all-seeing-satellite-global-launch-satellite-threshold"
 
 constants.DEFAULT_SATELLITE_TIME_TO_LIVE = {}
-constants.DEFAULT_SATELLITE_TIME_TO_LIVE.value = 15
+constants.DEFAULT_SATELLITE_TIME_TO_LIVE.value = 20
 -- constants.DEFAULT_SATELLITE_TIME_TO_LIVE.max = -- What should be the maximum, if any?
-constants.DEFAULT_SATELLITE_TIME_TO_LIVE.min = 0
+constants.DEFAULT_SATELLITE_TIME_TO_LIVE.min = 1
 constants.DEFAULT_SATELLITE_TIME_TO_LIVE.name = "all-seeing-satellite-default-satellite-time-to-live"
 
 function constants.get_planets(reindex)

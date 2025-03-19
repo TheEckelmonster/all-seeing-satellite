@@ -33,12 +33,7 @@ end
 
 function satellite.check_for_expired_satellites(event)
   local tick = event.tick
-  local offset = Constants.TICKS_PER_SECOND.value / 2
-
-  -- if (settings.global[Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.name]) then
-  --   offset = settings.global[Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.name].value
-  -- end
-
+  local offset = Constants.TICKS_PER_SECOND / 2
   local tick_modulo = tick % offset
 
   if (Validations.is_storage_valid()) then
@@ -94,20 +89,13 @@ function satellite.check_for_expired_satellites(event)
 end
 
 function satellite.recalculate_satellite_time_to_die(tick)
-  game.print("in recalculate_satellite_time_to_die")
   if (tick and Validations.is_storage_valid()) then
-    game.print("tick and storage valid")
     if (storage.satellites_in_orbit) then
-      game.print("satellites-in_orbit valid")
       for _, satellites in pairs(storage.satellites_in_orbit) do
         if (satellites) then
-          game.print("satellites valid")
           for _, satellite in pairs(satellites) do
             if (satellite) then
-              game.print("satellite valid")
-              -- game.print("old ttd: " .. serpent.block(satellite.tick_to_die))
               satellite.tick_to_die = calculate_tick_to_die(satellite.tick_created, satellite)
-              -- game.print("new ttd: " .. serpent.block(satellite.tick_to_die))
             end
           end
         end
@@ -133,9 +121,6 @@ function start_satellite_countdown(satellite, tick, planet_name)
     and tick
     and planet_name)
   then
-    -- log("ttd: " .. serpent.block(calculate_tick_to_die(tick, satellite)))
-    -- game.print("ttd: " .. serpent.block(calculate_tick_to_die(tick, satellite)))
-
     local death_tick = calculate_tick_to_die(tick, satellite)
     if (Validations.validate_satellites_in_orbit(planet_name)) then
       table.insert(storage.satellites_in_orbit[planet_name], {
@@ -176,10 +161,10 @@ function calculate_tick_to_die(tick, satellite)
     end
 
     if (settings.global[Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.name]) then
-      -- =  tick + settings value * 60 * 60 * quality_multiplier -> 3600 ticks per minute
+              -- =  tick + settings value * 60 * 60 * quality_multiplier -> 3600 ticks per minute
       death_tick = (tick + (settings.global[Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.name].value) * Constants.TICKS_PER_MINUTE * quality_multiplier)
     else
-      -- =  tick + Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.value * 3600 (by default) * quality_multiplier
+              -- =  tick + Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.value * 3600 (by default) * quality_multiplier
       death_tick = (tick + (Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.value * Constants.TICKS_PER_MINUTE * quality_multiplier))
     end
   end
