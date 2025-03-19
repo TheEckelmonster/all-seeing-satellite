@@ -5,13 +5,32 @@ end
 
 local initialization = {}
 
-local Constants = require("libs.constants")
+local Constants = require("libs.constants.constants")
 local String_Utils = require("libs.utils.string-utils")
 
 function initialization.init()
   log("Initializing")
   if (game) then
     game.print("Initializing All Seeing Satellites")
+  end
+
+  -- prototypes.get_entity_filtered{{filter="crafting-category", crafting_category="crafting-with-fluid"}}
+  local planet_prototypes = prototypes.get_entity_filtered({{ filter = "type", type = "constant-combinator"}})
+  -- local planet_prototypes = prototypes.get_entity_filtered({{ filter = "flag", flag = "get-by-unit-number" }})
+
+  for k,v in pairs(planet_prototypes) do
+    if (String_Utils.is_all_seeing_satellite_added_planet(k)) then
+      -- log(serpent.block(string.sub(k, 22)))
+      -- game.print(serpent.block(string.sub(k, 22)))
+      -- log(serpent.block(v))
+      -- game.print(serpent.block(v))
+      -- log(serpent.block(v.valid))
+      -- game.print(serpent.block(v.valid))
+      -- log(serpent.block(String_Utils.get_planet_name(k)))
+      -- game.print(serpent.block(String_Utils.get_planet_name(k)))
+      -- log(serpent.block(String_Utils.get_planet_magnitude(k)))
+      -- game.print(serpent.block(String_Utils.get_planet_magnitude(k)))
+    end
   end
 
   storage.satellite_toggled_by_player = nil
@@ -21,16 +40,23 @@ function initialization.init()
   storage.rocket_silos = {}
   storage.satellites_in_orbit = {}
 
-  for k,surface in pairs(game.surfaces) do
+  for k, surface in pairs(game.surfaces) do
     -- Search for planets
-    if (not String_Utils.find_invalid_substrings(surface.name)) then
+    if (surface.planet or not String_Utils.find_invalid_substrings(surface.name)) then
+      -- log(serpent.block(k))
+      -- game.print(serpent.block(k))
+      -- log(serpent.block(surface))
+      -- game.print(serpent.block(surface))
+      -- log(serpent.block(surface.planet))
+      -- game.print(serpent.block(surface.planet))
+
       storage.satellites_launched[surface.name] = 0
       storage.satellites_in_orbit[surface.name] = {}
       table.insert(storage.satellites_toggled, { surface.name, false })
     end
 
     local rocket_silos = surface.find_entities_filtered({type = "rocket-silo"})
-    for i=1,#rocket_silos do
+    for i=1, #rocket_silos do
       local rocket_silo = rocket_silos[i]
       if (rocket_silo and rocket_silo.valid and rocket_silo.surface) then
 

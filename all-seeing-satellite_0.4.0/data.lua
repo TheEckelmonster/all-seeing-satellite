@@ -1,4 +1,5 @@
 require("prototypes.hotkey")
 require("prototypes.item")
+require("prototypes.planet")
 require("prototypes.recipe")
 require("prototypes.technology")

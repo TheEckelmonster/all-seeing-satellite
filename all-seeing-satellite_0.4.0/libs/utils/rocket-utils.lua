@@ -3,7 +3,7 @@ if _rocket_utils and _rocket_utils.all_seeing_satellite then
   return _rocket_utils
 end
 
-local Constants = require("libs.constants")
+local Constants = require("libs.constants.constants")
 local Initialization = require("control.initialization")
 local String_Utils = require("libs.utils.string-utils")
 local Validations = require("libs.validations")

@@ -52,13 +52,20 @@ function constants.get_planets(reindex)
   if (game and game.surfaces) then
     for k, surface in pairs(game.surfaces) do
       -- Search for planets
-      if (not String_Utils.find_invalid_substrings(surface.name)) then
+      if (not find_invalid_substrings(surface.name)) then
         table.insert(constants.planets, { name = k, surface = surface })
       end
     end
   end
 
   return constants.planets
+end
+
+function find_invalid_substrings(string)
+  return string.find(string, "-", 1, true)
+      or string.find(string, "EE_", 1, true)
+      or string.find(string, "TEST", 1, true)
+      or string.find(string, "test", 1, true)
 end
 
 constants.all_seeing_satellite = true

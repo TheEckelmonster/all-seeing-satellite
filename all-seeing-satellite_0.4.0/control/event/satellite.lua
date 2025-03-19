@@ -3,7 +3,7 @@ if _satellite and _satellite.all_seeing_satellite then
   return _satellite
 end
 
-local Constants = require("libs.constants")
+local Constants = require("libs.constants.constants")
 local Satellite_Utils = require("libs.utils.satellite-utils")
 local Validations = require("libs.validations")
 
