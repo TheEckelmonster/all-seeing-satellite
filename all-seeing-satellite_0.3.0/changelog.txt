@@ -1,0 +1,32 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.3.0
+Date: 18. 03. 2025
+  Minor Features:
+    - Satellites now expire after a given amount of time, default 20 minutes
+    - Added configurable setting for the duration (in minutes) of a satellite in orbit, default 20 minutes
+    - Quality satellites confer a longer life span of ~30% per tier
+      normal    -> 20 * 1      = 20
+      uncommon  -> 20 * 1.3    = 26
+      rare      -> 20 * 1.69   = 33.8
+      epic      -> 20 * 2.197  = 43.94
+      legendary -> 20 * 2.8561 = 57.122
+  Balance Changes:
+    - Changed minimum launch threshold to be 3
+      i.e. 3 satellites need to be in orbit simultaneously to toggle the FoW
+  Misc:
+    - Attempted to make minimum satellite launch threshold to be based on the size of the planet it was launched, but couldn't find a way to implement it (yet)
+---------------------------------------------------------------------------------------------------
+Version: 0.2.0
+Date: 17. 03. 2025
+  Minor Features:
+    - Added satellite back as an item, recipe, and technology unlock (rocket silo research)
+    - A rocket with a satellite in its inventory will automatically launch into orbit
+    - Added setting to toggle satellite launch requirement
+    - Added configurable setting for minimum satellite launch threshold for all planets to disable fog-of-war (0 - 100), default 1
+  Misc:
+    - Added a thumbnail
+---------------------------------------------------------------------------------------------------
+Version: 0.1.0
+Date: 15. 03. 2025
+  Minor Features:
+    - Initial release

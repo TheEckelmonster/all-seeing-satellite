@@ -3,6 +3,7 @@ local Fog_Of_War = require("control.event.fog-of-war")
 local Rocket_Silo = require("control.event.rocket-silo")
 local Rocket_Utils = require("libs.rocket-utils")
 local Satellite = require("control.event.satellite")
+local Settings_Changed = require("control.event.settings-changed")
 
 local nth_tick
 
@@ -14,6 +15,10 @@ end
 -- Register events
 
 script.on_init(init)
+
+script.on_event(defines.events.on_tick, Satellite.check_for_expired_satellites)
+
+script.on_event(defines.events.on_runtime_mod_setting_changed, Settings_Changed.mod_setting_changed)
 
 script.on_nth_tick(nth_tick + 1, Fog_Of_War.toggle_FoW)
 script.on_nth_tick(nth_tick, Rocket_Utils.launch_rocket)

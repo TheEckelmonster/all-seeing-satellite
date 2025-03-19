@@ -109,9 +109,9 @@ function rocket_utils.launch_rocket(event)
                   end
 
                   if (rocket_silo.launch_rocket()) then
-                    log("Launched satellite: " .. serpent.block(rocket_silo))
+                    -- log("Launched satellite: " .. serpent.block(rocket_silo))
                   else
-                    log("Failed to launch satellite: " .. serpent.block(rocket_silo))
+                    -- log("Failed to launch satellite: " .. serpent.block(rocket_silo))
                   end
                 end
               end

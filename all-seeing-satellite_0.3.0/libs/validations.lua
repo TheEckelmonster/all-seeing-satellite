@@ -25,6 +25,22 @@ function validations.validate_satellites_launched(planet_name)
   return true
 end
 
+function validations.validate_satellites_in_orbit(planet_name)
+  if (not storage.satellites_in_orbit) then
+    storage.satellites_in_orbit = {}
+  end
+
+  if (not planet_name) then
+    return false
+  end
+
+  if (not storage.satellites_in_orbit[planet_name]) then
+    storage.satellites_in_orbit[planet_name] = {}
+  end
+
+  return true
+end
+
 validations.all_seeing_satellite = true
 
 local _validations = validations

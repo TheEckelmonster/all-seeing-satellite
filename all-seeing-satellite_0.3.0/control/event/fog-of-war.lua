@@ -50,7 +50,11 @@ function fog_of_war.toggle(event)
     end
 
     if (satellites_toggled[surface_name]) then
-      print_toggle_message("Disabled satellite(s) orbiting ", surface_name)
+      if (allow_toggle(surface_name)) then
+        print_toggle_message("Disabled satellite(s) orbiting ", surface_name)
+      else
+        print_toggle_message("Insufficient satellite(s) orbiting ", surface_name)
+      end
       satellites_toggled[surface_name] = false
     elseif (not satellites_toggled[surface_name]) then
       if (allow_toggle(surface_name)) then
