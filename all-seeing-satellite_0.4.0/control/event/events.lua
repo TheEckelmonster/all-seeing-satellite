@@ -1,5 +1,4 @@
 local Constants = require("libs.constants.constants")
-local Console_Command = require("control.event.console-command")
 local Fog_Of_War = require("control.event.fog-of-war")
 local Log = require("libs.log")
 local Planet = require("control.event.planet")
@@ -20,8 +19,6 @@ end
 Log.info("Registering events")
 
 script.on_init(init)
-
-script.on_event(defines.events.on_console_command, Console_Command.on_console_command)
 
 script.on_nth_tick(nth_tick + 1, Fog_Of_War.toggle_FoW)
 script.on_event("all-seeing-satellite-toggle", Fog_Of_War.toggle)
