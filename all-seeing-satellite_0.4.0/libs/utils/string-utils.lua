@@ -10,7 +10,6 @@ local string_utils = {}
 -- ../libs/utils/constants.lua has a copy of this function
 --   -> done to avoid a circular reference
 function string_utils.find_invalid_substrings(string)
-  -- return string.find(string, "-", 1, true)
   return string.find(string, "EE_", 1, true)
       or string.find(string, "TEST", 1, true)
       or string.find(string, "test", 1, true)
@@ -28,12 +27,9 @@ function string_utils.get_planet_name(string)
     return
   end
 
-  -- log(serpent.block(string))
-  -- game.print(serpent.block(string))
   local i, j = string.find(string, "all-seeing-satellite-", 1, true)
   if (j) then
     local x, y = string.find(string, "_", j + 1, true)
-    -- local x, y = string.find(string, "-%d", j + 1)
 
     if (j and x) then
       return string.sub(string, j + 1, x -1)
@@ -49,10 +45,7 @@ function string_utils.get_planet_magnitude(string)
   local i, j = string.find(string, "all-seeing-satellite-", 1, true)
 
   if (j) then
-    -- local x, y = string.find(string, "-", j + 1, true)
     local x, y = string.find(string, "_", j + 1, true)
-    -- local x, y = string.find(string, "-%d", j + 1)
-    -- local x, y = string.find(string, "-", -1, true)
     if (y) then
       return string.sub(string, y + 1, -1) / String_Constants.PLANET_MAGNITUDE_DECIMAL_SHIFT.value
     end

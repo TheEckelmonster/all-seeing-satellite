@@ -26,11 +26,9 @@ function initialization.init()
   game.print(serpent.block(planets))
   for _, planet in pairs(planets) do
     -- Search for planets
-    -- if (planet or not String_Utils.find_invalid_substrings(planet.name)) then
     if (planet and not String_Utils.find_invalid_substrings(planet.name)) then
       storage.satellites_launched[planet.name] = 0
       storage.satellites_in_orbit[planet.name] = {}
-      -- table.insert(storage.satellites_toggled, { planet.name, false })
       table.insert(storage.satellites_toggled, {
         planet_name = planet.name,
         toggle = false,
@@ -81,9 +79,6 @@ function initialization.reinit()
   storage.all_seeing_satellite = {}
   storage.all_seeing_satellite.valid = false
 
-  -- storage.satellite_toggled_by_player = nil
-
-  -- storage.satellites_launched = {}
   if (storage.satellites_toggled) then
     local remove_indices = {}
 
@@ -103,28 +98,17 @@ function initialization.reinit()
       game.print(serpent.block(remove_indices[#remove_indices - i]))
       table.remove(storage.satellites_toggled, remove_indices[#remove_indices - i])
     end
-    -- for i, v in pairs(remove_indices) do
-    --   log(serpent.block(storage.satellites_toggled))
-    --   game.print(serpent.block(storage.satellites_toggled))
-    --   log(serpent.block(#remove_indices - i))
-    --   game.print(serpent.block(#remove_indices - i))
-    --   table.remove(storage.satellites_toggled, #remove_indices - i)
-    -- end
-
   else
     storage.satellites_toggled = {}
   end
 
-
   storage.rocket_silos = {}
-  -- storage.satellites_in_orbit = {}
 
   local planets = Constants.get_planets(true)
   log(serpent.block(planets))
   game.print(serpent.block(planets))
   for _, planet in pairs(planets) do
     -- Search for planets
-    -- if (planet or not String_Utils.find_invalid_substrings(planet.name)) then
     if (planet and not String_Utils.find_invalid_substrings(planet.name)) then
       log(serpent.block(storage.satellites_launched))
       game.print(serpent.block(storage.satellites_launched))
@@ -158,8 +142,6 @@ function initialization.reinit()
           }
         elseif (storage.satellites_toggled[planet.name].valid) then
           -- Is it though? Since the 0.4.x changes?
-          -- storage.satellites_toggled[planet.name].toggle = storage.satellites_toggled[planet.name].toggled or (not storage.satellites_toggled[planet.name].toggled and storage.satellites_toggled[planet.name].toggle)
-          -- storage.satellites_toggled[planet.name].toggled = nil
           local _toggle = storage.satellites_toggled[planet.name].toggled or (not storage.satellites_toggled[planet.name].toggled and storage.satellites_toggled[planet.name].toggle)
 
           if (not _toggle) then
@@ -188,7 +170,6 @@ function initialization.reinit()
           end
 
           if (storage.rocket_silos[rocket_silo.surface.name]) then
-            -- add_rocket_silo(rocket_silo, true)
             add_rocket_silo(rocket_silo)
           else
             log(serpent.block(rocket_silo.surface.name))
@@ -236,8 +217,6 @@ function add_rocket_silo(--[[required]]rocket_silo, --[[optional]]is_init)
   end
 
   if (storage.rocket_silos[rocket_silo.surface.name]) then
-    -- log("adding rocket silo to rocket_silos: ")
-    -- log(serpent.block(rocket_silo))
     table.insert(storage.rocket_silos[rocket_silo.surface.name], {
       unit_number = rocket_silo.unit_number,
       entity = rocket_silo,

@@ -62,23 +62,13 @@ function fog_of_war.toggle(event)
       return
     end
 
-    -- log(serpent.block(satellites_toggled))
-    -- game.print(serpent.block(satellites_toggled))
-    -- log(serpent.block(satellites_toggled[surface_name]))
-    -- game.print(serpent.block(satellites_toggled[surface_name]))
-
     local satellite
     for k,_satellite in pairs(satellites_toggled) do
-      -- log(serpent.block(_satellite))
-      -- game.print(serpent.block(satellite))
       if (_satellite and _satellite.planet_name == surface_name) then
         satellite = _satellite
         break
-        -- goto continue
       end
     end
-
-    -- ::continue::
 
     if (satellite) then
       if (satellite.toggle) then
@@ -107,27 +97,6 @@ function fog_of_war.toggle(event)
       Initialization.reinit()
       fog_of_war.toggle(event)
     end
-
-    -- if (satellites_toggled[surface_name].toggle) then
-    --   if (allow_toggle(surface_name)) then
-    --     print_toggle_message("Disabled satellite(s) orbiting ", surface_name)
-    --   else
-    --     print_toggle_message("Insufficient satellite(s) orbiting ", surface_name)
-    --   end
-    --   satellites_toggled[surface_name].toggle = false
-    -- elseif (not satellites_toggled[surface_name].toggle) then
-    --   if (allow_toggle(surface_name)) then
-    --     print_toggle_message("Enabled satellite(s) orbiting ", surface_name)
-    --     satellites_toggled[surface_name].toggle = true
-    --   else
-    --     print_toggle_message("Insufficient satellite(s) orbiting ", surface_name)
-    --     -- This shouldn't be necessary, but oh well
-    --     satellites_toggled[surface_name].toggle = false
-    --   end
-    -- else
-    --   log("This shouldn't be possible")
-    --   game.print("all-seeing-satellite: This shouldn't be possible")
-    -- end
   end
 end
 

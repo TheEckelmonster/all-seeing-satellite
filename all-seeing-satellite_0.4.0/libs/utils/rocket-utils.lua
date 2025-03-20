@@ -15,10 +15,8 @@ function rocket_utils.mine_rocket_silo(event)
 
   if (rocket_silo and rocket_silo.valid and rocket_silo.surface) then
 		if (not Validations.is_storage_valid()) then
-      Initialization.init()
+      Initialization.reinit()
     else
-      -- log("Before removal")
-      -- log(serpent.block(storage.rocket_silos[rocket_silo.surface.name]))
       local surface_rocket_silos = storage.rocket_silos[rocket_silo.surface.name]
 
       for i=1, #surface_rocket_silos do
@@ -26,9 +24,6 @@ function rocket_utils.mine_rocket_silo(event)
           table.remove(surface_rocket_silos, i)
         end
       end
-
-      -- log("After removal")
-      -- log(serpent.block(storage.rocket_silos[rocket_silo.surface.name]))
     end
   end
 end
@@ -47,7 +42,6 @@ function rocket_utils.add_rocket_silo(--[[required]]rocket_silo, --[[optional]]i
     if (is_init) then
       storage.rocket_silos = {}
     else
-      -- Initialization.init()
       Initialization.reinit()
     end
     return
@@ -60,8 +54,6 @@ function rocket_utils.add_rocket_silo(--[[required]]rocket_silo, --[[optional]]i
   end
 
   if (storage.rocket_silos[rocket_silo.surface.name]) then
-    -- log("adding rocket silo to rocket_silos: ")
-    -- log(serpent.block(rocket_silo))
     table.insert(storage.rocket_silos[rocket_silo.surface.name], {
       unit_number = rocket_silo.unit_number,
       entity = rocket_silo,
@@ -75,7 +67,7 @@ end
 
 function rocket_utils.launch_rocket(event)
   if (not Validations.is_storage_valid()) then
-    Initialization.init()
+    Initialization.reinit()
   end
 
   local tick = event.tick
