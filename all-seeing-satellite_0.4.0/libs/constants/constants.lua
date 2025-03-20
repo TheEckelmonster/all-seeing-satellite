@@ -62,6 +62,8 @@ function get_planets()
       then
         local planet_name = String_Utils.get_planet_name(key)
         if (planet_name and game) then
+          -- [[ Need to add functionality to change '-' to '_' within planet_name ]] --
+          -- Do I though?
           local planet_surface = game.get_surface(planet_name)
           -- if (planet_surface) then
           local planet_magnitude = String_Utils.get_planet_magnitude(key)

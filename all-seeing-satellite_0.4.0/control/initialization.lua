@@ -120,8 +120,8 @@ function initialization.reinit()
   -- storage.satellites_in_orbit = {}
 
   local planets = Constants.get_planets(true)
-  -- log(serpent.block(planets))
-  -- game.print(serpent.block(planets))
+  log(serpent.block(planets))
+  game.print(serpent.block(planets))
   for _, planet in pairs(planets) do
     -- Search for planets
     -- if (planet or not String_Utils.find_invalid_substrings(planet.name)) then
@@ -188,7 +188,8 @@ function initialization.reinit()
           end
 
           if (storage.rocket_silos[rocket_silo.surface.name]) then
-            add_rocket_silo(rocket_silo, true)
+            -- add_rocket_silo(rocket_silo, true)
+            add_rocket_silo(rocket_silo)
           else
             log(serpent.block(rocket_silo.surface.name))
           end

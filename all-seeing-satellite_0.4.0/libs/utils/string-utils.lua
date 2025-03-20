@@ -10,8 +10,8 @@ local string_utils = {}
 -- ../libs/utils/constants.lua has a copy of this function
 --   -> done to avoid a circular reference
 function string_utils.find_invalid_substrings(string)
-  return string.find(string, "-", 1, true)
-      or string.find(string, "EE_", 1, true)
+  -- return string.find(string, "-", 1, true)
+  return string.find(string, "EE_", 1, true)
       or string.find(string, "TEST", 1, true)
       or string.find(string, "test", 1, true)
 end
