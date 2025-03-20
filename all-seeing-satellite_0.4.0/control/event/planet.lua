@@ -4,17 +4,15 @@ if _planet and _planet.all_seeing_satellite then
 end
 
 local Constants = require("libs.constants.constants")
+local Log = require("libs.log")
 local Initialization = require("control.initialization")
 
 local planet = {}
 
 function planet.on_surface_created(event)
-  log(serpent.block(event))
-  game.print(serpent.block(event))
-
+  Log.info("planet.on_surface_created")
   local planets = Constants.get_planets(true)
-  log(serpent.block(planets))
-  game.print(serpent.block(planets))
+  Log.info(planets)
   Initialization.reinit()
 end
 

@@ -5,6 +5,7 @@ end
 
 local Constants = require("libs.constants.constants")
 local Initialization = require("control.initialization")
+local Log = require("libs.log")
 local String_Utils = require("libs.utils.string-utils")
 local Validations = require("libs.validations")
 
@@ -15,7 +16,8 @@ function rocket_utils.mine_rocket_silo(event)
 
   if (rocket_silo and rocket_silo.valid and rocket_silo.surface) then
 		if (not Validations.is_storage_valid()) then
-      Initialization.reinit()
+      Log.warn("Storage is invalid; initializing")
+      Initialization.init()
     else
       local surface_rocket_silos = storage.rocket_silos[rocket_silo.surface.name]
 
@@ -33,16 +35,17 @@ function rocket_utils.add_rocket_silo(--[[required]]rocket_silo, --[[optional]]i
   is_init = is_init or false -- default value
 
   if (not Validations.is_storage_valid()) then
-    log("Call to add_rocket_silo with invalid input")
-    log(serpent.block(rocket_silo))
-    return
+    Log.warn("Storage is invalid; initializing")
+    Initialization.init()
   end
 
   if (not storage.rocket_silos) then
     if (is_init) then
+      Log.info("Initializing storage.rocket_silos")
       storage.rocket_silos = {}
     else
-      Initialization.reinit()
+      Log.error("Storage is invalid; initializing")
+      Initialization.init()
     end
     return
   end
@@ -60,14 +63,15 @@ function rocket_utils.add_rocket_silo(--[[required]]rocket_silo, --[[optional]]i
       valid = rocket_silo.valid
     })
   else
-    log("This shouldn't be possible")
-    log(serpent.block(rocket_silo.surface.name))
+    Log.error("This shouldn't be possible")
+    Log.debug(rocket_silo.surface.name)
   end
 end
 
 function rocket_utils.launch_rocket(event)
   if (not Validations.is_storage_valid()) then
-    Initialization.reinit()
+    Log.warn("Storage is invalid; initializing")
+    Initialization.init()
   end
 
   local tick = event.tick
@@ -102,9 +106,9 @@ function rocket_utils.launch_rocket(event)
                   end
 
                   if (rocket_silo.launch_rocket()) then
-                    -- log("Launched satellite: " .. serpent.block(rocket_silo))
+                    Log.info("Launched satellite: " .. serpent.block(rocket_silo))
                   else
-                    -- log("Failed to launch satellite: " .. serpent.block(rocket_silo))
+                    Log.info("Failed to launch satellite: " .. serpent.block(rocket_silo))
                   end
                 end
               end

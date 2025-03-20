@@ -1,29 +1,37 @@
-local Constants = require("libs.constants.constants")
+local Settings_Constants = require("libs.constants.settings-constants")
 
 data:extend({
   {
     type = "bool-setting",
-    name = Constants.REQUIRE_SATELLITES_IN_ORBIT.name,
+    name = Settings_Constants.REQUIRE_SATELLITES_IN_ORBIT.name,
     setting_type = "runtime-global",
     order = "aaa",
-    default_value = Constants.REQUIRE_SATELLITES_IN_ORBIT.value,
+    default_value = Settings_Constants.REQUIRE_SATELLITES_IN_ORBIT.value,
+  },
+  {
+    type = "string-setting",
+    name = Settings_Constants.DEBUG_LEVEL.name,
+    setting_type = "runtime-global",
+    order = "aba",
+    default_value = Settings_Constants.DEBUG_LEVEL.value,
+    allowed_values = {"None", "Error", "Warn", "Debug", "Info"}
   },
   {
     type = "int-setting",
-    name = Constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.name,
+    name = Settings_Constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.name,
     setting_type = "runtime-global",
     order = "bbb",
-    default_value = Constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.value,
-    maximum_value = Constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.max,
-    minimum_value = Constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.min,
+    default_value = Settings_Constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.value,
+    maximum_value = Settings_Constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.max,
+    minimum_value = Settings_Constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.min,
   },
   {
     type = "int-setting",
-    name = Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.name,
+    name = Settings_Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.name,
     setting_type = "runtime-global",
     order = "ccc",
-    default_value = Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.value,
+    default_value = Settings_Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.value,
     -- maximum_value = 100,
-    minimum_value = Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.min,
+    minimum_value = Settings_Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.min,
   },
 })

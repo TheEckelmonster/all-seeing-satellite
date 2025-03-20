@@ -1,4 +1,4 @@
-Constants = require("libs.constants.constants")
+Constants = require("libs.constants.settings-constants")
 
 data:extend({
   {

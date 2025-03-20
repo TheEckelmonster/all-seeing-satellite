@@ -4,6 +4,7 @@ if _satellite and _satellite.all_seeing_satellite then
 end
 
 local Constants = require("libs.constants.constants")
+local Log = require("libs.log")
 local Satellite_Utils = require("libs.utils.satellite-utils")
 local Validations = require("libs.validations")
 
@@ -66,18 +67,18 @@ function satellite.check_for_expired_satellites(event)
                       game.print("Satellite ran out of fuel orbiting " .. serpent.block(satellite.planet_name))
                     end
                   elseif (i > #satellites) then
-                    -- log("Index out of bounds")
+                    Low.debug("Index out of bounds")
                   elseif (not satellites[i]) then
-                    -- log("satellites[" .. serpent.block(i) .. "] is nil")
+                    Log.debug("satellites[" .. serpent.block(i) .. "] is nil")
                   elseif (satellites[i] ~= satellite) then
-                    -- log("satellites[" .. serpent.block(i) .. "].entity ~= satellite.entity")
+                    Log.debug("satellites[" .. serpent.block(i) .. "].entity ~= satellite.entity")
                   else
-                    -- log("Unable to remove satellite for unknown reason")
-                    -- log(serpent.block(i))
-                    -- log(serpent.block(satellites))
-                    -- log(serpent.block(satellites[i]))
-                    -- log(serpent.block(satellites[i].entity))
-                    -- log(serpent.block(satellite))
+                    Log.error("Unable to remove satellite for unknown reason")
+                    Log.debug(i)
+                    Log.debug(satellites)
+                    Log.debug(satellites[i])
+                    Log.debug(satellites[i].entity)
+                    Log.debug(satellite)
                   end
                 end
               end
@@ -96,7 +97,9 @@ function satellite.recalculate_satellite_time_to_die(tick)
         if (satellites) then
           for _, satellite in pairs(satellites) do
             if (satellite) then
+              Log.debug(satellite)
               satellite.tick_to_die = Satellite_Utils.calculate_tick_to_die(satellite.tick_created, satellite)
+              Log.debug(satellite)
             end
           end
         end

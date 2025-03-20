@@ -5,6 +5,8 @@ end
 
 local Constants = require("libs.constants.constants")
 local Initialization = require("control.initialization")
+local Log = require("libs.log")
+local Settings_Constants = require("libs.constants.settings-constants")
 local String_Utils = require("libs.utils.string-utils")
 local Validations = require("libs.validations")
 
@@ -36,7 +38,7 @@ end
 
 function fog_of_war.toggle(event)
   -- Validate inputs
-  if (event.input_name ~= Constants.HOTKEY_EVENT_NAME.name and event.prototype_name ~= Constants.HOTKEY_EVENT_NAME.name) then
+  if (event.input_name ~= Settings_Constants.HOTKEY_EVENT_NAME.name and event.prototype_name ~= Settings_Constants.HOTKEY_EVENT_NAME.name) then
     return
   end
 
@@ -58,7 +60,10 @@ function fog_of_war.toggle(event)
     storage.satellite_toggled_by_player = player
 
     if (String_Utils.find_invalid_substrings(surface_name)) then
-      -- game.print("Invalid surface")
+      Log.warn("Invalid surface!")
+      Log.warn(surface_name)
+      Log.warn("Toggled by player:")
+      Log.warn(plaer)
       return
     end
 
@@ -88,14 +93,12 @@ function fog_of_war.toggle(event)
           satellite.toggle = false
         end
       else
-        log("This shouldn't be possible")
-        game.print("all-seeing-satellite: This shouldn't be possible")
+        Log.error("This shouldn't be possible")
       end
     else
-      log("satetllite was nil")
-      -- Should probably reinitialize
+      Log.error("satetllite was nil")
+      Log.error("Reinitializing")
       Initialization.reinit()
-      fog_of_war.toggle(event)
     end
   end
 end
@@ -109,7 +112,7 @@ function print_toggle_message(message, surface_name)
 end
 
 function allow_toggle(surface_name)
-  if (not settings.global[Constants.REQUIRE_SATELLITES_IN_ORBIT.name].value) then
+  if (not settings.global[Settings_Constants.REQUIRE_SATELLITES_IN_ORBIT.name].value) then
     return true
   end
 
