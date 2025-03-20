@@ -60,10 +60,10 @@ function fog_of_war.toggle(event)
     storage.satellite_toggled_by_player = player
 
     if (String_Utils.find_invalid_substrings(surface_name)) then
-      Log.warn("Invalid surface!")
-      Log.warn(surface_name)
-      Log.warn("Toggled by player:")
-      Log.warn(plaer)
+      Log.debug("Invalid surface!")
+      Log.debug(surface_name)
+      Log.debug("Toggled by player:")
+      Log.debug(plaer)
       return
     end
 

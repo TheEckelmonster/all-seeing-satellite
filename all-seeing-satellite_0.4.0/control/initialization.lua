@@ -14,53 +14,7 @@ function initialization.init()
   log("Initializing")
   Log.debug("Initializing All Seeing Satellites")
 
-  storage.satellite_toggled_by_player = nil
-
-  storage.satellites_launched = {}
-  storage.satellites_toggled = {}
-  storage.rocket_silos = {}
-  storage.satellites_in_orbit = {}
-
-  local planets = Constants.get_planets(true)
-  Log.debug(planets)
-  for _, planet in pairs(planets) do
-    -- Search for planets
-    if (planet and not String_Utils.find_invalid_substrings(planet.name)) then
-      storage.satellites_launched[planet.name] = 0
-      storage.satellites_in_orbit[planet.name] = {}
-      table.insert(storage.satellites_toggled, {
-        planet_name = planet.name,
-        toggle = false,
-        valid = true
-      })
-    end
-
-    if (planet.surface) then
-      local rocket_silos = planet.surface.find_entities_filtered({type = "rocket-silo"})
-      for i=1, #rocket_silos do
-        local rocket_silo = rocket_silos[i]
-        if (rocket_silo and rocket_silo.valid and rocket_silo.surface) then
-
-          if (  not String_Utils.find_invalid_substrings(rocket_silo.surface.name)
-            and not storage.rocket_silos[rocket_silo.surface.name])
-          then
-            storage.rocket_silos[rocket_silo.surface.name] = {}
-          end
-
-          if (storage.rocket_silos[rocket_silo.surface.name]) then
-            add_rocket_silo(rocket_silo, true)
-          else
-            log(serpent.block(rocket_silo.surface.name))
-          end
-        end
-      end
-    end
-  end
-
-  storage.all_seeing_satellite = {}
-  storage.all_seeing_satellite.valid = true
-
-  Log.debug(storage)
+  initialize(true) -- from_scratch
 
   log("Finished initializing")
   Log.debug("Finished initializing All Seeing Satellites")
@@ -70,8 +24,20 @@ function initialization.reinit()
   log("Reinitializing")
   Log.debug("Reinitializing All Seeing Satellites")
 
+  initialize(false) -- as is
 
-  if (storage.satellites_toggled) then
+  log("Finished reinitializing")
+  Log.debug("Finished reinitializing All Seeing Satellites")
+end
+
+function initialize(from_scratch)
+  from_scratch = from_scratch or false
+
+  if (from_scratch) then
+    storage.satellite_toggled_by_player = nil
+  end
+
+  if (not from_scratch and storage.satellites_toggled) then
     local remove_indices = {}
 
     Log.debug(storage.satellites_toggled)
@@ -100,11 +66,25 @@ function initialization.reinit()
     -- Search for planets
     if (planet and not String_Utils.find_invalid_substrings(planet.name)) then
 
-      if (storage.satellites_launched and not storage.satellites_launched[planet.name]) then
+      if (not from_scratch) then
+        if (storage.satellites_launched and not storage.satellites_launched[planet.name]) then
+          storage.satellites_launched[planet.name] = 0
+        end
+      else
+        if (not storage.satellites_launched) then
+          storage.satellites_launched = {}
+        end
         storage.satellites_launched[planet.name] = 0
       end
 
-      if (storage.satellites_in_orbit and not storage.satellites_in_orbit[planet.name]) then
+      if (not from_scratch) then
+        if (storage.satellites_in_orbit and not storage.satellites_in_orbit[planet.name]) then
+          storage.satellites_in_orbit[planet.name] = {}
+        end
+      else
+        if (not storage.satellites_in_orbit) then
+          storage.satellites_in_orbit = {}
+        end
         storage.satellites_in_orbit[planet.name] = {}
       end
 
@@ -137,6 +117,8 @@ function initialization.reinit()
             valid = true
           }
         end
+      else
+        Log.error("Initialization failed somehow", true)
       end
     end
 
@@ -168,9 +150,6 @@ function initialization.reinit()
   storage.all_seeing_satellite.valid = true
 
   Log.debug(storage)
-
-  log("Finished reinitializing")
-  Log.debug("Finished reinitializing All Seeing Satellites")
 end
 
 function add_rocket_silo(--[[required]]rocket_silo, --[[optional]]is_init)
