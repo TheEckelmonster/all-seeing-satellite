@@ -47,7 +47,8 @@ function rocket_utils.add_rocket_silo(--[[required]]rocket_silo, --[[optional]]i
     if (is_init) then
       storage.rocket_silos = {}
     else
-      Initialization.init()
+      -- Initialization.init()
+      Initialization.reinit()
     end
     return
   end
@@ -89,7 +90,7 @@ function rocket_utils.launch_rocket(event)
           local rocket_silos = storage.rocket_silos[planet.name]
           local rocket_silo = nil
 
-          if (rocket_silos[i] and rocket_silos[i].entity) then
+          if (rocket_silos and rocket_silos[i] and rocket_silos[i].entity) then
             rocket_silo = rocket_silos[i].entity
           end
 

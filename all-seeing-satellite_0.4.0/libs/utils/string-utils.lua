@@ -17,8 +17,9 @@ function string_utils.find_invalid_substrings(string)
 end
 
 function string_utils.is_all_seeing_satellite_added_planet(string)
-  -- log(serpent.block(string.find(string, "all-seeing-satellite-", 1, true)))
-  -- game.print(serpent.block(string.find(string, "all-seeing-satellite-", 1, true)))
+  if (not is_string_valid(string)) then
+    return
+  end
   return string.find(string, "all-seeing-satellite-", 1, true)
 end
 
@@ -27,20 +28,12 @@ function string_utils.get_planet_name(string)
     return
   end
 
-  log(serpent.block(string))
-  game.print(serpent.block(string))
+  -- log(serpent.block(string))
+  -- game.print(serpent.block(string))
   local i, j = string.find(string, "all-seeing-satellite-", 1, true)
   if (j) then
-    local x, y = string.find(string, "-", j + 1, true)
-    -- local x, y = string.find(string, "-", -1, true)
-    -- log("i: " .. serpent.block(i))
-    -- game.print("i: " .. serpent.block(i))
-    -- log("j: " .. serpent.block(j))
-    -- game.print("j: " .. serpent.block(j))
-    -- log("x: " .. serpent.block(x))
-    -- game.print("x: " .. serpent.block(x))
-    -- log("y: " .. serpent.block(y))
-    -- game.print("y: " .. serpent.block(y))
+    local x, y = string.find(string, "_", j + 1, true)
+    -- local x, y = string.find(string, "-%d", j + 1)
 
     if (j and x) then
       return string.sub(string, j + 1, x -1)
@@ -53,12 +46,13 @@ function string_utils.get_planet_magnitude(string)
     return
   end
 
-  -- log(serpent.block(string))
-  -- game.print(serpent.block(string))
   local i, j = string.find(string, "all-seeing-satellite-", 1, true)
 
   if (j) then
-    local x, y = string.find(string, "-", j + 1, true)
+    -- local x, y = string.find(string, "-", j + 1, true)
+    local x, y = string.find(string, "_", j + 1, true)
+    -- local x, y = string.find(string, "-%d", j + 1)
+    -- local x, y = string.find(string, "-", -1, true)
     if (y) then
       return string.sub(string, y + 1, -1) / String_Constants.PLANET_MAGNITUDE_DECIMAL_SHIFT.value
     end

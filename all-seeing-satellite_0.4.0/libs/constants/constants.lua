@@ -47,13 +47,38 @@ function constants.get_planets(reindex)
     return constants.planets
   end
 
+  return get_planets()
+end
+
+function get_planets()
   constants.planets = {}
 
-  if (game and game.surfaces) then
-    for k, surface in pairs(game.surfaces) do
-      -- Search for planets
-      if (not find_invalid_substrings(surface.name)) then
-        table.insert(constants.planets, { name = k, surface = surface })
+  if (prototypes) then
+    local planet_prototypes = prototypes.get_entity_filtered({{ filter = "type", type = "constant-combinator"}})
+
+    for key, planet in pairs(planet_prototypes) do
+      if (  String_Utils.is_all_seeing_satellite_added_planet(key)
+        and planet and planet.valid)
+      then
+        local planet_name = String_Utils.get_planet_name(key)
+        if (planet_name and game) then
+          local planet_surface = game.get_surface(planet_name)
+          -- if (planet_surface) then
+          local planet_magnitude = String_Utils.get_planet_magnitude(key)
+
+          if (not planet_magnitude) then
+            planet_magnitude = 1
+          end
+
+          -- Surface can be nil
+          -- Trying to use on_surface_created event to add them to the appropriate planet after the fact
+          table.insert(constants.planets, {
+            name = planet_name,
+            surface = planet_surface,
+            magnitude = planet_magnitude,
+          })
+          -- end
+        end
       end
     end
   end

@@ -4,6 +4,7 @@ if _fog_of_war and _fog_of_war.all_seeing_satellite then
 end
 
 local Constants = require("libs.constants.constants")
+local Initialization = require("control.initialization")
 local String_Utils = require("libs.utils.string-utils")
 local Validations = require("libs.validations")
 
@@ -15,16 +16,18 @@ function fog_of_war.toggle_FoW(event)
   local player = storage.satellite_toggled_by_player
 
   if (Validations.is_storage_valid()) then
-    for surface_name, enabled in pairs(storage.satellites_toggled) do
+    for k, satellite in pairs(storage.satellites_toggled) do
       -- If inputs are valid, and the surface the player is currently viewing is toggled
-      if (  enabled
-      and player
-      and player.force
-      and player.surface
-      and player.surface.name == surface_name)
+      if (  satellite
+        and satellite.toggle
+        and player
+        and player.force
+        and player.surface
+        and player.surface.name == satellite.planet_name)
       then
-        if (allow_toggle(surface_name)) then
+        if (allow_toggle(satellite.planet_name)) then
           game.forces[player.force.index].rechart(player.surface)
+          return
         end
       end
     end
@@ -59,26 +62,72 @@ function fog_of_war.toggle(event)
       return
     end
 
-    if (satellites_toggled[surface_name]) then
-      if (allow_toggle(surface_name)) then
-        print_toggle_message("Disabled satellite(s) orbiting ", surface_name)
-      else
-        print_toggle_message("Insufficient satellite(s) orbiting ", surface_name)
+    -- log(serpent.block(satellites_toggled))
+    -- game.print(serpent.block(satellites_toggled))
+    -- log(serpent.block(satellites_toggled[surface_name]))
+    -- game.print(serpent.block(satellites_toggled[surface_name]))
+
+    local satellite
+    for k,_satellite in pairs(satellites_toggled) do
+      -- log(serpent.block(_satellite))
+      -- game.print(serpent.block(satellite))
+      if (_satellite and _satellite.planet_name == surface_name) then
+        satellite = _satellite
+        break
+        -- goto continue
       end
-      satellites_toggled[surface_name] = false
-    elseif (not satellites_toggled[surface_name]) then
-      if (allow_toggle(surface_name)) then
-        print_toggle_message("Enabled satellite(s) orbiting ", surface_name)
-        satellites_toggled[surface_name] = true
+    end
+
+    -- ::continue::
+
+    if (satellite) then
+      if (satellite.toggle) then
+        if (allow_toggle(surface_name)) then
+          print_toggle_message("Disabled satellite(s) orbiting ", surface_name)
+        else
+          print_toggle_message("Insufficient satellite(s) orbiting ", surface_name)
+        end
+        satellite.toggle = false
+      elseif (not satellite.toggle) then
+        if (allow_toggle(surface_name)) then
+          print_toggle_message("Enabled satellite(s) orbiting ", surface_name)
+          satellite.toggle = true
+        else
+          print_toggle_message("Insufficient satellite(s) orbiting ", surface_name)
+          -- This shouldn't be necessary, but oh well
+          satellite.toggle = false
+        end
       else
-        print_toggle_message("Insufficient satellite(s) orbiting ", surface_name)
-        -- This shouldn't be necessary, but oh well
-        satellites_toggled[surface_name] = false
+        log("This shouldn't be possible")
+        game.print("all-seeing-satellite: This shouldn't be possible")
       end
     else
-      log("This shouldn't be possible")
-      game.print("all-seeing-satellite: This shouldn't be possible")
+      log("satetllite was nil")
+      -- Should probably reinitialize
+      Initialization.reinit()
+      fog_of_war.toggle(event)
     end
+
+    -- if (satellites_toggled[surface_name].toggle) then
+    --   if (allow_toggle(surface_name)) then
+    --     print_toggle_message("Disabled satellite(s) orbiting ", surface_name)
+    --   else
+    --     print_toggle_message("Insufficient satellite(s) orbiting ", surface_name)
+    --   end
+    --   satellites_toggled[surface_name].toggle = false
+    -- elseif (not satellites_toggled[surface_name].toggle) then
+    --   if (allow_toggle(surface_name)) then
+    --     print_toggle_message("Enabled satellite(s) orbiting ", surface_name)
+    --     satellites_toggled[surface_name].toggle = true
+    --   else
+    --     print_toggle_message("Insufficient satellite(s) orbiting ", surface_name)
+    --     -- This shouldn't be necessary, but oh well
+    --     satellites_toggled[surface_name].toggle = false
+    --   end
+    -- else
+    --   log("This shouldn't be possible")
+    --   game.print("all-seeing-satellite: This shouldn't be possible")
+    -- end
   end
 end
 
