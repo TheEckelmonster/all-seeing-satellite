@@ -15,7 +15,7 @@ function satellite_utils.satellite_launched(planet_name, item, tick)
     satellite_utils.start_satellite_countdown(item, tick, planet_name)
   else
     Log.error("How did this happen?")
-    Log.debug(planet_name)
+    Log.warn(planet_name, true)
   end
 end
 

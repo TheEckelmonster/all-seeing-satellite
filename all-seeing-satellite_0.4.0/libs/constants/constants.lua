@@ -80,6 +80,7 @@ function get_planets()
   return constants.planets
 end
 
+-- TODO: Not needed anymore?
 function find_invalid_substrings(string)
   Log.debug(string)
   return string.find(string, "-", 1, true)
