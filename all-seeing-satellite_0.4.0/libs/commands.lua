@@ -13,6 +13,7 @@ function Commands.init(event)
     Log.info("commands.init", true)
     player.print("Initializing anew")
     Initialization.init()
+    player.print("Initialization complete")
   end)
 end
 
@@ -21,6 +22,7 @@ function Commands.reinit(event)
     Log.info("commands.reinit", true)
     player.print("Reinitializing")
     Initialization.reinit()
+    player.print("Reinitialization complete")
   end)
 end
 

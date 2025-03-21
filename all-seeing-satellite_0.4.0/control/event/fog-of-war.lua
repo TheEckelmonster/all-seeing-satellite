@@ -147,7 +147,7 @@ function planet_launch_threshold(surface_name)
   local return_val = get_settings_val(surface_name) * planet_multiplier * planet_multiplier
 
   if (get_planet_multiplier(surface_name) < 1) then
-    log.debug("floor")
+    Log.debug("floor")
     return_val = math.floor(return_val)
   else
     Log.debug("ceil")
