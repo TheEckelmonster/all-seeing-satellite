@@ -11,10 +11,19 @@ local Satellite = require("control.event.satellite")
 local settings_changed = {}
 
 function settings_changed.mod_setting_changed(event)
+  if (event and event.setting) then
+    if (event.setting == Settings_Constants.DEBUG_LEVEL.name) then
+      invoke(event, Log.get_log_level)
+    elseif (event.setting == Settings_Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.name) then
+      invoke(event, function (event) Satellite.recalculate_satellite_time_to_die(event.tick) end)
+    end
+  end
+end
+
+function invoke(event, fun)
   Log.debug("Mod settings changed")
   Log.info(event)
-  Satellite.recalculate_satellite_time_to_die(event.tick)
-  Log.get_log_level()
+  fun(event)
 end
 
 settings_changed.all_seeing_satellite = true
