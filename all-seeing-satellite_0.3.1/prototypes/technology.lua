@@ -1,0 +1,1 @@
+table.insert(data.raw.technology["rocket-silo"].effects, { type = "unlock-recipe", recipe = "satellite" })
