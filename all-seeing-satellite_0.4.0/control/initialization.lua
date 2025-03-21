@@ -35,6 +35,7 @@ function initialize(from_scratch)
 
   if (from_scratch) then
     storage.satellite_toggled_by_player = nil
+    storage.warn_technology_not_available_yet = nil
   end
 
   if (not from_scratch and storage.satellites_toggled) then
