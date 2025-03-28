@@ -4,7 +4,7 @@ if _planet and _planet.all_seeing_satellite then
 end
 
 local Constants = require("libs.constants.constants")
-local Log = require("libs.log")
+local Log = require("libs.log.log")
 local Initialization = require("control.initialization")
 
 local planet = {}

@@ -4,7 +4,7 @@ if _commands and _commands.all_seeing_satellite then
 end
 
 local Initialization = require("control.initialization")
-local Log = require("libs.log")
+local Log = require("libs.log.log")
 
 local Commands = {}
 

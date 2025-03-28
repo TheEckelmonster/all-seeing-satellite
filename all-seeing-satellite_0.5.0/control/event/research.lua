@@ -3,7 +3,7 @@ if _research and _research.all_seeing_satellite then
   return _research
 end
 
-local Log = require("libs.log")
+local Log = require("libs.log.log")
 
 local research = {}
 

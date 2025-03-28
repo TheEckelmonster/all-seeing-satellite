@@ -3,7 +3,7 @@ if _string_utils and _string_utils.all_seeing_satellite then
   return _string_utils
 end
 
-local Log = require("libs.log")
+local Log = require("libs.log.log")
 local String_Constants = require("libs.constants.string-constants")
 
 local string_utils = {}

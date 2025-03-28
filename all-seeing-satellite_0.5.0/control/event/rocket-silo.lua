@@ -3,7 +3,7 @@ if _rocket_silo and _rocket_silo.all_seeing_satellite then
   return _rocket_silo
 end
 
-local Log = require("libs.log")
+local Log = require("libs.log.log")
 local Log_Constants = require("libs.constants.log-constants")
 local Rocket_Utils = require("libs.utils.rocket-utils")
 local Validations = require("libs.validations")

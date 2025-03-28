@@ -4,7 +4,7 @@ if _satellite and _satellite.all_seeing_satellite then
 end
 
 local Constants = require("libs.constants.constants")
-local Log = require("libs.log")
+local Log = require("libs.log.log")
 local Satellite_Utils = require("libs.utils.satellite-utils")
 local Validations = require("libs.validations")
 

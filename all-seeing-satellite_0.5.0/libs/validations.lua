@@ -3,7 +3,7 @@ if _validations and _validations.all_seeing_satellite then
   return _validations
 end
 
-local Log = require("libs.log")
+local Log = require("libs.log.log")
 
 local validations = {}
 

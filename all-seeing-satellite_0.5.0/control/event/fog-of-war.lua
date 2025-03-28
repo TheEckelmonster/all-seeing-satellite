@@ -5,7 +5,7 @@ end
 
 local Constants = require("libs.constants.constants")
 local Initialization = require("control.initialization")
-local Log = require("libs.log")
+local Log = require("libs.log.log")
 local Settings_Constants = require("libs.constants.settings-constants")
 local String_Utils = require("libs.utils.string-utils")
 local Validations = require("libs.validations")

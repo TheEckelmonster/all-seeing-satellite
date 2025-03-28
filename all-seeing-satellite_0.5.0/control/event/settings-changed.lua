@@ -3,7 +3,7 @@ if _settings_changed and _settings_changed.all_seeing_satellite then
   return _settings_changed
 end
 
-local Log = require("libs.log")
+local Log = require("libs.log.log")
 local Log_Constants = require("libs.constants.log-constants")
 local Settings_Constants = require("libs.constants.settings-constants")
 local Satellite = require("control.event.satellite")
