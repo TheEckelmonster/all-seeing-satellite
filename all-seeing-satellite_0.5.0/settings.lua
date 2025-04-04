@@ -1,3 +1,4 @@
+require("libs.log.log-settings")
 local Settings_Constants = require("libs.constants.settings-constants")
 
 data:extend({
@@ -7,14 +8,6 @@ data:extend({
     setting_type = "runtime-global",
     order = "aaa",
     default_value = Settings_Constants.REQUIRE_SATELLITES_IN_ORBIT.value,
-  },
-  {
-    type = "string-setting",
-    name = Settings_Constants.DEBUG_LEVEL.name,
-    setting_type = "runtime-global",
-    order = "aba",
-    default_value = Settings_Constants.DEBUG_LEVEL.value,
-    allowed_values = {"None", "Error", "Warn", "Debug", "Info"}
   },
   {
     type = "int-setting",

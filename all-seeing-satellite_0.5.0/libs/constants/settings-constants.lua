@@ -5,9 +5,15 @@ end
 
 local settings_constants = {}
 
+settings_constants.hotkeys = {}
+
 settings_constants.HOTKEY_EVENT_NAME = {}
 settings_constants.HOTKEY_EVENT_NAME.value = "N"
 settings_constants.HOTKEY_EVENT_NAME.name = "all-seeing-satellite-toggle"
+
+settings_constants.hotkeys.SCAN_SELECTED_CHUNK = {}
+settings_constants.hotkeys.SCAN_SELECTED_CHUNK.value = "M"
+settings_constants.hotkeys.SCAN_SELECTED_CHUNK.name = "all-seeing-satellite-scan-selected-chunk"
 
 settings_constants.REQUIRE_SATELLITES_IN_ORBIT = {}
 settings_constants.REQUIRE_SATELLITES_IN_ORBIT.value = true
