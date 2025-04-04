@@ -4,7 +4,7 @@ if _constants and _constants.all_seeing_satellite then
 end
 
 local Log = require("libs.log.log")
-local String_Utils = require("libs.utils.string-utils")
+local String_Utils = require("control.utils.string-utils")
 
 local constants = {
   nauvis = {},

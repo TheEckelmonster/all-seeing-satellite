@@ -7,7 +7,7 @@ local initialization = {}
 
 local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
-local String_Utils = require("libs.utils.string-utils")
+local String_Utils = require("control.utils.string-utils")
 local Validations = require("libs.validations")
 
 function initialization.init()
@@ -34,8 +34,16 @@ function initialize(from_scratch)
   from_scratch = from_scratch or false
 
   if (from_scratch) then
+    storage = {}
+
     storage.satellite_toggled_by_player = nil
     storage.warn_technology_not_available_yet = nil
+
+    storage.all_seeing_satellite = {}
+    storage.all_seeing_satellite.staged_areas_to_chart = {}
+  else
+    if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
+    if (not storage.all_seeing_satellite.staged_areas_to_chart) then storage.all_seeing_satellite.staged_areas_to_chart = {} end
   end
 
   if (not from_scratch and storage.satellites_toggled) then

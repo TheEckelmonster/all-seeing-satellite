@@ -5,7 +5,7 @@ local Planet = require("control.event.planet")
 local Rocket_Silo = require("control.event.rocket-silo")
 local Rocket_Utils = require("libs.utils.rocket-utils")
 local Satellite = require("control.event.satellite")
-local Scan_Chunk = require("control.event.scan-chunk")
+local Scan_Chunk_Controller = require("control.controllers.scan-chunk-controller")
 local Settings_Changed = require("control.event.settings-changed")
 local Settings_Constants = require("libs.constants.settings-constants")
 
@@ -34,7 +34,7 @@ script.on_event(defines.events.on_rocket_launch_ordered, Satellite.track_satelli
 
 script.on_event(defines.events.on_runtime_mod_setting_changed, Settings_Changed.mod_setting_changed)
 
-script.on_event(defines.events.on_player_selected_area, Scan_Chunk.scan_selected_chunk)
+script.on_event(defines.events.on_player_selected_area, Scan_Chunk_Controller.scan_selected_chunk)
 
 -- rocket-silo tracking
 script.on_event(defines.events.on_built_entity, Rocket_Silo.rocket_silo_built, {{ filter = "type", type = "rocket-silo" }})
