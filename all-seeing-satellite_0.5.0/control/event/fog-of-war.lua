@@ -9,7 +9,7 @@ local Log = require("libs.log.log")
 local Settings_Constants = require("libs.constants.settings-constants")
 local String_Utils = require("control.utils.string-utils")
 local Planet_Utils = require("control.utils.planet-utils")
-local Validations = require("libs.validations")
+local Validations = require("control.validations.validations")
 
 local Research = require("control.event.research")
 

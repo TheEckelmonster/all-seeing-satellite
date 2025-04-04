@@ -10,6 +10,7 @@ local Planet_Utils = require("control.utils.planet-utils")
 local storage_service = {}
 
 function storage_service.stage_area_to_chart(area)
+  Log.error(area)
   if (not area or not area.left_top or not area.right_bottom) then return end
   if (not area.left_top.x or area.left_top.y) then return end
   if (not area.right_bottom.x or area.right_bottom.y) then return end

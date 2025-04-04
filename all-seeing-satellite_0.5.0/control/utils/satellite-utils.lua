@@ -6,7 +6,7 @@ end
 local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
 local Settings_Constants = require("libs.constants.settings-constants")
-local Validations = require("libs.validations")
+local Validations = require("control.validations.validations")
 
 local satellite_utils = {}
 

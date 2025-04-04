@@ -29,6 +29,7 @@ end
 function Commands.print_storage(event)
   validate_command_event(event, function (player)
     Log.info("commands.print_storage", true)
+    log(serpent.block(storage))
     player.print(serpent.block(storage))
     Log.debug(storage)
   end)

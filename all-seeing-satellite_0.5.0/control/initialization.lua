@@ -8,7 +8,7 @@ local initialization = {}
 local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
 local String_Utils = require("control.utils.string-utils")
-local Validations = require("libs.validations")
+local Validations = require("control.validations.validations")
 
 function initialization.init()
   log("Initializing")

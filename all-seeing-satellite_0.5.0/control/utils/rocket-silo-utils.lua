@@ -1,17 +1,17 @@
 -- If already defined, return
-if _rocket_utils and _rocket_utils.all_seeing_satellite then
-  return _rocket_utils
+if _rocket_silo_utils and _rocket_silo_utils.all_seeing_satellite then
+  return _rocket_silo_utils
 end
 
 local Constants = require("libs.constants.constants")
 local Initialization = require("control.initialization")
 local Log = require("libs.log.log")
 local String_Utils = require("control.utils.string-utils")
-local Validations = require("libs.validations")
+local Validations = require("control.validations.validations")
 
-local rocket_utils = {}
+local rocket_silo_utils = {}
 
-function rocket_utils.mine_rocket_silo(event)
+function rocket_silo_utils.mine_rocket_silo(event)
   local rocket_silo = event.entity
 
   if (rocket_silo and rocket_silo.valid and rocket_silo.surface) then
@@ -30,7 +30,7 @@ function rocket_utils.mine_rocket_silo(event)
   end
 end
 
-function rocket_utils.add_rocket_silo(--[[required]]rocket_silo, --[[optional]]is_init)
+function rocket_silo_utils.add_rocket_silo(--[[required]]rocket_silo, --[[optional]]is_init)
   -- Validate inputs
   is_init = is_init or false -- default value
 
@@ -68,7 +68,7 @@ function rocket_utils.add_rocket_silo(--[[required]]rocket_silo, --[[optional]]i
   end
 end
 
-function rocket_utils.launch_rocket(event)
+function rocket_silo_utils.launch_rocket(event)
   if (not Validations.is_storage_valid()) then
     Log.warn("Storage is invalid; initializing")
     Initialization.init()
@@ -120,8 +120,8 @@ function rocket_utils.launch_rocket(event)
   end
 end
 
-rocket_utils.all_seeing_satellite = true
+rocket_silo_utils.all_seeing_satellite = true
 
-local _rocket_utils = rocket_utils
+local _rocket_silo_utils = rocket_silo_utils
 
-return rocket_utils
+return rocket_silo_utils
