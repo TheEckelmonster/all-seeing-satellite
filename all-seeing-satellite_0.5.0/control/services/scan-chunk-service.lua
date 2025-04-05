@@ -10,11 +10,10 @@ local Storage_Service = require("control.services.storage-service")
 local scan_chunk_service = {}
 
 function scan_chunk_service.scan_selected_chunk(event)
-  if (not event.item or not event.item == "satellite-targeting-remote") then return end
   Log.info(event)
-
-  if (not event.surface or not event.surface.valid) then return end
-  if (not event.player_index or not event.surface or not event.area) then return end
+  if (not event or not event.item or not event.item == "satellite-targeting-remote") then return end
+  if (not event.surface or not event.surface or not event.surface.valid) then return end
+  if (not event.player_index or not event.area) then return end
   if (not Planet_Utils.allow_toggle(event.surface)) then return end
 
   Storage_Service.stage_area_to_chart(event.area)

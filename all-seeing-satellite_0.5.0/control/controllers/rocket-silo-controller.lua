@@ -22,12 +22,12 @@ end
 
 function rocket_silo_controller.rocket_silo_mined(event)
   Log.info(event)
-  Rocket_Silo_Service.mine_rocket_silo(event)
+  Rocket_Silo_Service.rocket_silo_mined(event)
 end
 
 function rocket_silo_controller.rocket_silo_mined_script(event)
   Log.info(event)
-  Rocket_Silo_Service.mine_rocket_silo(event)
+  Rocket_Silo_Service.rocket_silo_mined(event)
 end
 
 function rocket_silo_controller.launch_rocket(event)
@@ -45,12 +45,12 @@ end
 
 function rocket_silo_controller.rocket_silo_mined(event)
   Log.info(event)
-  Rocket_Silo_Service.mine_rocket_silo(event)
+  Rocket_Silo_Service.rocket_silo_mined(event)
 end
 
 function rocket_silo_controller.rocket_silo_mined_script(event)
   Log.info(event)
-  Rocket_Silo_Service.mine_rocket_silo(event)
+  Rocket_Silo_Service.rocket_silo_mined(event)
 end
 
 rocket_silo_controller.all_seeing_satellite = true
