@@ -17,7 +17,7 @@ function rocket_silo_controller.rocket_silo_built(event)
 	local rocket_silo = event.entity
 
 	if (rocket_silo and rocket_silo.valid and rocket_silo.surface) then
-    Rocket_Silo_Service.add_rocket_silo(rocket_silo)
+    Rocket_Silo_Service.rocket_silo_built(rocket_silo)
   end
 end
 
