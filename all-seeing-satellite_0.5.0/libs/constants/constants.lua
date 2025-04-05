@@ -13,10 +13,6 @@ local constants = {
   vulcanus = {}
 }
 
-constants.ON_NTH_TICK = {}
-constants.ON_NTH_TICK.value = 60
-constants.ON_NTH_TICK.setting = "all-seeing-satellite-on-nth-tick"
-
 constants.TICKS_PER_SECOND = 60
 constants.SECONDS_PER_MINUTE = 60
 constants.TICKS_PER_MINUTE = constants.TICKS_PER_SECOND * constants.SECONDS_PER_MINUTE

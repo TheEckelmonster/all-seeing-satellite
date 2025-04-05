@@ -90,11 +90,9 @@ function satellite_service.check_for_expired_satellites(event)
   end
 end
 
--- function satellite_service.recalculate_satellite_time_to_die(tick)
-function satellite_service.recalculate_satellite_time_to_die(event)
-  local tick = event.tick or 1 --math.huge
+function satellite_service.recalculate_satellite_time_to_die(tick)
+  local tick = tick or 1 --math.huge
 
-  -- if (tick and Validations.is_storage_valid()) then
   if (tick > 1 and Validations.is_storage_valid()) then
     if (storage.satellites_in_orbit) then
       for _, satellites in pairs(storage.satellites_in_orbit) do

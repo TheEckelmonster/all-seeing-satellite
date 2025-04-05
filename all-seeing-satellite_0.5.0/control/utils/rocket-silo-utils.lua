@@ -12,6 +12,8 @@ local Validations = require("control.validations.validations")
 local rocket_silo_utils = {}
 
 function rocket_silo_utils.mine_rocket_silo(event)
+  Log.debug("rocket_silo_utils.mine_rocket_silo")
+  Log.info(event)
   local rocket_silo = event.entity
 
   if (rocket_silo and rocket_silo.valid and rocket_silo.surface) then
@@ -31,6 +33,7 @@ function rocket_silo_utils.mine_rocket_silo(event)
 end
 
 function rocket_silo_utils.add_rocket_silo(--[[required]]rocket_silo, --[[optional]]is_init)
+  Log.debug("rocket_silo_utils.add_rocket_silo")
   -- Validate inputs
   is_init = is_init or false -- default value
 
@@ -69,6 +72,8 @@ function rocket_silo_utils.add_rocket_silo(--[[required]]rocket_silo, --[[option
 end
 
 function rocket_silo_utils.launch_rocket(event)
+  Log.debug("rocket_silo_utils.launch_rocket")
+  Log.info(event)
   if (not Validations.is_storage_valid()) then
     Log.warn("Storage is invalid; initializing")
     Initialization.init()

@@ -1,3 +1,4 @@
+local All_Seeing_Satellite_Controller = require("control.controllers.all-seeing-satellite-controller")
 local Constants = require("libs.constants.constants")
 local Fog_Of_War = require("control.fog-of-war")
 local Log = require("libs.log.log")
@@ -11,7 +12,7 @@ local Settings_Constants = require("libs.constants.settings-constants")
 local nth_tick
 
 if (not nth_tick or nth_tick.value <= 0) then
-  nth_tick = Constants.ON_NTH_TICK.value
+  nth_tick = Settings_Constants.settings.NTH_TICK.value
 end
 
 --
@@ -20,6 +21,8 @@ end
 Log.info("Registering events")
 
 script.on_init(init)
+
+script.on_event(defines.events.on_tick, All_Seeing_Satellite_Controller.do_tick)
 
 script.on_nth_tick(nth_tick + 1, Fog_Of_War.toggle_FoW)
 script.on_event(Settings_Constants.HOTKEY_EVENT_NAME.name, Fog_Of_War.toggle)
@@ -31,10 +34,9 @@ script.on_nth_tick(nth_tick, Rocket_Silo_Controller.launch_rocket)
 script.on_nth_tick(nth_tick + 2, Satellite_Controller.check_for_expired_satellites)
 script.on_event(defines.events.on_rocket_launch_ordered, Satellite_Controller.track_satellite_launches_ordered)
 
--- script.on_event(defines.events.on_runtime_mod_setting_changed, Settings_Changed.mod_setting_changed)
 script.on_event(defines.events.on_runtime_mod_setting_changed, Settings_Controller.mod_setting_changed)
 
-script.on_event(defines.events.on_player_selected_area, Scan_Chunk_Controller.scan_selected_chunk)
+script.on_event(defines.events.on_player_selected_area, Scan_Chunk_Controller.stage_selected_chunk)
 
 -- rocket-silo tracking
 script.on_event(defines.events.on_built_entity, Rocket_Silo_Controller.rocket_silo_built, Rocket_Silo_Controller.filter)

@@ -8,9 +8,10 @@ local Scan_Chunk_Service = require("control.services.scan-chunk-service")
 
 local scan_chunk_controller = {}
 
-function scan_chunk_controller.scan_selected_chunk(event)
+function scan_chunk_controller.stage_selected_chunk(event)
+  Log.debug("scan_chunk_controller.stage_selected_chunk")
   Log.info(event)
-  Scan_Chunk_Service.scan_selected_chunk(event)
+  Scan_Chunk_Service.stage_selected_chunk(event)
 end
 
 scan_chunk_controller.all_seeing_satellite = true

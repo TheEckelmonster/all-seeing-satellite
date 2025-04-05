@@ -7,12 +7,13 @@ local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
 local Validations = require("control.validations.validations")
 local Settings_Constants = require("libs.constants.settings-constants")
+local Settings_Service = require("control.services.settings-service")
 
 local planet_utils = {}
 
 
 function planet_utils.allow_toggle(surface_name)
-  if (not settings.global[Settings_Constants.REQUIRE_SATELLITES_IN_ORBIT.name].value) then
+  if (not Settings_Service.get_require_satellites_in_orbit()) then
     return true
   end
 
@@ -28,11 +29,11 @@ end
 
 function planet_utils.planet_launch_threshold(surface_name)
   if (not surface_name) then
-    return Settings_Constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.value
+    return Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.value
   end
 
   local planet_multiplier = get_planet_multiplier(surface_name)
-  local return_val = get_settings_val(surface_name) * planet_multiplier * planet_multiplier
+  local return_val = Settings_Service.get_global_launch_satellite_threshold(surface_name) * planet_multiplier * planet_multiplier
 
   if (get_planet_multiplier(surface_name) < 1) then
     Log.debug("floor")
@@ -65,21 +66,6 @@ function get_planet_multiplier(surface_name)
   end
 
   return planet_multiplier
-end
-
-function get_settings_val(surface_name)
-  local settings_val = Settings_Constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.value
-
-  if (settings.global["all-seeing-satellite-" .. surface_name .. "-satellite-threshold"]) then
-    settings_val = settings.global["all-seeing-satellite-" .. surface_name .. "-satellite-threshold"].value
-  elseif (settings.global[Settings_Constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.name]) then
-    settings_val = settings.global[Settings_Constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.name].value
-  end
-  if (not settings_val) then
-    settings_val = Settings_Constants.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.value
-  end
-
-  return settings_val
 end
 
 planet_utils.all_seeing_satellite = true

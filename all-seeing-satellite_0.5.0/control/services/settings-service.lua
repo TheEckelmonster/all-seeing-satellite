@@ -6,17 +6,60 @@ end
 local Log = require("libs.log.log")
 local Log_Constants = require("libs.constants.log-constants")
 local Settings_Constants = require("libs.constants.settings-constants")
-local Satellite_Controller = require("control.controllers.satellite-controller")
 
 local settings_service = {}
+
+-- NTH_TICK
+function settings_service.get_nth_tick()
+  local setting = Settings_Constants.settings.NTH_TICK.value
+
+  if (settings and settings.global and settings.global[Settings_Constants.settings.NTH_TICK.setting.name]) then
+    setting = settings.global[Settings_Constants.settings.NTH_TICK.setting.name].value
+  end
+
+  return setting
+end
+
+-- REQUIRE_SATELLITES_IN_ORBIT
+function settings_service.get_require_satellites_in_orbit()
+  local setting = Settings_Constants.settings.REQUIRE_SATELLITES_IN_ORBIT.value
+
+  if (settings and settings.global and settings.global[Settings_Constants.settings.REQUIRE_SATELLITES_IN_ORBIT.name]) then
+    setting = settings.global[Settings_Constants.settings.REQUIRE_SATELLITES_IN_ORBIT.name].value
+  end
+
+  return setting
+end
+
+-- DEFAULT_SATELLITE_TIME_TO_LIVE
+function settings_service.get_default_satellite_time_to_live()
+  local setting = Settings_Constants.settings.DEFAULT_SATELLITE_TIME_TO_LIVE.value
+
+  if (settings and settings.global and settings.global[Settings_Constants.settings.DEFAULT_SATELLITE_TIME_TO_LIVE.name]) then
+    setting = settings.global[Settings_Constants.settings.DEFAULT_SATELLITE_TIME_TO_LIVE.name].value
+  end
+
+  return setting
+end
+
+-- GLOBAL_LAUNCH_SATELLITE_THRESHOLD
+function settings_service.get_global_launch_satellite_threshold(surface_name)
+  local setting = Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.default_value
+
+  if (settings.global["all-seeing-satellite-" .. surface_name .. "-satellite-threshold"]) then
+    setting = settings.global["all-seeing-satellite-" .. surface_name .. "-satellite-threshold"].value
+  elseif (settings.global[Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.name]) then
+    setting = settings.global[Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.name].value
+  end
+
+  return setting
+end
 
 function settings_service.mod_setting_changed(event)
   Log.info(event)
   if (event and event.setting) then
     if (event.setting == Settings_Constants.DEBUG_LEVEL.name) then
       invoke(event, Log.get_log_level)
-    elseif (event.setting == Settings_Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.name) then
-      invoke(event, function (event) Satellite_Controller.recalculate_satellite_time_to_die(event) end)
     end
   end
 end

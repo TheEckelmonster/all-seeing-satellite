@@ -4,6 +4,8 @@ if _settings_controller and _settings_controller.all_seeing_satellite then
 end
 
 local Log = require("libs.log.log")
+local Satellite_Service = require("control.services.satellite-service")
+local Settings_Constants = require("libs.constants.settings-constants")
 local Settings_Service = require("control.services.settings-service")
 
 local settings_controller = {}
@@ -11,8 +13,15 @@ local settings_controller = {}
 settings_controller.all_seeing_satellite = true
 
 function settings_controller.mod_setting_changed(event)
+  Log.info("settings_controller.mod_setting_changed")
   Log.info(event)
-  Settings_Service.mod_setting_changed(event)
+  if (event and event.setting) then
+    if (event.setting == Settings_Constants.DEBUG_LEVEL.name) then
+      Settings_Service.mod_setting_changed(event)
+    elseif (event.setting == Settings_Constants.settings.DEFAULT_SATELLITE_TIME_TO_LIVE.name) then
+      Satellite_Service.recalculate_satellite_time_to_die(event.tick)
+    end
+  end
 end
 
 local _settings_controller = settings_controller

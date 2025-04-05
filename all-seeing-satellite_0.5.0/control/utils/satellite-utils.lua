@@ -5,7 +5,7 @@ end
 
 local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
-local Settings_Constants = require("libs.constants.settings-constants")
+local Settings_Service = require("control.services.settings-service")
 local Validations = require("control.validations.validations")
 
 local satellite_utils = {}
@@ -79,13 +79,7 @@ function satellite_utils.calculate_tick_to_die(tick, satellite)
     Log.debug(satellite.quality)
     Log.debug(quality_multiplier)
 
-    if (settings.global[Settings_Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.name]) then
-              -- =  tick + settings value * 60 * 60 * quality_multiplier -> 3600 ticks per minute
-      death_tick = (tick + (settings.global[Settings_Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.name].value) * Constants.TICKS_PER_MINUTE * quality_multiplier)
-    else
-              -- =  tick + Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.value * 3600 (by default) * quality_multiplier
-      death_tick = (tick + (Settings_Constants.DEFAULT_SATELLITE_TIME_TO_LIVE.value * Constants.TICKS_PER_MINUTE * quality_multiplier))
-    end
+    death_tick = (tick + (Settings_Service.get_default_satellite_time_to_live() * Constants.TICKS_PER_MINUTE * quality_multiplier))
   end
 
   return death_tick

@@ -7,8 +7,6 @@ local Log = require("libs.log.log")
 
 local storage_utils = {}
 
-
-
 storage_utils.all_seeing_satellite = true
 
 local _storage_utils = storage_utils
