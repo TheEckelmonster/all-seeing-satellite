@@ -22,16 +22,28 @@ function storage_service.stage_area_to_chart(event)
 
   Log.debug("adding area to staged_areas_to_chart")
   Log.info(event.area)
+
+  local center = {
+    x = (event.area.left_top.x + event.area.right_bottom.x) / 2,
+    y = (event.area.left_top.y + event.area.right_bottom.y) / 2
+  }
+
+  -- local width = math.abs(math.abs(event.area.left_top.x) - math.abs(event.area.right_bottom.x))/2
+  -- local length = math.abs(math.abs(event.area.left_top.y) - math.abs(event.area.right_bottom.y))/2
+  local width = math.abs(event.area.right_bottom.x - center.x)
+  local length = math.abs(event.area.right_bottom.y - center.y)
+
   table.insert(staged_areas_to_chart, {
     area = event.area,
     player_index = event.player_index,
     surface = event.surface,
-    center = {
-      x = (event.area.left_top.x + event.area.right_bottom.x) / 2,
-      y = (event.area.left_top.y + event.area.right_bottom.y) / 2
-    }
+    center = center,
+    radius = width < length and width or length,
+    current_radius_length = 0,
+    complete = false
   })
 
+  -- Pretty sure this isn't necessary; but not 100% sure
   storage.all_seeing_satellite.staged_areas_to_chart = staged_areas_to_chart
 end
 
@@ -47,7 +59,7 @@ function storage_service.get_area_to_chart()
   if (not storage.all_seeing_satellite.staged_areas_to_chart) then return return_val end
 
   if (#storage.all_seeing_satellite.staged_areas_to_chart > 0) then
-    Log.error("found something to chart")
+    Log.debug("found something to chart")
     return_val.obj = storage.all_seeing_satellite.staged_areas_to_chart[#storage.all_seeing_satellite.staged_areas_to_chart]
     return_val.valid = true
   end
@@ -55,9 +67,11 @@ function storage_service.get_area_to_chart()
   return return_val
 end
 
-function storage_service.remove_area_to_chart_from_stage(mode)
+function storage_service.remove_area_to_chart_from_stage(optional)
   Log.debug("storage_service.remove_area_to_chart_from_stage")
-  mode = mode or "stack"
+  optional = optional or {
+   mode = "stack"
+  }
 
   if (not storage) then return end
   if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then
@@ -68,7 +82,7 @@ function storage_service.remove_area_to_chart_from_stage(mode)
   if (not storage.all_seeing_satellite.staged_areas_to_chart) then return end
 
   if (#storage.all_seeing_satellite.staged_areas_to_chart > 0) then
-    if (mode == "queue") then
+    if (optional.mode == "queue") then
       table.remove(storage.all_seeing_satellite.staged_areas_to_chart, 1)
     else
       table.remove(storage.all_seeing_satellite.staged_areas_to_chart, #storage.all_seeing_satellite.staged_areas_to_chart)
