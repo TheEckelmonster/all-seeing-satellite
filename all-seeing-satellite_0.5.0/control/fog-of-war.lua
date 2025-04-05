@@ -11,7 +11,7 @@ local String_Utils = require("control.utils.string-utils")
 local Planet_Utils = require("control.utils.planet-utils")
 local Validations = require("control.validations.validations")
 
-local Research = require("control.event.research")
+local Research_Utils = require("control.utils.research-utils")
 
 local fog_of_war = {}
 
@@ -50,7 +50,7 @@ function fog_of_war.toggle(event)
     local surface_name = player.surface.name
 
     if (  not Planet_Utils.allow_toggle(surface_name)
-      and not Research.has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name)) then
+      and not Research_Utils.has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name)) then
       if (not storage.warn_technology_not_available_yet and player.force) then
         player.force.print("Rocket Silo/Satellite not researched yet")
       end
