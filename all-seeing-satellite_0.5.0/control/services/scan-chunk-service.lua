@@ -34,71 +34,52 @@ function scan_chunk_service.scan_selected_chunk(area_to_chart)
   Log.debug("4")
   if (not area_to_chart.center or not area_to_chart.center.x or not area_to_chart.center.y) then return end
   Log.warn("scanning")
-  -- game.forces[area_to_chart.player_index].chart(
-  --   area_to_chart.surface,
-  --   {
-  --     {
-  --       area_to_chart.center.x - 32,
-  --       area_to_chart.center.y - 32
-  --     },
-  --     {
-  --       area_to_chart.center.x + 32,
-  --       area_to_chart.center.y + 32
-  --     }
-  --   }
-  -- )
 
   local radius = math.ceil(area_to_chart.radius / 32)
 
   for c=0, radius do
     for a=0, c do
       game.forces[area_to_chart.player_index].chart(
-        area_to_chart.surface,
-        {
-          {
-            (area_to_chart.center.x + 32 * a) - 32, (area_to_chart.center.y + 32 * math.sqrt(c^2 - a^2)) - 32
-          },
-          {
-            (area_to_chart.center.x + 32 * a) + 32, (area_to_chart.center.y + 32 * math.sqrt(c^2 - a^2)) + 32
-          }
-        }
-      )
-
+        area_to_chart.surface, {
+          {(area_to_chart.center.x + 16 * a) - 16, (area_to_chart.center.y + 16 * math.sqrt(c^2 - a^2)) - 16},
+          {(area_to_chart.center.x + 16 * a) + 16, (area_to_chart.center.y + 16 * math.sqrt(c^2 - a^2)) + 16}
+        })
       game.forces[area_to_chart.player_index].chart(
-        area_to_chart.surface,
-        {
-          {
-            (area_to_chart.center.x - 32 * a) - 32, (area_to_chart.center.y + 32 * math.sqrt(c^2 - a^2)) - 32
-          },
-          {
-            (area_to_chart.center.x - 32 * a) + 32, (area_to_chart.center.y + 32 * math.sqrt(c^2 - a^2)) + 32
-          }
-        }
-      )
-
+        area_to_chart.surface, {
+          {(area_to_chart.center.x - 16 * a) - 16, (area_to_chart.center.y + 16 * math.sqrt(c^2 - a^2)) - 16},
+          {(area_to_chart.center.x - 16 * a) + 16, (area_to_chart.center.y + 16 * math.sqrt(c^2 - a^2)) + 16}
+        })
       game.forces[area_to_chart.player_index].chart(
-        area_to_chart.surface,
-        {
-          {
-            (area_to_chart.center.x - 32 * a) - 32, (area_to_chart.center.y - 32 * math.sqrt(c^2 - a^2)) - 32
-          },
-          {
-            (area_to_chart.center.x - 32 * a) + 32, (area_to_chart.center.y - 32 * math.sqrt(c^2 - a^2)) + 32
-          }
-        }
-      )
-
+        area_to_chart.surface, {
+          {(area_to_chart.center.x - 16 * a) - 16, (area_to_chart.center.y - 16 * math.sqrt(c^2 - a^2)) - 16},
+          {(area_to_chart.center.x - 16 * a) + 16, (area_to_chart.center.y - 16 * math.sqrt(c^2 - a^2)) + 16}
+        })
       game.forces[area_to_chart.player_index].chart(
-        area_to_chart.surface,
-        {
-          {
-            (area_to_chart.center.x + 32 * a) - 32, (area_to_chart.center.y - 32 * math.sqrt(c^2 - a^2)) - 32
-          },
-          {
-            (area_to_chart.center.x + 32 * a) + 32, (area_to_chart.center.y - 32 * math.sqrt(c^2 - a^2)) + 32
-          }
-        }
-      )
+        area_to_chart.surface, {
+          {(area_to_chart.center.x + 16 * a) - 16, (area_to_chart.center.y - 16 * math.sqrt(c^2 - a^2)) - 16},
+          {(area_to_chart.center.x + 16 * a) + 16, (area_to_chart.center.y - 16 * math.sqrt(c^2 - a^2)) + 16}
+        })
+
+        game.forces[area_to_chart.player_index].chart(
+        area_to_chart.surface, {
+          {(area_to_chart.center.x + 16 * math.sqrt(c^2 - a^2)) - 16, (area_to_chart.center.y + 16 * a) - 16},
+          {(area_to_chart.center.x + 16 * math.sqrt(c^2 - a^2)) + 16, (area_to_chart.center.y + 16 * a) + 16}
+        })
+      game.forces[area_to_chart.player_index].chart(
+        area_to_chart.surface, {
+          {(area_to_chart.center.x - 16 * math.sqrt(c^2 - a^2)) - 16, (area_to_chart.center.y + 16 * a) - 16},
+          {(area_to_chart.center.x - 16 * math.sqrt(c^2 - a^2)) + 16, (area_to_chart.center.y + 16 * a) + 16}
+        })
+      game.forces[area_to_chart.player_index].chart(
+        area_to_chart.surface, {
+          {(area_to_chart.center.x - 16 * math.sqrt(c^2 - a^2)) - 16, (area_to_chart.center.y - 16 * a) - 16},
+          {(area_to_chart.center.x - 16 * math.sqrt(c^2 - a^2)) + 16, (area_to_chart.center.y - 16 * a) + 16}
+        })
+      game.forces[area_to_chart.player_index].chart(
+        area_to_chart.surface, {
+          {(area_to_chart.center.x + 16 * math.sqrt(c^2 - a^2)) - 16, (area_to_chart.center.y - 16 * a) - 16},
+          {(area_to_chart.center.x + 16 * math.sqrt(c^2 - a^2)) + 16, (area_to_chart.center.y - 16 * a) + 16}
+        })
     end
   end
 

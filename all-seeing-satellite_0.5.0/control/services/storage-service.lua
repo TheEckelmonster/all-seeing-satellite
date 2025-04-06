@@ -28,8 +28,6 @@ function storage_service.stage_area_to_chart(event)
     y = (event.area.left_top.y + event.area.right_bottom.y) / 2
   }
 
-  -- local width = math.abs(math.abs(event.area.left_top.x) - math.abs(event.area.right_bottom.x))/2
-  -- local length = math.abs(math.abs(event.area.left_top.y) - math.abs(event.area.right_bottom.y))/2
   local width = math.abs(event.area.right_bottom.x - center.x)
   local length = math.abs(event.area.right_bottom.y - center.y)
 
@@ -38,7 +36,7 @@ function storage_service.stage_area_to_chart(event)
     player_index = event.player_index,
     surface = event.surface,
     center = center,
-    radius = width < length and width or length,
+    radius = width > length and width or length,
     current_radius_length = 0,
     complete = false
   })
