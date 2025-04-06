@@ -26,7 +26,7 @@ function all_seeing_satellite_controller.do_tick(event)
   local return_val = Storage_Service.get_area_to_chart()
   if (not return_val or not return_val.obj or not return_val.valid) then return end
   local area_to_chart = return_val.obj
-  Scan_Chunk_Service.scan_selected_chunk(area_to_chart)
+  -- Scan_Chunk_Service.scan_selected_chunk(area_to_chart)
 
   if (Scan_Chunk_Service.scan_selected_chunk(area_to_chart)) then
     Log.error("removing area")

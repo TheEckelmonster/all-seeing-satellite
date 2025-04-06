@@ -28,17 +28,21 @@ function storage_service.stage_area_to_chart(event)
     y = (event.area.left_top.y + event.area.right_bottom.y) / 2
   }
 
-  local width = math.abs(event.area.right_bottom.x - center.x)
-  local length = math.abs(event.area.right_bottom.y - center.y)
+  local radius = math.sqrt((center.x - event.area.right_bottom.x)^2 + (center.y - event.area.right_bottom.y)^2)
+
+  -- local width = math.abs(event.area.right_bottom.x - center.x)
+  -- local length = math.abs(event.area.right_bottom.y - center.y)
 
   table.insert(staged_areas_to_chart, {
     area = event.area,
     player_index = event.player_index,
     surface = event.surface,
     center = center,
-    radius = width > length and width or length,
+    -- radius = width > length and width or length,
+    radius = radius,
     current_radius_length = 0,
     complete = false
+    chunks = {}
   })
 
   -- Pretty sure this isn't necessary; but not 100% sure
