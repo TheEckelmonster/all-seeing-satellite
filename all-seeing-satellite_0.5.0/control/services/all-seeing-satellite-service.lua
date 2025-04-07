@@ -38,8 +38,8 @@ function all_seeing_satellite_service.check_for_areas_to_stage()
 
   Scan_Chunk_Service.stage_selected_area(area_to_chart, optionals)
 
-  Log.debug("area_to_chart:")
-  Log.debug(area_to_chart)
+  -- Log.debug("area_to_chart:")
+  -- Log.debug(area_to_chart)
 
   if (area_to_chart.complete) then
     Log.error("removing area")
@@ -68,7 +68,7 @@ function all_seeing_satellite_service.do_scan()
   -- if (not Planet_Utils.allow_toggle(area_to_chart.surface.name)) then return end
 
   -- Log.warn("do_scan:")
-  -- Log.warn(area_to_chart)
+  -- Log.debug(area_to_chart)
 
   for k, v in pairs(area_to_chart) do
     Log.warn(k)

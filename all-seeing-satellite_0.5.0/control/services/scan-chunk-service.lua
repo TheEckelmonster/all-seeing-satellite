@@ -91,18 +91,32 @@ function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
   --   end
   -- end
 
-  if (area_to_chart.j > i or optionals.j > i) then
-    area_to_chart.i = area_to_chart.i + 1
-    area_to_chart.j = 0
-    return
-  end
-
   local c = 0
   if (optionals.mode == Constants.optionals.mode.stack) then
     c = radius - i
   elseif (optionals.mode == Constants.optionals.mode.queue) then
     c = i
   end
+
+  if (optionals.mode == "stack") then
+    if (area_to_chart.j > c or optionals.j > c) then
+      area_to_chart.i = area_to_chart.i + 1
+      area_to_chart.j = 0
+      return
+    end
+  elseif (optionals.mode == "queue") then
+    if (area_to_chart.j > i or optionals.j > i) then
+      area_to_chart.i = area_to_chart.i + 1
+      area_to_chart.j = 0
+      return
+    end
+  end
+  -- if (area_to_chart.j > i or optionals.j > i) then
+  --   area_to_chart.i = area_to_chart.i + 1
+  --   area_to_chart.j = 0
+  --   return
+  -- end
+
 
   -- for j=0, c do
   --   local a = 0
@@ -114,14 +128,18 @@ function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
   -- local j = area_to_chart.j
   local a = 0
   if (optionals.mode == Constants.optionals.mode.stack) then
+    if (j > c) then
+      return
+    end
     Log.error("c: " .. serpent.block(c))
     Log.error("j: " .. serpent.block(j))
-    -- a = c - j
-    if (j > c) then
-      c = 0
-    else
-      a = (c - j)
-    end
+    a = c - j
+    -- a = j
+    -- if (j > c) then
+    --   c = 0
+    -- else
+    --   a = (c - j)
+    -- end
     -- a = j - c
     -- Log.error("radius: " .. serpent.block(radius))
     -- a = radius - j
@@ -133,10 +151,10 @@ function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
   Log.error("a: " .. serpent.block(a))
 
   -- This shouldn't be necesary, but for now..
-  if (a > c) then
-    Log.error("a: " .. serpent.block(a))
-    a = c
-  end
+  -- if (a > c) then
+  --   Log.error("a: " .. serpent.block(a))
+  --   a = c
+  -- end
 
   Storage_Service.stage_chunk_to_chart(
     area_to_chart,

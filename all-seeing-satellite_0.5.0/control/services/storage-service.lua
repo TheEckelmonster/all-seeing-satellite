@@ -115,7 +115,10 @@ function storage_service.get_area_to_chart(optionals)
   if (optionals and optionals.mode == Constants.optionals.mode.stack and table_size(storage.all_seeing_satellite.staged_areas_to_chart) > 0) then
     Log.warn("found something to chart; mode = stack")
     -- return_val.obj = storage.all_seeing_satellite.staged_areas_to_chart[#storage.all_seeing_satellite.staged_areas_to_chart]
-    return_val.obj = storage.all_seeing_satellite.staged_areas_to_chart[table_size(storage.all_seeing_satellite.staged_areas_to_chart)]
+    for _, v in pairs(storage.all_seeing_satellite.staged_areas_to_chart) do
+      return_val.obj = v
+    end
+    -- return_val.obj = storage.all_seeing_satellite.staged_areas_to_chart[table_size(storage.all_seeing_satellite.staged_areas_to_chart)]
     return_val.valid = true
   -- elseif (optionals and optionals.mode == Constants.optionals.mode.queue and #storage.all_seeing_satellite.staged_areas_to_chart > 0) then
   elseif (optionals and optionals.mode == Constants.optionals.mode.queue and table_size(storage.all_seeing_satellite.staged_areas_to_chart) > 0) then
@@ -150,10 +153,20 @@ function storage_service.remove_area_to_chart_from_stage(optionals)
   -- if (#storage.all_seeing_satellite.staged_areas_to_chart > 0) then
   if (table_size(storage.all_seeing_satellite.staged_areas_to_chart) > 0) then
     if (optionals.mode == Constants.optionals.mode.stack.queue) then
-      table.remove(storage.all_seeing_satellite.staged_areas_to_chart, 1)
+      -- table.remove(storage.all_seeing_satellite.staged_areas_to_chart, 1)
+      for k, v in pairs(storage.all_seeing_satellite.staged_areas_to_chart) do
+        storage.all_seeing_satellite.staged_areas_to_chart[k] = nil
+        break
+      end
     else
       -- table.remove(storage.all_seeing_satellite.staged_areas_to_chart, #storage.all_seeing_satellite.staged_areas_to_chart)
-      table.remove(storage.all_seeing_satellite.staged_areas_to_chart, table_size(storage.all_seeing_satellite.staged_areas_to_chart))
+      -- table.remove(storage.all_seeing_satellite.staged_areas_to_chart, table_size(storage.all_seeing_satellite.staged_areas_to_chart))
+      local obj = {}
+      for k, v in pairs(storage.all_seeing_satellite.staged_areas_to_chart) do
+        obj.k = k
+        obj.v = storage.all_seeing_satellite.staged_areas_to_chart[k]
+      end
+      storage.all_seeing_satellite.staged_areas_to_chart[obj.k] = nil
     end
   end
 end
@@ -217,7 +230,7 @@ function storage_service.stage_chunk_to_chart(area_to_chart, center, i, j)
   -- }
   })
 
-  Log.warn(storage.all_seeing_satellite.staged_chunks_to_chart)
+  -- Log.warn(storage.all_seeing_satellite.staged_chunks_to_chart)
   -- Pretty sure this isn't necessary; but not 100% sure
   -- storage.all_seeing_satellite.staged_chunks_to_chart = staged_chunks_to_chart
 end
@@ -245,7 +258,10 @@ function storage_service.get_staged_chunk_to_chart(optionals)
   if (optionals and optionals.mode == Constants.optionals.mode.stack and table_size(storage.all_seeing_satellite.staged_chunks_to_chart) > 0) then
     Log.warn("found something to chart; mode = stack")
     -- return_val.obj = storage.all_seeing_satellite.staged_chunks_to_chart[#storage.all_seeing_satellite.staged_chunks_to_chart]
-    return_val.obj = storage.all_seeing_satellite.staged_chunks_to_chart[table_size(storage.all_seeing_satellite.staged_chunks_to_chart)]
+    -- return_val.obj = storage.all_seeing_satellite.staged_chunks_to_chart[table_size(storage.all_seeing_satellite.staged_chunks_to_chart)]
+    for _, v in pairs(storage.all_seeing_satellite.staged_chunks_to_chart) do
+      return_val.obj = v
+    end
     return_val.valid = true
   -- elseif (optionals and optionals.mode == Constants.optionals.mode.queue and #storage.all_seeing_satellite.staged_chunks_to_chart > 0) then
   elseif (optionals and optionals.mode == Constants.optionals.mode.queue and table_size(storage.all_seeing_satellite.staged_chunks_to_chart) > 0) then
@@ -282,15 +298,18 @@ function storage_service.remove_chunk_to_chart_from_stage(optionals)
     if (optionals.mode == Constants.optionals.mode.queue) then
       -- table.remove(storage.all_seeing_satellite.staged_chunks_to_chart, 1)
       for k, v in pairs(storage.all_seeing_satellite.staged_chunks_to_chart) do
-        -- Log.error(k)
-        -- Log.error(v)
-        -- v[k] = nil
         storage.all_seeing_satellite.staged_chunks_to_chart[k] = nil
         break
       end
     else
       -- table.remove(storage.all_seeing_satellite.staged_chunks_to_chart, #storage.all_seeing_satellite.staged_chunks_to_chart)
-      table.remove(storage.all_seeing_satellite.staged_chunks_to_chart, table_size(storage.all_seeing_satellite.staged_chunks_to_chart))
+      -- table.remove(storage.all_seeing_satellite.staged_chunks_to_chart, table_size(storage.all_seeing_satellite.staged_chunks_to_chart))
+      local obj = {}
+      for k, v in pairs(storage.all_seeing_satellite.staged_chunks_to_chart) do
+        obj.k = k
+        obj.v = storage.all_seeing_satellite.staged_chunks_to_chart[k]
+      end
+      storage.all_seeing_satellite.staged_chunks_to_chart[obj.k] = nil
     end
   end
 end

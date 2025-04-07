@@ -22,7 +22,7 @@ constants.DEFAULT_RESEARCH.name = "rocket-silo"
 
 constants.optionals= {}
 constants.optionals.DEFAULT = {}
-constants.optionals.DEFAULT.mode = "queue"
+constants.optionals.DEFAULT.mode = "stack"
 constants.optionals.mode = {}
 constants.optionals.mode.stack = "stack"
 constants.optionals.mode.queue = "queue"
