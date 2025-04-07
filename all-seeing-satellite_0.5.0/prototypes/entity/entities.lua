@@ -1,4 +1,4 @@
-local Settings_Constants = require("libs.constants.settings-constants")
+local Custom_Input_Constants = require("libs.constants.custom-input-constants")
 
 local satellite_target = util.table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
 satellite_target.name = "satellite-target"
@@ -32,7 +32,7 @@ data:extend({
       }
     },
     trigger_created_entity = true,
-    trigger_effect = { type = "script", effect_id = Settings_Constants.hotkeys.SCAN_SELECTED_CHUNK.name },
-    regular_trigger_effect = { type = "script", effect_id = Settings_Constants.hotkeys.SCAN_SELECTED_CHUNK.name }
+    trigger_effect = { type = "script", effect_id = Custom_Input_Constants.SCAN_SELECTED_CHUNK.name },
+    regular_trigger_effect = { type = "script", effect_id = Custom_Input_Constants.SCAN_SELECTED_CHUNK.name }
   },
 })
