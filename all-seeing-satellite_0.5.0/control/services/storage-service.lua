@@ -6,6 +6,7 @@ end
 local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
 local Initialization = require("control.initialization")
+local Settings_Service = require("control.services.settings-service")
 
 local storage_service = {}
 
@@ -48,6 +49,12 @@ function storage_service.stage_area_to_chart(event, optionals)
     },
     started = false,
     complete = false,
+    -- mode = optionals.mode
+    -- i = 0,
+    -- j = 0,
+  }
+
+  area_to_chart[optionals.mode] = {
     i = 0,
     j = 0,
   }
@@ -83,7 +90,7 @@ function storage_service.get_area_to_chart(optionals)
   Log.debug("storage_service.get_area_to_chart")
 
   optionals = optionals or {
-    mode = Constants.optionals.DEFAULT.mode
+    mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode
   }
 
   local return_val = { valid = false }
@@ -119,7 +126,7 @@ end
 function storage_service.remove_area_to_chart_from_stage(optionals)
   Log.debug("storage_service.remove_area_to_chart_from_stage")
   optionals = optionals or {
-   mode = Constants.optionals.DEFAULT.mode
+   mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode
   }
 
   if (not storage) then return end
@@ -150,7 +157,7 @@ end
 function storage_service.remove_area_to_chart_from_stage_by_id(id, optionals)
   Log.debug("storage_service.remove_area_to_chart_from_stage_by_id")
   optionals = optionals or {
-   mode = Constants.optionals.DEFAULT.mode
+   mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode
   }
 
   if (not storage) then return end
@@ -165,7 +172,7 @@ function storage_service.remove_area_to_chart_from_stage_by_id(id, optionals)
   storage.all_seeing_satellite.staged_areas_to_chart[id] = nil
 end
 
-function storage_service.stage_chunk_to_chart(area_to_chart, center, i, j)
+function storage_service.stage_chunk_to_chart(area_to_chart, center, i, j, optionals)
   Log.debug("storage_service.stage_chunk_to_chart")
   if (not area_to_chart or not area_to_chart.valid) then return end
 
@@ -179,7 +186,8 @@ function storage_service.stage_chunk_to_chart(area_to_chart, center, i, j)
   if (not tick) then tick = 0 end
 
   if (not storage.all_seeing_satellite.staged_chunks_to_chart[tick]) then storage.all_seeing_satellite.staged_chunks_to_chart[tick] = {} end
-  table.insert(storage.all_seeing_satellite.staged_chunks_to_chart[tick], {
+
+  local chunk_to_chart = {
     parent_id = area_to_chart.id,
     id = tick,
     valid = area_to_chart.valid,
@@ -192,9 +200,20 @@ function storage_service.stage_chunk_to_chart(area_to_chart, center, i, j)
       x = center.x,
       y = center.y,
     },
+    -- i = i,
+    -- j = j,
+    -- optionals.mode = {
+    --   i = i,
+    --   j = j,
+    -- }
+  }
+
+  chunk_to_chart[optionals.mode] = {
     i = i,
     j = j,
-  })
+  }
+
+  table.insert(storage.all_seeing_satellite.staged_chunks_to_chart[tick], chunk_to_chart)
 end
 
 function storage_service.get_staged_chunk_to_chart(optionals)
@@ -237,7 +256,7 @@ end
 function storage_service.remove_chunk_to_chart_from_stage(optionals)
   Log.debug("storage_service.remove_chunk_to_chart_from_stage")
   optionals = optionals or {
-   mode = Constants.optionals.DEFAULT.mode
+   mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode
   }
 
   if (not storage) then return end
@@ -268,7 +287,7 @@ end
 function storage_service.remove_chunk_to_chart_from_stage_by_id(id, optionals)
   Log.debug("storage_service.remove_chunk_to_chart_from_stage_by_id")
   optionals = optionals or {
-   mode = Constants.optionals.DEFAULT.mode
+   mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode
   }
 
   if (not storage) then return end

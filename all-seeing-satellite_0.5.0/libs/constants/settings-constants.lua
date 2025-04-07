@@ -61,6 +61,15 @@ settings_constants.settings.NTH_TICK.setting = {
   minimum_value = 0,
 }
 
+settings_constants.settings.SATELLITE_SCAN_MODE = {
+  type = "string-setting",
+  name = "all-seeing-satellite-satellite-scan-mode",
+  setting_type = "runtime-global",
+  order = "ddd",
+  default_value = "queue",
+  allowed_values = { "queue", "stack" }
+}
+
 settings_constants.all_seeing_satellite = true
 
 local _settings_constants = settings_constants

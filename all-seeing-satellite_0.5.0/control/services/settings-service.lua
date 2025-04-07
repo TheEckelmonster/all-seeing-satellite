@@ -55,6 +55,17 @@ function settings_service.get_global_launch_satellite_threshold(surface_name)
   return setting
 end
 
+-- SATELLITE_SCAN_MODE
+function settings_service.get_satellite_scan_mode()
+  local setting = Settings_Constants.settings.SATELLITE_SCAN_MODE.value
+
+  if (settings and settings.global and settings.global[Settings_Constants.settings.SATELLITE_SCAN_MODE.name]) then
+    setting = settings.global[Settings_Constants.settings.SATELLITE_SCAN_MODE.name].value
+  end
+
+  return setting
+end
+
 function settings_service.mod_setting_changed(event)
   Log.info(event)
   if (event and event.setting) then
