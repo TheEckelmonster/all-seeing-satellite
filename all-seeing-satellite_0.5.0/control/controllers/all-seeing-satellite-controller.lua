@@ -3,10 +3,8 @@ if _all_seeing_satellite_controller and _all_seeing_satellite_controller.all_see
   return _all_seeing_satellite_controller
 end
 
+local All_Seeing_Satellite_Service = require("control.services.all-seeing-satellite-service")
 local Log = require("libs.log.log")
-local Satellite_Service = require("control.services.satellite-service")
-local Scan_Chunk_Service = require("control.services.scan-chunk-service")
-local Settings_Constants = require("libs.constants.settings-constants")
 local Settings_Service = require("control.services.settings-service")
 local Storage_Service = require("control.services.storage-service")
 
@@ -23,16 +21,12 @@ function all_seeing_satellite_controller.do_tick(event)
 
   if (nth_tick ~= tick_modulo) then return end
 
-  local return_val = Storage_Service.get_area_to_chart()
-  if (not return_val or not return_val.obj or not return_val.valid) then return end
-  local area_to_chart = return_val.obj
-  -- Scan_Chunk_Service.scan_selected_chunk(area_to_chart)
+  if (not Storage_Service.get_scan_in_progress()) then
+    All_Seeing_Satellite_Service.check_for_areas_to_stage()
+  else
 
-  if (Scan_Chunk_Service.scan_selected_chunk(area_to_chart)) then
-    Log.error("removing area")
-    Storage_Service.remove_area_to_chart_from_stage({ mode = "stack" })
   end
-
+  All_Seeing_Satellite_Service.do_scan()
 end
 
 all_seeing_satellite_controller.all_seeing_satellite = true

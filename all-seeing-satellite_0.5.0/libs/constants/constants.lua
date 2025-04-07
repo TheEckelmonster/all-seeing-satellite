@@ -20,6 +20,13 @@ constants.TICKS_PER_MINUTE = constants.TICKS_PER_SECOND * constants.SECONDS_PER_
 constants.DEFAULT_RESEARCH = {}
 constants.DEFAULT_RESEARCH.name = "rocket-silo"
 
+constants.optionals= {}
+constants.optionals.DEFAULT = {}
+constants.optionals.DEFAULT.mode = "queue"
+constants.optionals.mode = {}
+constants.optionals.mode.stack = "stack"
+constants.optionals.mode.queue = "queue"
+
 function constants.get_planets(reindex)
   if (not reindex and constants.planets) then
     return constants.planets
