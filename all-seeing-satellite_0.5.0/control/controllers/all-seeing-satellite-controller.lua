@@ -21,12 +21,17 @@ function all_seeing_satellite_controller.do_tick(event)
 
   if (nth_tick ~= tick_modulo) then return end
 
-  if (not Storage_Service.get_scan_in_progress()) then
-    All_Seeing_Satellite_Service.check_for_areas_to_stage()
-  else
+  -- if (not Storage_Service.get_scan_in_progress()) then
+  --   All_Seeing_Satellite_Service.check_for_areas_to_stage()
+  -- else
 
+  -- end
+  -- All_Seeing_Satellite_Service.do_scan()
+
+  if (Storage_Service.get_do_scan()) then
+    All_Seeing_Satellite_Service.check_for_areas_to_stage()
+    All_Seeing_Satellite_Service.do_scan()
   end
-  All_Seeing_Satellite_Service.do_scan()
 end
 
 all_seeing_satellite_controller.all_seeing_satellite = true

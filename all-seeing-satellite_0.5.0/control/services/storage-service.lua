@@ -60,10 +60,6 @@ function storage_service.stage_area_to_chart(event, optionals)
   }
 
   storage.all_seeing_satellite.staged_areas_to_chart[area_to_chart.id] = area_to_chart
-
-  -- if (not storage.all_seeing_satellite.staged_areas_to_chart_dictionary) then storage.all_seeing_satellite.staged_areas_to_chart_dictionary = {} end
-
-  -- storage.all_seeing_satellite.staged_areas_to_chart_dictionary[event.tick] = area_to_chart
 end
 
 ---
@@ -200,12 +196,6 @@ function storage_service.stage_chunk_to_chart(area_to_chart, center, i, j, optio
       x = center.x,
       y = center.y,
     },
-    -- i = i,
-    -- j = j,
-    -- optionals.mode = {
-    --   i = i,
-    --   j = j,
-    -- }
   }
 
   chunk_to_chart[optionals.mode] = {
@@ -326,22 +316,53 @@ function storage_service.have_mod_settings_changed()
   return return_val
 end
 
-function storage_service.get_scan_in_progress()
-  Log.debug("storage_service.get_scan_in_progress")
+-- function storage_service.get_scan_in_progress()
+--   Log.debug("storage_service.get_scan_in_progress")
+--   if (not storage) then return end
+--   if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+--   if (storage.all_seeing_satellite.scan_in_progress == nil) then storage.all_seeing_satellite.scan_in_progress = false end
+
+--   return storage.all_seeing_satellite.scan_in_progress
+-- end
+
+-- function storage_service.set_scan_in_progress(set_val)
+--   Log.debug("storage_service.have_mod_settings_changed")
+
+--   if (not storage) then return end
+--   if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+
+--   storage.all_seeing_satellite.scan_in_progress = set_val
+-- end
+
+function storage_service.get_do_scan()
+  Log.debug("storage_service.get_do_scan")
   if (not storage) then return end
   if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
-  if (storage.all_seeing_satellite.scan_in_progress == nil) then storage.all_seeing_satellite.scan_in_progress = false end
+  if (storage.all_seeing_satellite.do_scan == nil) then storage.all_seeing_satellite.do_scan = false end
 
-  return storage.all_seeing_satellite.scan_in_progress
+  return storage.all_seeing_satellite.do_scan
 end
 
-function storage_service.set_scan_in_progress(set_val)
-  Log.debug("storage_service.have_mod_settings_changed")
+function storage_service.set_do_scan(set_val)
+  Log.debug("storage_service.set_do_scan")
 
   if (not storage) then return end
   if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+  if (set_val == nil) then set_val = false end
 
-  storage.all_seeing_satellite.scan_in_progress = set_val
+  storage.all_seeing_satellite.do_scan = set_val
+end
+
+function storage_service.clear_stages()
+  if (not storage) then return end
+  if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then
+    Initialization.reinit()
+    return
+  end
+
+  Log.warn("clearing stages")
+  storage.all_seeing_satellite.staged_areas_to_chart = {}
+  storage.all_seeing_satellite.staged_chunks_to_chart = {}
 end
 
 storage_service.all_seeing_satellite = true

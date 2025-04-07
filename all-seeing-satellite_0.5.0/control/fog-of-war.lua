@@ -39,7 +39,7 @@ end
 
 function fog_of_war.toggle(event)
   -- Validate inputs
-  if (event.input_name ~= Settings_Constants.HOTKEY_EVENT_NAME.name and event.prototype_name ~= Settings_Constants.HOTKEY_EVENT_NAME.name) then
+  if (event.input_name ~= Settings_Constants.hotkeys.FOG_OF_WAR_TOGGLE.name and event.prototype_name ~= Settings_Constants.hotkeys.FOG_OF_WAR_TOGGLE.name) then
     return
   end
 

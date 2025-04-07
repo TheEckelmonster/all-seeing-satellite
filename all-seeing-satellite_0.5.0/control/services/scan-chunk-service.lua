@@ -49,13 +49,9 @@ function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
 
   Log.warn(area_to_chart)
 
-  -- if (not area_to_chart.i or area_to_chart.i < 0 or optionals.i < 0) then return end
-  -- if (not area_to_chart.j or area_to_chart.j < 0 or optionals.j < 0) then return end
   if (not area_to_chart[optionals.mode].i or area_to_chart[optionals.mode].i < 0 or optionals.i < 0) then return end
   if (not area_to_chart[optionals.mode].j or area_to_chart[optionals.mode].j < 0 or optionals.j < 0) then return end
 
-  -- local i = area_to_chart.i >= 0 and area_to_chart.i <= radius and area_to_chart.i or optionals.i
-  -- local j = area_to_chart.j >= 0 and area_to_chart.j <= radius and area_to_chart.j or optionals.j
   local i = area_to_chart[optionals.mode].i >= 0 and area_to_chart[optionals.mode].i <= radius and area_to_chart[optionals.mode].i or optionals.i
   local j = area_to_chart[optionals.mode].j >= 0 and area_to_chart[optionals.mode].j <= radius and area_to_chart[optionals.mode].j or optionals.j
 

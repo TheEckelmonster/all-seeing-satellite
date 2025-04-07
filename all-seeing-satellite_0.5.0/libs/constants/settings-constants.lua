@@ -9,13 +9,21 @@ settings_constants.settings = {}
 
 settings_constants.hotkeys = {}
 
-settings_constants.HOTKEY_EVENT_NAME = {}
-settings_constants.HOTKEY_EVENT_NAME.value = "N"
-settings_constants.HOTKEY_EVENT_NAME.name = "all-seeing-satellite-toggle"
+settings_constants.hotkeys.FOG_OF_WAR_TOGGLE = {}
+settings_constants.hotkeys.FOG_OF_WAR_TOGGLE.value = "N"
+settings_constants.hotkeys.FOG_OF_WAR_TOGGLE.name = "all-seeing-satellite-fog-of-war-toggle"
 
 settings_constants.hotkeys.SCAN_SELECTED_CHUNK = {}
 settings_constants.hotkeys.SCAN_SELECTED_CHUNK.value = "M"
 settings_constants.hotkeys.SCAN_SELECTED_CHUNK.name = "all-seeing-satellite-scan-selected-chunk"
+
+settings_constants.hotkeys.TOGGLE_SCANNING = {}
+settings_constants.hotkeys.TOGGLE_SCANNING.value = "CONTROL + SPACE"
+settings_constants.hotkeys.TOGGLE_SCANNING.name = "all-seeing-satellite-toggle-scanning"
+
+settings_constants.hotkeys.CANCEL_SCANNING = {}
+settings_constants.hotkeys.CANCEL_SCANNING.value = "CONTROL + SHIFT + SPACE"
+settings_constants.hotkeys.CANCEL_SCANNING.name = "all-seeing-satellite-cancel-scanning"
 
 settings_constants.DEBUG_LEVEL = {}
 settings_constants.DEBUG_LEVEL.value = "None"
