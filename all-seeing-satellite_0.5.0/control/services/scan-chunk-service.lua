@@ -14,7 +14,7 @@ local scan_chunk_service = {}
 function scan_chunk_service.stage_selected_chunk(event)
   Log.debug("scan_chunk_service.stage_selected_chunk")
   Log.info(event)
-  if (not event or not event.item or not event.item == "satellite-targeting-remote") then return end
+  if (not event or not event.item or not event.item == "satellite-scanning-remote") then return end
   if (not event.surface or not event.surface or not event.surface.valid) then return end
   if (not event.player_index or not event.area) then return end
   if (not Planet_Utils.allow_toggle(event.surface)) then return end

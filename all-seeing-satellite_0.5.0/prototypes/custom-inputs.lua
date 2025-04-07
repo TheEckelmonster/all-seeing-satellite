@@ -14,7 +14,7 @@ data:extend({
     key_sequence = Settings_Constants.hotkeys.SCAN_SELECTED_CHUNK.value,
     consuming = "game-only",
     localised_name = 'Scan Selected Area',
-    item_to_spawn = "satellite-targeting-remote",
+    item_to_spawn = "satellite-scanning-remote",
     action = "spawn-item",
   },
   {

@@ -18,7 +18,7 @@ data:extend({
   },
   {
     type = "selection-tool",
-    name = "satellite-targeting-remote",
+    name = "satellite-scanning-remote",
     icon = "__base__/graphics/icons/satellite.png",
     flags = { "only-in-cursor", "not-stackable", "spawnable" },
     subgroup = "spawnables",
