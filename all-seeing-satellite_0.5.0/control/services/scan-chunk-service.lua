@@ -41,25 +41,10 @@ function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
   if (not area_to_chart.center or not area_to_chart.center.x or not area_to_chart.center.y) then return end
   Log.warn("staging chunk(s)")
 
-  -- local radius = math.floor(area_to_chart.radius / 16)
   local radius = area_to_chart.radius
 
-  -- if (optionals.mode == Constants.optionals.mode.stack) then
-  --   if (optionals and optionals.i == nil) then optionals.i = radius end
-  --   if (optionals and optionals.j == nil) then optionals.j = radius end
-  -- elseif (optionals.mode == Constants.optionals.mode.queue) then
-    if (optionals and optionals.i == nil) then optionals.i = 0 end
-    if (optionals and optionals.j == nil) then optionals.j = 0 end
-  -- end
-
-  -- for i=0, radius do
-  --   local c = 0
-  --   if (optionals.mode == "stack") then
-  --     c = radius - i
-  --   elseif (optionals.mode == "queue")
-  --     c = i
-  --   end
-  -- local i = math.sqrt((area_to_chart.center.x - area_to_chart.pos.x)^2 + (area_to_chart.center.y - area_to_chart.pos.y)^2)
+  if (optionals and optionals.i == nil) then optionals.i = 0 end
+  if (optionals and optionals.j == nil) then optionals.j = 0 end
 
   Log.warn(area_to_chart)
 
@@ -76,20 +61,6 @@ function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
     area_to_chart.complete = true
     return
   end
-
-  -- if (optionals.mode == "stack") then
-  --   if (area_to_chart.j < i or optionals.j < i) then
-  --     area_to_chart.i = area_to_chart.i - 1
-  --     area_to_chart.j = area_to_chart.i
-  --     return
-  --   end
-  -- elseif (optionals.mode == "queue") then
-  --   if (area_to_chart.j > i or optionals.j > i) then
-  --     area_to_chart.i = area_to_chart.i + 1
-  --     area_to_chart.j = 0
-  --     return
-  --   end
-  -- end
 
   local c = 0
   if (optionals.mode == Constants.optionals.mode.stack) then
@@ -111,21 +82,7 @@ function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
       return
     end
   end
-  -- if (area_to_chart.j > i or optionals.j > i) then
-  --   area_to_chart.i = area_to_chart.i + 1
-  --   area_to_chart.j = 0
-  --   return
-  -- end
 
-
-  -- for j=0, c do
-  --   local a = 0
-  --   if (optionals.mode == "stack") then
-  --     a = c - j
-  --   elseif (optionals.mode == "queue")
-  --     a = j
-  --   end
-  -- local j = area_to_chart.j
   local a = 0
   if (optionals.mode == Constants.optionals.mode.stack) then
     if (j > c) then
@@ -134,15 +91,6 @@ function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
     Log.error("c: " .. serpent.block(c))
     Log.error("j: " .. serpent.block(j))
     a = c - j
-    -- a = j
-    -- if (j > c) then
-    --   c = 0
-    -- else
-    --   a = (c - j)
-    -- end
-    -- a = j - c
-    -- Log.error("radius: " .. serpent.block(radius))
-    -- a = radius - j
   elseif (optionals.mode == Constants.optionals.mode.queue) then
     a = j
   end
@@ -209,20 +157,10 @@ function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
     j
   )
 
-  -- Increment/decrement based on the mode for the next iteration
-  -- if (optionals.mode == "stack") then
-  --   j = j - 1
-  -- elseif (optionals.mode == "queue") then
-    j = j + 1
-  -- end
-
+  j = j + 1
   area_to_chart.j = j
-    -- end
-  -- end
 
   Log.warn(storage.all_seeing_satellite)
-
-  -- area_to_chart.complete = true
 
   return area_to_chart.complete
 end
@@ -253,79 +191,6 @@ function scan_chunk_service.scan_selected_chunk(area_to_chart, optionals)
       {(area_to_chart.pos.x) - 16, (area_to_chart.pos.y) - 16},
       {(area_to_chart.pos.x) + 16, (area_to_chart.pos.y) + 16}
     })
-
-  -- game.forces[area_to_chart.player_index].chart(
-  --   area_to_chart.surface, {
-  --     {(area_to_chart.center.x + 16 * a) - 16, (area_to_chart.center.y + 16 * math.sqrt(c^2 - a^2)) - 16},
-  --     {(area_to_chart.center.x + 16 * a) + 16, (area_to_chart.center.y + 16 * math.sqrt(c^2 - a^2)) + 16}
-  --   })
-
-  -- local radius = math.floor(area_to_chart.radius / 16)
-
-  -- for i=0, radius do
-  --   local c = 0
-  --   if (optionals.mode == "stack") then
-  --     c = radius - i
-  --   elseif (optionals.mode == "queue")
-  --     c = i
-  --   end
-
-  --   for j=0, c do
-  --     local a = 0
-  --     if (optionals.mode == "stack") then
-  --       a = c - j
-  --     elseif (optionals.mode == "queue")
-  --       a = j
-  --     end
-
-  --     game.forces[area_to_chart.player_index].chart(
-  --       area_to_chart.surface, {
-  --         {(area_to_chart.center.x + 16 * a) - 16, (area_to_chart.center.y + 16 * math.sqrt(c^2 - a^2)) - 16},
-  --         {(area_to_chart.center.x + 16 * a) + 16, (area_to_chart.center.y + 16 * math.sqrt(c^2 - a^2)) + 16}
-  --       })
-  --     game.forces[area_to_chart.player_index].chart(
-  --       area_to_chart.surface, {
-  --         {(area_to_chart.center.x - 16 * a) - 16, (area_to_chart.center.y + 16 * math.sqrt(c^2 - a^2)) - 16},
-  --         {(area_to_chart.center.x - 16 * a) + 16, (area_to_chart.center.y + 16 * math.sqrt(c^2 - a^2)) + 16}
-  --       })
-  --     game.forces[area_to_chart.player_index].chart(
-  --       area_to_chart.surface, {
-  --         {(area_to_chart.center.x - 16 * a) - 16, (area_to_chart.center.y - 16 * math.sqrt(c^2 - a^2)) - 16},
-  --         {(area_to_chart.center.x - 16 * a) + 16, (area_to_chart.center.y - 16 * math.sqrt(c^2 - a^2)) + 16}
-  --       })
-  --     game.forces[area_to_chart.player_index].chart(
-  --       area_to_chart.surface, {
-  --         {(area_to_chart.center.x + 16 * a) - 16, (area_to_chart.center.y - 16 * math.sqrt(c^2 - a^2)) - 16},
-  --         {(area_to_chart.center.x + 16 * a) + 16, (area_to_chart.center.y - 16 * math.sqrt(c^2 - a^2)) + 16}
-  --       })
-
-  --     -- Not sure why part of the circle is missing, but doing it again with x and y ~flipped fixes the issue;
-  --     -- seems like overkill/unoptimal, though
-
-  --     game.forces[area_to_chart.player_index].chart(
-  --       area_to_chart.surface, {
-  --         {(area_to_chart.center.x + 16 * math.sqrt(c^2 - a^2)) - 16, (area_to_chart.center.y + 16 * a) - 16},
-  --         {(area_to_chart.center.x + 16 * math.sqrt(c^2 - a^2)) + 16, (area_to_chart.center.y + 16 * a) + 16}
-  --       })
-  --     game.forces[area_to_chart.player_index].chart(
-  --       area_to_chart.surface, {
-  --         {(area_to_chart.center.x - 16 * math.sqrt(c^2 - a^2)) - 16, (area_to_chart.center.y + 16 * a) - 16},
-  --         {(area_to_chart.center.x - 16 * math.sqrt(c^2 - a^2)) + 16, (area_to_chart.center.y + 16 * a) + 16}
-  --       })
-  --     game.forces[area_to_chart.player_index].chart(
-  --       area_to_chart.surface, {
-  --         {(area_to_chart.center.x - 16 * math.sqrt(c^2 - a^2)) - 16, (area_to_chart.center.y - 16 * a) - 16},
-  --         {(area_to_chart.center.x - 16 * math.sqrt(c^2 - a^2)) + 16, (area_to_chart.center.y - 16 * a) + 16}
-  --       })
-  --     game.forces[area_to_chart.player_index].chart(
-  --       area_to_chart.surface, {
-  --         {(area_to_chart.center.x + 16 * math.sqrt(c^2 - a^2)) - 16, (area_to_chart.center.y - 16 * a) - 16},
-  --         {(area_to_chart.center.x + 16 * math.sqrt(c^2 - a^2)) + 16, (area_to_chart.center.y - 16 * a) + 16}
-  --       })
-  --   end
-  -- end
-
-  -- area_to_chart.complete = true
 
   return area_to_chart.complete
 end
