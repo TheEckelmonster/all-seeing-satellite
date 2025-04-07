@@ -1,7 +1,7 @@
 local All_Seeing_Satellite_Controller = require("control.controllers.all-seeing-satellite-controller")
 local Constants = require("libs.constants.constants")
 local Custom_Input_Constants = require("libs.constants.custom-input-constants")
-local Fog_Of_War = require("control.fog-of-war")
+-- local Fog_Of_War = require("control.fog-of-war")
 local Fog_Of_War_Controller = require("control.controllers.fog-of-war-controller")
 local Log = require("libs.log.log")
 local Planet_Controller = require("control.controllers.planet-controller")
@@ -26,16 +26,17 @@ script.on_init(init)
 
 script.on_event(defines.events.on_tick, All_Seeing_Satellite_Controller.do_tick)
 
-script.on_nth_tick(nth_tick + 1, Fog_Of_War.toggle_FoW)
-script.on_event(Custom_Input_Constants.FOG_OF_WAR_TOGGLE.name, Fog_Of_War.toggle)
+-- script.on_nth_tick(nth_tick + 1, Fog_Of_War.toggle_FoW)
+-- script.on_event(Custom_Input_Constants.FOG_OF_WAR_TOGGLE.name, Fog_Of_War.toggle)
+script.on_event(Custom_Input_Constants.FOG_OF_WAR_TOGGLE.name, Fog_Of_War_Controller.toggle)
 script.on_event(Custom_Input_Constants.TOGGLE_SCANNING.name, Fog_Of_War_Controller.toggle_scanning)
 script.on_event(Custom_Input_Constants.CANCEL_SCANNING.name, Fog_Of_War_Controller.cancel_scanning)
 
 script.on_event(defines.events.on_surface_created, Planet_Controller.on_surface_created)
 
-script.on_nth_tick(nth_tick, Rocket_Silo_Controller.launch_rocket)
+-- script.on_nth_tick(nth_tick, Rocket_Silo_Controller.launch_rocket)
 
-script.on_nth_tick(nth_tick + 2, Satellite_Controller.check_for_expired_satellites)
+-- script.on_nth_tick(nth_tick + 2, Satellite_Controller.check_for_expired_satellites)
 script.on_event(defines.events.on_rocket_launch_ordered, Satellite_Controller.track_satellite_launches_ordered)
 
 script.on_event(defines.events.on_runtime_mod_setting_changed, Settings_Controller.mod_setting_changed)

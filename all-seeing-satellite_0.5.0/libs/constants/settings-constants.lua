@@ -42,7 +42,7 @@ settings_constants.settings.DEFAULT_SATELLITE_TIME_TO_LIVE = {
 }
 
 settings_constants.settings.NTH_TICK = {}
-settings_constants.settings.NTH_TICK.value = 1
+settings_constants.settings.NTH_TICK.value = 20
 settings_constants.settings.NTH_TICK.setting = {
   type = "int-setting",
   name = "all-seeing-satellite-nth-tick",

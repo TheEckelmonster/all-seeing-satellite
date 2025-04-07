@@ -79,10 +79,10 @@ function rocket_silo_utils.launch_rocket(event)
     Initialization.init()
   end
 
-  local tick = event.tick
-  local nth_tick = event.nth_tick
+  -- local tick = event.tick
+  -- local nth_tick = event.nth_tick
 
-  local tick_mod = tick % nth_tick
+  -- local tick_mod = tick % nth_tick
 
   if (storage.rocket_silos) then
     for _, planet in pairs(Constants.get_planets(false)) do

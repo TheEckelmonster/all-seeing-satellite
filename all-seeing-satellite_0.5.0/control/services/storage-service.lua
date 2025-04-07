@@ -344,6 +344,25 @@ function storage_service.clear_stages()
   storage.all_seeing_satellite.staged_chunks_to_chart = {}
 end
 
+function storage_service.get_do_nth_tick()
+  Log.debug("storage_service.get_do_scan")
+  if (not storage) then return end
+  if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+  if (storage.all_seeing_satellite.do_nth_tick == nil) then storage.all_seeing_satellite.do_nth_tick = false end
+
+  return storage.all_seeing_satellite.do_nth_tick
+end
+
+function storage_service.set_do_nth_tick(set_val)
+  Log.debug("storage_service.set_do_scan")
+
+  if (not storage) then return end
+  if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+  if (set_val == nil) then set_val = false end
+
+  storage.all_seeing_satellite.do_nth_tick = set_val
+end
+
 storage_service.all_seeing_satellite = true
 
 local _storage_service = storage_service

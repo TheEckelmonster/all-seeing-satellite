@@ -33,6 +33,10 @@ end
 function initialize(from_scratch)
   from_scratch = from_scratch or false
 
+  if (storage and storage.all_seeing_satellite) then
+    storage.all_seeing_satellite.do_nth_tick = false
+  end
+
   if (from_scratch) then
     storage = {}
 
@@ -155,7 +159,10 @@ function initialize(from_scratch)
     end
   end
 
-  storage.all_seeing_satellite = {}
+  if (storage and storage.all_seeing_satellite) then
+    storage.all_seeing_satellite.do_nth_tick = true
+  end
+
   storage.all_seeing_satellite.valid = true
 
   Log.debug(storage)
