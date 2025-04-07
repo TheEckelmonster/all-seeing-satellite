@@ -3,9 +3,7 @@ if _fog_of_war_controllerr and _fog_of_war_controllerr.all_seeing_satellite then
   return _fog_of_war_controllerr
 end
 
--- local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
--- local Initialization = require("control.initialization")
 local Settings_Constants = require("libs.constants.settings-constants")
 local Storage_Service = require("control.services.storage-service")
 
@@ -15,9 +13,6 @@ function fog_of_war_controller.toggle_scanning(event)
   Log.debug("fog_of_war_controller.toggle_scanning")
   -- Validate inputs
   if (not event) then return end
-  -- if (event.input_name ~= Settings_Constants.hotkeys.CANCEL_SCANNING.name and event.prototype_name ~= Settings_Constants.hotkeys.CANCEL_SCANNING.name) then
-  --   return
-  -- end
   if (event.input_name ~= Settings_Constants.hotkeys.TOGGLE_SCANNING.name) then return end
   if (not event.player_index) then return end
   if (not game or not game.players or not game.players[event.player_index] or not game.players[event.player_index].force) then return end
@@ -36,9 +31,6 @@ function fog_of_war_controller.cancel_scanning(event)
   Log.debug("fog_of_war_controller.cancel_scanning")
     -- Validate inputs
   if (not event) then return end
-  -- if (event.input_name ~= Settings_Constants.hotkeys.CANCEL_SCANNING.name and event.prototype_name ~= Settings_Constants.hotkeys.CANCEL_SCANNING.name) then
-  --   return
-  -- end
   if (event.input_name ~= Settings_Constants.hotkeys.CANCEL_SCANNING.name) then return end
   if (not event.player_index) then return end
   if (not game or not game.players or not game.players[event.player_index] or not game.players[event.player_index].force) then return end

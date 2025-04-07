@@ -49,9 +49,6 @@ function storage_service.stage_area_to_chart(event, optionals)
     },
     started = false,
     complete = false,
-    -- mode = optionals.mode
-    -- i = 0,
-    -- j = 0,
   }
 
   area_to_chart[optionals.mode] = {
@@ -315,24 +312,6 @@ function storage_service.have_mod_settings_changed()
 
   return return_val
 end
-
--- function storage_service.get_scan_in_progress()
---   Log.debug("storage_service.get_scan_in_progress")
---   if (not storage) then return end
---   if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
---   if (storage.all_seeing_satellite.scan_in_progress == nil) then storage.all_seeing_satellite.scan_in_progress = false end
-
---   return storage.all_seeing_satellite.scan_in_progress
--- end
-
--- function storage_service.set_scan_in_progress(set_val)
---   Log.debug("storage_service.have_mod_settings_changed")
-
---   if (not storage) then return end
---   if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
-
---   storage.all_seeing_satellite.scan_in_progress = set_val
--- end
 
 function storage_service.get_do_scan()
   Log.debug("storage_service.get_do_scan")
