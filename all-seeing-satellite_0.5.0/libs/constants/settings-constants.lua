@@ -19,7 +19,7 @@ settings_constants.settings.DEFAULT_SATELLITE_TIME_TO_LIVE = {
   setting_type = "runtime-global",
   order = "ccc",
   default_value = 20,
-  -- maximum_value = 111,  -- What should be the maximum, if any?
+  maximum_value = 1111,  -- What should be the maximum, if any?
   minimum_value = 0,
 }
 

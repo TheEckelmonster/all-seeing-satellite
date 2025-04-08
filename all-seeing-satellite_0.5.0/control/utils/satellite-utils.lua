@@ -23,9 +23,7 @@ end
 
 function satellite_utils.start_satellite_countdown(satellite, tick, planet_name)
   if (  Storage_Service.is_storage_valid()
-    -- and Validations.validate_satellites_launched(planet_name)
     and Storage_Service.get_satellites_launched(planet_name)
-    -- and Validations.validate_satellites_in_orbit(planet_name)
     and Storage_Service.get_satellites_in_orbit(planet_name)
     and satellite
     and tick
@@ -35,24 +33,15 @@ function satellite_utils.start_satellite_countdown(satellite, tick, planet_name)
     local death_tick = satellite_utils.calculate_tick_to_die(tick, satellite)
     Log.debug("death tick = " .. serpent.block(death_tick))
 
-    -- if (Validations.validate_satellites_in_orbit(planet_name)) then
     if (Storage_Service.get_satellites_in_orbit(planet_name)) then
       Log.debug("Adding satellite to planet: " .. serpent.block(planet_name))
-      -- table.insert(Storage_Service.get_satellites_in_orbit(planet_name), {
-      --   entity = satellite,
-      --   planet_name = planet_name,
-      --   tick_created = tick,
-      --   tick_to_die = death_tick
-      -- })
       Storage_Service.add_to_satellites_in_orbit(satellite, planet_name, tick, death_tick)
-
       satellite_utils.get_num_satellites_in_orbit(planet_name)
     end
   end
 end
 
 function satellite_utils.get_num_satellites_in_orbit(planet_name)
-  -- if (Validations.validate_satellites_launched(planet_name) and Validations.validate_satellites_in_orbit(planet_name)) then
   if (Storage_Service.get_satellites_launched(planet_name) and Storage_Service.get_satellites_in_orbit(planet_name)) then
     Log.debug("Setting num satellites launched for planet: " .. serpent.block(planet_name))
     Storage_Service.set_satellites_launched(#Storage_Service.get_satellites_in_orbit(planet_name), planet_name)

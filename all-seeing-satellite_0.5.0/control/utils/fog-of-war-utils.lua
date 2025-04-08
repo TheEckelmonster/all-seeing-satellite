@@ -6,7 +6,6 @@ end
 local Log = require("libs.log.log")
 local Planet_Utils = require("control.utils.planet-utils")
 local Storage_Service = require("control.services.storage-service")
--- local Validations = require("control.validations.validations")
 
 local fog_of_war_utils = {}
 

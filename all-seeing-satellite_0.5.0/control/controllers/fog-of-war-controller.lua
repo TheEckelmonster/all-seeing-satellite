@@ -10,7 +10,6 @@ local Fog_Of_War_Utils = require("control.utils.fog-of-war-utils")
 local Research_Utils = require("control.utils.research-utils")
 local String_Utils = require("control.utils.string-utils")
 local Storage_Service = require("control.services.storage-service")
--- local Validations = require("control.validations.validations")
 
 local fog_of_war_controller = {}
 

@@ -7,7 +7,6 @@ local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
 local Satellite_Utils = require("control.utils.satellite-utils")
 local Storage_Service = require("control.services.storage-service")
--- local Validations = require("control.validations.validations")
 
 local satellite_service = {}
 
@@ -97,7 +96,6 @@ function satellite_service.recalculate_satellite_time_to_die(tick)
   local tick = tick or 1 --math.huge
 
   if (tick > 1 and Storage_Service.is_storage_valid()) then
-    -- if (storage.satellites_in_orbit) then
     if (Storage_Service.get_all_satellites_in_orbit()) then
       for _, satellites in pairs(Storage_Service.get_all_satellites_in_orbit()) do
         if (satellites) then
