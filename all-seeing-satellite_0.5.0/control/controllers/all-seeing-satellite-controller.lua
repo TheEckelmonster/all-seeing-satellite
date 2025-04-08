@@ -4,8 +4,10 @@ if _all_seeing_satellite_controller and _all_seeing_satellite_controller.all_see
 end
 
 local All_Seeing_Satellite_Service = require("control.services.all-seeing-satellite-service")
+local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
 local Fog_Of_War_Service = require("control.services.fog-of-war-service")
+local Planet_Utils = require("control.utils.planet-utils")
 local Rocket_Silo_Service = require("control.services.rocket-silo-service")
 local Satellite_Service = require("control.services.satellite-service")
 local Settings_Service = require("control.services.settings-service")
@@ -23,23 +25,31 @@ function all_seeing_satellite_controller.do_tick(event)
 
   -- Check/validate the storage version
   -- if (not Version_Validations.validate_version()) then return end
-  if (tick_modulo == 0) then
+  if (tick_modulo == 0 * (nth_tick / 3)) then
     Fog_Of_War_Service.toggle_FoW()
   end
 
-  if (tick_modulo == 7) then
+  if (tick_modulo == 1 * math.floor((nth_tick / 3))) then
     Satellite_Service.check_for_expired_satellites({ tick = game.tick })
   end
 
-  if (tick_modulo == 14) then
+  if (tick_modulo == 2 * (math.floor(nth_tick / 3))) then
     Rocket_Silo_Service.launch_rocket({ tick = game.tick })
   end
 
-  -- if (nth_tick ~= tick_modulo) then return end
+  -- TODO: Make this configurable
+  if (tick_modulo % 2 == 0) then
+    if (not Storage_Service.get_do_scan()) then return end
 
-  if (tick_modulo % 2 == 0 and Storage_Service.get_do_scan()) then
-    All_Seeing_Satellite_Service.check_for_areas_to_stage()
-    All_Seeing_Satellite_Service.do_scan()
+    for k, planet in pairs(Constants.get_planets()) do
+      if ( not Settings_Service.get_restrict_satellite_scanning()
+        or not Settings_Service.get_require_satellites_in_orbit()
+        or Planet_Utils.allow_scan(planet.name))
+      then
+        All_Seeing_Satellite_Service.check_for_areas_to_stage()
+        All_Seeing_Satellite_Service.do_scan()
+      end
+    end
   end
 end
 

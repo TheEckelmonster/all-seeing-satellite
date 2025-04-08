@@ -19,15 +19,17 @@ function all_seeing_satellite_service.check_for_areas_to_stage()
     mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode,
   }
 
-  local return_val = Storage_Service.get_area_to_chart(optionals)
-  if (not return_val or not return_val.obj or not return_val.valid) then
-    return_val = Storage_Service.get_area_to_chart({ mode = Constants.optionals.mode.queue })
-    if (not return_val or not return_val.obj or not return_val.valid) then return end
-  end
-  Log.debug(return_val)
-  local area_to_chart = return_val.obj
+  local return_val = false
 
-  if (not Planet_Utils.allow_toggle(area_to_chart.surface.name)) then return end
+  local obj_wrapper = Storage_Service.get_area_to_chart(optionals)
+  if (not obj_wrapper or not obj_wrapper.obj or not obj_wrapper.valid) then
+    obj_wrapper = Storage_Service.get_area_to_chart({ mode = Constants.optionals.mode.queue })
+    if (not obj_wrapper or not obj_wrapper.obj or not obj_wrapper.valid) then return return_val end
+  end
+  Log.debug(obj_wrapper)
+  local area_to_chart = obj_wrapper.obj
+
+  if (not Planet_Utils.allow_scan(area_to_chart.surface.name)) then return return_val end
 
   if (not area_to_chart.started) then
     if (area_to_chart.player_index and game and game.players and game.players[area_to_chart.player_index] and game.players[area_to_chart.player_index].force) then
@@ -56,24 +58,34 @@ function all_seeing_satellite_service.do_scan()
     mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode
   }
 
-  local return_val = Storage_Service.get_staged_chunk_to_chart(optionals)
-  if (not return_val or not return_val.obj or not return_val.valid) then
-    return_val = Storage_Service.get_staged_chunk_to_chart({ mode = Constants.optionals.mode.queue })
-    if (not return_val or not return_val.obj or not return_val.valid) then return end
+  local obj_wrapper = Storage_Service.get_staged_chunk_to_chart(optionals)
+  if (not obj_wrapper or not obj_wrapper.obj or not obj_wrapper.valid) then
+    obj_wrapper = Storage_Service.get_staged_chunk_to_chart({ mode = Constants.optionals.mode.queue })
+    if (not obj_wrapper or not obj_wrapper.obj or not obj_wrapper.valid) then return end
   end
-  Log.debug(return_val)
-  local area_to_chart = return_val.obj
+  Log.debug(obj_wrapper)
+  local area_to_chart = obj_wrapper.obj
 
+  local i = 0
+  local did_break = false
   for k, v in pairs(area_to_chart) do
+    -- TODO: Make this configurable
+    if (i > 25) then
+      did_break = true
+      break
+    end
     Log.warn(k)
     Log.warn(v)
 
-    if (Planet_Utils.allow_toggle(v.surface.name)) then
-      Scan_Chunk_Service.scan_selected_chunk(v)
+    if (Planet_Utils.allow_scan(v.surface.name)) then
+      Scan_Chunk_Service.scan_selected_chunk(v, optionals)
     end
+    i = i + 1
   end
 
-  Storage_Service.remove_chunk_to_chart_from_stage(optionals)
+  if (not did_break) then
+    Storage_Service.remove_chunk_to_chart_from_stage(optionals)
+  end
 end
 
 all_seeing_satellite_service.all_seeing_satellite = true

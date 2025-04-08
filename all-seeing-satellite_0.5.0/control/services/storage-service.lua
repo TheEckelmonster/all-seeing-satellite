@@ -10,6 +10,10 @@ local Settings_Service = require("control.services.settings-service")
 
 local storage_service = {}
 
+function storage_service.is_storage_valid()
+  return storage.all_seeing_satellite and storage.all_seeing_satellite.valid
+end
+
 function storage_service.stage_area_to_chart(event, optionals)
   Log.debug("storage_service.stage_area_to_chart")
 
@@ -361,6 +365,124 @@ function storage_service.set_do_nth_tick(set_val)
   if (set_val == nil) then set_val = false end
 
   storage.all_seeing_satellite.do_nth_tick = set_val
+end
+
+function storage_service.get_all_satellites_launched()
+  Log.debug("storage_service.get_all_satellites_launched")
+  if (not storage) then return end
+  if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+  if (not storage.all_seeing_satellite.satellites_launched) then
+    storage.all_seeing_satellite.satellites_launched = {}
+    -- Check for pre 0.5.x
+    Log.warn("checking for pre 0.5.x")
+    if (storage.satellites_launched ~= nil) then
+      -- Migrate
+      Log.warn("migrating satellites_launched")
+      storage.all_seeing_satellite.satellites_launched = storage.satellites_launched
+      storage.satellites_launched = nil
+    end
+  end
+
+  return storage.all_seeing_satellite.satellites_launched
+end
+
+function storage_service.get_satellites_launched(surface_name)
+  Log.debug("storage_service.get_satellites_launched")
+  if (not storage or not surface_name) then return end
+  if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+  if (not storage.all_seeing_satellite.satellites_launched) then
+    storage.all_seeing_satellite.satellites_launched = {}
+    -- Check for pre 0.5.x
+    Log.warn("checking for pre 0.5.x")
+    if (storage.satellites_launched ~= nil) then
+      -- Migrate
+      Log.warn("migrating satellites_launched")
+      storage.all_seeing_satellite.satellites_launched = storage.satellites_launched
+      storage.satellites_launched = nil
+    end
+  end
+
+  if (storage.all_seeing_satellite.satellites_launched[surface_name] == nil) then storage.all_seeing_satellite.satellites_launched[surface_name] = 0 end
+
+  return storage.all_seeing_satellite.satellites_launched[surface_name]
+end
+
+function storage_service.set_satellites_launched(set_val, surface_name)
+  Log.debug("storage_service.set_satellites_launched")
+
+  if (not storage or not surface_name) then return end
+  if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+  if (set_val == nil) then set_val = 0 end
+  if (not storage.all_seeing_satellite.satellites_launched) then storage.all_seeing_satellite.satellites_launched = {} end
+
+  storage.all_seeing_satellite.satellites_launched[surface_name] = set_val
+end
+
+function storage_service.get_all_satellites_in_orbit()
+  Log.debug("storage_service.get_satellites_in_orbit")
+  if (not storage) then return end
+  if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+  if (not storage.all_seeing_satellite.satellites_in_orbit) then
+    storage.all_seeing_satellite.satellites_in_orbit = {}
+    -- Check for pre 0.5.x
+    Log.warn("checking for pre 0.5.x")
+    if (storage.satellites_in_orbit ~= nil) then
+      -- Migrate
+      Log.warn("migrating satellites_in_orbit")
+      storage.all_seeing_satellite.satellites_in_orbit = storage.satellites_in_orbit
+      storage.satellites_in_orbit = nil
+    end
+  end
+
+  return storage.all_seeing_satellite.satellites_in_orbit
+end
+
+function storage_service.get_satellites_in_orbit(surface_name)
+  Log.debug("storage_service.get_satellites_in_orbit")
+  if (not storage or not surface_name) then return end
+  if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+  if (not storage.all_seeing_satellite.satellites_in_orbit) then
+    storage.all_seeing_satellite.satellites_in_orbit = {}
+    -- Check for pre 0.5.x
+    Log.warn("checking for pre 0.5.x")
+    if (storage.satellites_in_orbit ~= nil) then
+      -- Migrate
+      Log.warn("migrating satellites_in_orbit")
+      storage.all_seeing_satellite.satellites_in_orbit = storage.satellites_in_orbit
+      storage.satellites_in_orbit = nil
+    end
+  end
+
+  if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name]) then storage.all_seeing_satellite.satellites_in_orbit[surface_name] = {} end
+
+  return storage.all_seeing_satellite.satellites_in_orbit[surface_name]
+end
+
+function storage_service.set_satellites_in_orbit(set_val, surface_name)
+  Log.debug("storage_service.set_satellites_in_orbit")
+
+  if (not storage or not surface_name) then return end
+  if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+  if (not storage.all_seeing_satellite.satellites_in_orbit) then storage.all_seeing_satellite.satellites_in_orbit = {} end
+  if (not storage.all_seeing_satellite.satellites_in_orbit[planet_name]) then storage.all_seeing_satellite.satellites_in_orbit[planet_name] = {} end
+
+  storage.all_seeing_satellite.satellites_in_orbit[surface_name] = set_val
+end
+
+function storage_service.add_to_satellites_in_orbit(satellite, surface_name, tick, death_tick)
+  Log.debug("storage_service.add_to_satellites_in_orbit")
+
+  if (not storage or not surface_name) then return end
+  if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+  if (not storage.all_seeing_satellite.satellites_in_orbit) then storage.all_seeing_satellite.satellites_in_orbit = {} end
+  if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name]) then storage.all_seeing_satellite.satellites_in_orbit[surface_name] = {} end
+
+  table.insert(storage.all_seeing_satellite.satellites_in_orbit[surface_name], {
+    entity = satellite,
+    planet_name = surface_name,
+    tick_created = tick,
+    tick_to_die = death_tick
+  })
 end
 
 storage_service.all_seeing_satellite = true

@@ -39,11 +39,11 @@ function initialize(from_scratch)
 
   if (from_scratch) then
     storage = {}
+    storage.all_seeing_satellite = {}
 
     storage.satellite_toggled_by_player = nil
     storage.warn_technology_not_available_yet = nil
 
-    storage.all_seeing_satellite = {}
     storage.all_seeing_satellite.staged_areas_to_chart = {}
   else
     if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
@@ -80,14 +80,14 @@ function initialize(from_scratch)
     if (planet and not String_Utils.find_invalid_substrings(planet.name)) then
 
       if (not from_scratch) then
-        if (storage.satellites_launched and not storage.satellites_launched[planet.name]) then
-          storage.satellites_launched[planet.name] = 0
+        if (storage.all_seeing_satellite.satellites_launched and not storage.all_seeing_satellite.satellites_launched[planet.name]) then
+          storage.all_seeing_satellite.satellites_launched[planet.name] = 0
         end
       else
-        if (not storage.satellites_launched) then
-          storage.satellites_launched = {}
+        if (not storage.all_seeing_satellite.satellites_launched) then
+          storage.all_seeing_satellite.satellites_launched = {}
         end
-        storage.satellites_launched[planet.name] = 0
+        storage.all_seeing_satellite.satellites_launched[planet.name] = 0
       end
 
       if (not from_scratch) then

@@ -5,7 +5,8 @@ end
 
 local Log = require("libs.log.log")
 local Planet_Utils = require("control.utils.planet-utils")
-local Validations = require("control.validations.validations")
+local Storage_Service = require("control.services.storage-service")
+-- local Validations = require("control.validations.validations")
 
 local fog_of_war_service = {}
 
@@ -13,7 +14,7 @@ function fog_of_war_service.toggle_FoW()
   Log.debug("fog_of_war_controller.toggle_FoW")
   local player = storage.satellite_toggled_by_player
 
-  if (Validations.is_storage_valid()) then
+  if (Storage_Service.is_storage_valid()) then
     for k, satellite in pairs(storage.satellites_toggled) do
       -- If inputs are valid, and the surface the player is currently viewing is toggled
       if (  satellite

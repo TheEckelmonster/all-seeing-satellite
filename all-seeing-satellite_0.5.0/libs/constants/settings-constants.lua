@@ -13,12 +13,14 @@ settings_constants.DEBUG_LEVEL = {}
 settings_constants.DEBUG_LEVEL.value = "None"
 settings_constants.DEBUG_LEVEL.name = "all-seeing-satellite-debug-level"
 
-settings_constants.settings.REQUIRE_SATELLITES_IN_ORBIT = {
-  type = "bool-setting",
-  name = "all-see-satellite-require-satellites-in-orbit",
+settings_constants.settings.DEFAULT_SATELLITE_TIME_TO_LIVE = {
+  type = "double-setting",
+  name = "all-seeing-satellite-default-satellite-time-to-live",
   setting_type = "runtime-global",
-  order = "aaa",
-  default_value = true,
+  order = "ccc",
+  default_value = 20,
+  -- maximum_value = 111,  -- What should be the maximum, if any?
+  minimum_value = 0,
 }
 
 settings_constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD = {
@@ -31,13 +33,13 @@ settings_constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD = {
   minimum_value = 0,
 }
 
-settings_constants.settings.DEFAULT_SATELLITE_TIME_TO_LIVE = {
+settings_constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD_MODIFIER = {
   type = "double-setting",
-  name = "all-seeing-satellite-default-satellite-time-to-live",
+  name = "all-seeing-satellite-global-launch-satellite-threshold-modifier",
   setting_type = "runtime-global",
-  order = "ccc",
-  default_value = 20,
-  -- maximum_value = 111,  -- What should be the maximum, if any?
+  order = "bbb",
+  default_value = 1,
+  maximum_value = 11,
   minimum_value = 0,
 }
 
@@ -51,6 +53,22 @@ settings_constants.settings.NTH_TICK.setting = {
   default_value = settings_constants.settings.NTH_TICK.value,
   maximum_value = 111,
   minimum_value = 0,
+}
+
+settings_constants.settings.REQUIRE_SATELLITES_IN_ORBIT = {
+  type = "bool-setting",
+  name = "all-see-satellite-require-satellites-in-orbit",
+  setting_type = "runtime-global",
+  order = "aaa",
+  default_value = true,
+}
+
+settings_constants.settings.RESTRICT_SATELLITE_SCANNING = {
+  type = "bool-setting",
+  name = "all-see-satellite-restrict-satellite-scanning",
+  setting_type = "runtime-global",
+  order = "aab",
+  default_value = true,
 }
 
 settings_constants.settings.SATELLITE_SCAN_MODE = {

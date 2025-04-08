@@ -89,10 +89,9 @@ log_constants.settings = {}
 log_constants.constants = {}
 log_constants.constants.EMPTY_STRING = ""
 
-log_constants.settings.DEBUG_LEVEL = {}
-log_constants.settings.DEBUG_LEVEL.value = "None"
--- log_constants.settings.DEBUG_LEVEL.name = "all-seeing-satellite-debug-level"
-log_constants.settings.DEBUG_LEVEL.name = prefix.. "debug-level"
+log_constants.settings.LOGGING_LEVEL = {}
+log_constants.settings.LOGGING_LEVEL.value = "None"
+log_constants.settings.LOGGING_LEVEL.name = prefix.. "logging-level"
 
 log_constants.settings.DO_NOT_PRINT = {
   type = "bool-setting",

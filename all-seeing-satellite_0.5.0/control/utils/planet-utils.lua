@@ -5,37 +5,33 @@ end
 
 local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
-local Validations = require("control.validations.validations")
 local Settings_Constants = require("libs.constants.settings-constants")
 local Settings_Service = require("control.services.settings-service")
+local Storage_Service = require("control.services.storage-service")
+-- local Validations = require("control.validations.validations")
 
 local planet_utils = {}
 
-
 function planet_utils.allow_toggle(surface_name)
-  if (not Settings_Service.get_require_satellites_in_orbit()) then
-    return true
-  end
+  if (not Settings_Service.get_require_satellites_in_orbit()) then return true end
 
   if (surface_name) then
-    return  Validations.is_storage_valid()
-        and storage.satellites_launched
-        and storage.satellites_launched[surface_name]
-        and (
-          storage.satellites_launched[surface_name] >= planet_utils.planet_launch_threshold(surface_name))
+    return  Storage_Service.is_storage_valid()
+        and Storage_Service.get_satellites_launched(surface_name) >= planet_utils.planet_launch_threshold(surface_name)
   end
   return false
 end
 
 function planet_utils.planet_launch_threshold(surface_name)
   if (not surface_name) then
-    return Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.value
+    -- Intentionally calling with nil parameter to each, so as to get the default_value for each setting
+    return Settings_Service.get_global_launch_satellite_threshold() * Settings_Service.get_global_launch_satellite_threshold_modifier()
   end
 
-  local planet_multiplier = get_planet_multiplier(surface_name)
-  local return_val = Settings_Service.get_global_launch_satellite_threshold(surface_name) * planet_multiplier * planet_multiplier
+  local planet_magnitude = get_planet_magnitude(surface_name)
+  local return_val = Settings_Service.get_global_launch_satellite_threshold(surface_name) * Settings_Service.get_global_launch_satellite_threshold_modifier(surface_name) * planet_magnitude^2
 
-  if (get_planet_multiplier(surface_name) < 1) then
+  if (planet_magnitude < 1) then
     Log.debug("floor")
     return_val = math.floor(return_val)
   else
@@ -46,26 +42,37 @@ function planet_utils.planet_launch_threshold(surface_name)
   return return_val
 end
 
-function get_planet_multiplier(surface_name)
+function planet_utils.allow_scan(surface_name)
+  if (not Settings_Service.get_restrict_satellite_scanning()) then return true end
+
+  if (surface_name) then
+    return  Storage_Service.is_storage_valid()
+        and Storage_Service.get_satellites_launched(surface_name)
+        and Storage_Service.get_satellites_launched(surface_name) > 0
+  end
+  return false
+end
+
+function get_planet_magnitude(surface_name)
   local planets = Constants.get_planets()
-  local planet_multiplier = 1
+  local planet_magnitude = 1
 
   if (planets) then
     for _, planet in ipairs(planets) do
       if (planet and planet.name == surface_name) then
-        planet_multiplier = planet.magnitude
+        planet_magnitude = planet.magnitude
         break
       end
     end
   end
 
-  Log.info(planet_multiplier)
+  Log.info(planet_magnitude)
 
-  if (not planet_multiplier) then
-    planet_multiplier = 1
+  if (not planet_magnitude) then
+    planet_magnitude = 1
   end
 
-  return planet_multiplier
+  return planet_magnitude
 end
 
 planet_utils.all_seeing_satellite = true

@@ -6,8 +6,9 @@ end
 local Constants = require("libs.constants.constants")
 local Initialization = require("control.initialization")
 local Log = require("libs.log.log")
+local Storage_Service = require("control.services.storage-service")
 local String_Utils = require("control.utils.string-utils")
-local Validations = require("control.validations.validations")
+-- local Validations = require("control.validations.validations")
 
 local rocket_silo_utils = {}
 
@@ -17,7 +18,7 @@ function rocket_silo_utils.mine_rocket_silo(event)
   local rocket_silo = event.entity
 
   if (rocket_silo and rocket_silo.valid and rocket_silo.surface) then
-		if (not Validations.is_storage_valid()) then
+		if (not Storage_Service.is_storage_valid()) then
       Log.warn("Storage is invalid; initializing")
       Initialization.init()
     else
@@ -37,7 +38,7 @@ function rocket_silo_utils.add_rocket_silo(--[[required]]rocket_silo, --[[option
   -- Validate inputs
   is_init = is_init or false -- default value
 
-  if (not Validations.is_storage_valid()) then
+  if (not Storage_Service.is_storage_valid()) then
     Log.warn("Storage is invalid; initializing")
     Initialization.init()
   end
@@ -74,7 +75,7 @@ end
 function rocket_silo_utils.launch_rocket(event)
   Log.debug("rocket_silo_utils.launch_rocket")
   Log.info(event)
-  if (not Validations.is_storage_valid()) then
+  if (not Storage_Service.is_storage_valid()) then
     Log.warn("Storage is invalid; initializing")
     Initialization.init()
   end

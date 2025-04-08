@@ -4,7 +4,6 @@ if _rocket_silo_controller and _rocket_silo_controller.all_seeing_satellite then
 end
 
 local Log = require("libs.log.log")
-local Log_Constants = require("libs.constants.log-constants")
 local Rocket_Silo_Service = require("control.services.rocket-silo-service")
 
 local rocket_silo_controller = {}

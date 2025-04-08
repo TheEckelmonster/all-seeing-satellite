@@ -17,7 +17,7 @@ function scan_chunk_service.stage_selected_chunk(event)
   if (not event or not event.item or not event.item == "satellite-scanning-remote") then return end
   if (not event.surface or not event.surface or not event.surface.valid) then return end
   if (not event.player_index or not event.area) then return end
-  if (not Planet_Utils.allow_toggle(event.surface)) then return end
+  if (not Planet_Utils.allow_scan(event.surface.name)) then return end
 
   local optionals = { mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode }
 
@@ -177,9 +177,9 @@ function scan_chunk_service.scan_selected_chunk(area_to_chart, optionals)
   if (not area_to_chart.surface) then return end
   Log.debug("4")
   if (not area_to_chart.center or not area_to_chart.center.x or not area_to_chart.center.y) then return end
-  Log.warn("scanning")
+  Log.debug("scanning")
 
-  Log.error(area_to_chart)
+  Log.info(area_to_chart)
 
   game.forces[area_to_chart.player_index].chart(
     area_to_chart.surface, {

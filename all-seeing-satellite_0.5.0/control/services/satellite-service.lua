@@ -6,7 +6,8 @@ end
 local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
 local Satellite_Utils = require("control.utils.satellite-utils")
-local Validations = require("control.validations.validations")
+local Storage_Service = require("control.services.storage-service")
+-- local Validations = require("control.validations.validations")
 
 local satellite_service = {}
 
@@ -38,12 +39,13 @@ function satellite_service.check_for_expired_satellites(event)
   local offset = Constants.TICKS_PER_SECOND / 2
   local tick_modulo = tick % offset
 
-  if (Validations.is_storage_valid()) then
+  if (Storage_Service.is_storage_valid()) then
     local planets = Constants.get_planets()
     if (planets) then
       for _, planet in pairs(planets) do
-        if (storage.satellites_in_orbit) then
-          for _, satellites in pairs(storage.satellites_in_orbit) do
+        -- if (storage.satellites_in_orbit) then
+        if (Storage_Service.get_all_satellites_in_orbit()) then
+          for _, satellites in pairs(Storage_Service.get_all_satellites_in_orbit()) do
             if (satellites) then
               for i, satellite in pairs(satellites) do
                 if (not satellite or not satellite.entity) then
@@ -59,9 +61,10 @@ function satellite_service.check_for_expired_satellites(event)
                 --   -> unit_id and tick modulos match
                 if (tick >= satellite.tick_to_die) then
                   if (i <= #satellites and satellites[i] and satellites[i].entity == satellite.entity) then
-                    if (Validations.validate_satellites_launched(planet.name) and #satellites > 0) then
+                    -- if (Validations.validate_satellites_launched(planet.name) and #satellites > 0) then
+                    if (Storage_Service.get_satellites_launched(planet.name) and #satellites > 0) then
                       table.remove(satellites, i)
-                      if (Validations.validate_satellites_in_orbit(satellite.planet_name)) then
+                      if (Storage_Service.get_satellites_in_orbit(satellite.planet_name)) then
                         Satellite_Utils.get_num_satellites_in_orbit(satellite.planet_name)
                       end
                       game.print("Satellite ran out of fuel orbiting " .. serpent.block(satellite.planet_name))
@@ -74,11 +77,11 @@ function satellite_service.check_for_expired_satellites(event)
                     Log.debug("satellites[" .. serpent.block(i) .. "].entity ~= satellite.entity")
                   else
                     Log.error("Unable to remove satellite for unknown reason")
-                    Log.debug(i)
-                    Log.debug(satellites)
-                    Log.debug(satellites[i])
-                    Log.debug(satellites[i].entity)
-                    Log.debug(satellite)
+                    Log.warn(i)
+                    Log.warn(satellites)
+                    Log.warn(satellites[i])
+                    Log.warn(satellites[i].entity)
+                    Log.warn(satellite)
                   end
                 end
               end
@@ -93,9 +96,10 @@ end
 function satellite_service.recalculate_satellite_time_to_die(tick)
   local tick = tick or 1 --math.huge
 
-  if (tick > 1 and Validations.is_storage_valid()) then
-    if (storage.satellites_in_orbit) then
-      for _, satellites in pairs(storage.satellites_in_orbit) do
+  if (tick > 1 and Storage_Service.is_storage_valid()) then
+    -- if (storage.satellites_in_orbit) then
+    if (Storage_Service.get_all_satellites_in_orbit()) then
+      for _, satellites in pairs(Storage_Service.get_all_satellites_in_orbit()) do
         if (satellites) then
           for _, satellite in pairs(satellites) do
             if (satellite) then
