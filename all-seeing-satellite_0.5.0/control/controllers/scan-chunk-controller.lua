@@ -5,12 +5,14 @@ end
 
 local Log = require("libs.log.log")
 local Scan_Chunk_Service = require("control.services.scan-chunk-service")
+local Storage_Service = require("control.services.storage-service")
 
 local scan_chunk_controller = {}
 
 function scan_chunk_controller.stage_selected_chunk(event)
   Log.debug("scan_chunk_controller.stage_selected_chunk")
   Log.info(event)
+  if (not Storage_Service.get_do_nth_tick()) then return end
   Scan_Chunk_Service.stage_selected_chunk(event)
 end
 

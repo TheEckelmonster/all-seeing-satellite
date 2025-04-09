@@ -7,5 +7,6 @@ data:extend({
   Settings_Constants.settings.NTH_TICK.setting,
   Settings_Constants.settings.REQUIRE_SATELLITES_IN_ORBIT,
   Settings_Constants.settings.RESTRICT_SATELLITE_SCANNING,
+  Settings_Constants.settings.SATELLITE_SCAN_COOLDOWN_DURATION,
   Settings_Constants.settings.SATELLITE_SCAN_MODE,
 })

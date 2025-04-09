@@ -60,19 +60,7 @@ function satellite_utils.calculate_tick_to_die(tick, satellite)
   if (tick and satellite) then
     Log.info(satellite)
 
-    local x = 0
-
-    if (satellite.quality == "normal") then
-      quality_multiplier = 1.3^(x + 0) -- 1
-    elseif (satellite.quality == "uncommon") then
-      quality_multiplier = 1.3^(x + 1) -- 1.3
-    elseif (satellite.quality == "rare") then
-      quality_multiplier = 1.3^(x + 2) -- 1.69
-    elseif (satellite.quality == "epic") then
-      quality_multiplier = 1.3^(x + 3) -- 2.197
-    elseif (satellite.quality == "legendary") then
-      quality_multiplier = 1.3^(x + 4) -- 2.8561
-    end
+    quality_multiplier = satellite_utils.get_quality_multiplier(satellite.quality)
 
     Log.debug(satellite.quality)
     Log.debug(quality_multiplier)
@@ -81,6 +69,27 @@ function satellite_utils.calculate_tick_to_die(tick, satellite)
   end
 
   return death_tick
+end
+
+function satellite_utils.get_quality_multiplier(quality)
+  local return_val = 1
+
+  -- TODO: Make this configurable
+  local x = 0
+
+  if (quality == "normal") then
+    return_val = 1.3^(x + 0) -- 1
+  elseif (quality == "uncommon") then
+    return_val = 1.3^(x + 1) -- 1.3
+  elseif (quality == "rare") then
+    return_val = 1.3^(x + 2) -- 1.69
+  elseif (quality == "epic") then
+    return_val = 1.3^(x + 3) -- 2.197
+  elseif (quality == "legendary") then
+    return_val = 1.3^(x + 4) -- 2.8561
+  end
+
+  return return_val
 end
 
 satellite_utils.all_seeing_satellite = true

@@ -45,6 +45,7 @@ function satellite_service.check_for_expired_satellites(event)
         -- if (storage.satellites_in_orbit) then
         if (Storage_Service.get_all_satellites_in_orbit()) then
           for _, satellites in pairs(Storage_Service.get_all_satellites_in_orbit()) do
+            -- Log.error(satellites)
             if (satellites) then
               for i, satellite in pairs(satellites) do
                 if (not satellite or not satellite.entity) then

@@ -23,17 +23,23 @@ function all_seeing_satellite_controller.do_tick(event)
   local offset = 1 + nth_tick
   local tick_modulo = tick % offset
 
+  -- TODO: Implement this
   -- Check/validate the storage version
   -- if (not Version_Validations.validate_version()) then return end
+
   if (tick_modulo == 0 * (nth_tick / 3)) then
     Fog_Of_War_Service.toggle_FoW()
   end
 
   if (tick_modulo == 1 * math.floor((nth_tick / 3))) then
+    -- TODO: Make this configurable
+    -- i.e. a setting for infinite/no duration -> no need to check for expire satellites
     Satellite_Service.check_for_expired_satellites({ tick = game.tick })
   end
 
   if (tick_modulo == 2 * (math.floor(nth_tick / 3))) then
+    -- TODO: Make this configurable
+    -- Thinking just a simple boolean
     Rocket_Silo_Service.launch_rocket({ tick = game.tick })
   end
 
@@ -41,13 +47,14 @@ function all_seeing_satellite_controller.do_tick(event)
   if (tick_modulo % 2 == 0) then
     if (not Storage_Service.get_do_scan()) then return end
 
+    -- TODO: Break this up over multiple ticks
     for k, planet in pairs(Constants.get_planets()) do
       if ( not Settings_Service.get_restrict_satellite_scanning()
         or not Settings_Service.get_require_satellites_in_orbit()
         or Planet_Utils.allow_scan(planet.name))
       then
         All_Seeing_Satellite_Service.check_for_areas_to_stage()
-        All_Seeing_Satellite_Service.do_scan()
+        All_Seeing_Satellite_Service.do_scan(planet.name)
       end
     end
   end

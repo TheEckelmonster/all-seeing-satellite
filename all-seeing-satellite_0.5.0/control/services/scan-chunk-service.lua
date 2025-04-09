@@ -26,7 +26,7 @@ function scan_chunk_service.stage_selected_chunk(event)
 end
 
 function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
-  Log.debug("scan_chunk_service.stage_selected_chunk")
+  Log.debug("scan_chunk_service.stage_selected_area")
   Log.info(area_to_chart)
 
   optionals = optionals or { mode = Settings_Service.get_satellite_scan_mode() }
@@ -49,8 +49,12 @@ function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
 
   Log.warn(area_to_chart)
 
-  if (not area_to_chart[optionals.mode].i or area_to_chart[optionals.mode].i < 0 or optionals.i < 0) then return end
-  if (not area_to_chart[optionals.mode].j or area_to_chart[optionals.mode].j < 0 or optionals.j < 0) then return end
+  if (not area_to_chart[optionals.mode]) then area_to_chart[optionals.mode] = {} end
+  if (not area_to_chart[optionals.mode].i) then area_to_chart[optionals.mode].i = 0 end
+  if (not area_to_chart[optionals.mode].j) then area_to_chart[optionals.mode].j = 0 end
+
+  if (area_to_chart[optionals.mode].i < 0 or optionals.i < 0) then return end
+  if (area_to_chart[optionals.mode].j < 0 or optionals.j < 0) then return end
 
   local i = area_to_chart[optionals.mode].i >= 0 and area_to_chart[optionals.mode].i <= radius and area_to_chart[optionals.mode].i or optionals.i
   local j = area_to_chart[optionals.mode].j >= 0 and area_to_chart[optionals.mode].j <= radius and area_to_chart[optionals.mode].j or optionals.j
@@ -67,13 +71,13 @@ function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
     c = i
   end
 
-  if (optionals.mode == "stack") then
+  if (optionals.mode == Constants.optionals.mode.stack) then
     if (area_to_chart[optionals.mode].j > c or optionals.j > c) then
       area_to_chart[optionals.mode].i = area_to_chart[optionals.mode].i + 1
       area_to_chart[optionals.mode].j = 0
       return
     end
-  elseif (optionals.mode == "queue") then
+  elseif (optionals.mode == Constants.optionals.mode.queue) then
     if (area_to_chart[optionals.mode].j > i or optionals.j > i) then
       area_to_chart[optionals.mode].i = area_to_chart[optionals.mode].i + 1
       area_to_chart[optionals.mode].j = 0
@@ -91,66 +95,76 @@ function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
     a = j
   end
 
-  Storage_Service.stage_chunk_to_chart(
-    area_to_chart,
-    { x = (area_to_chart.center.x + 16 * a), y = (area_to_chart.center.y + 16 * math.sqrt(c^2 - a^2)) },
-    i,
-    j,
-    optionals
-  )
-  Storage_Service.stage_chunk_to_chart(
-    area_to_chart,
-    { x = (area_to_chart.center.x - 16 * a), y = (area_to_chart.center.y + 16 * math.sqrt(c^2 - a^2)) },
-    i,
-    j,
-    optionals
-  )
-  Storage_Service.stage_chunk_to_chart(
-    area_to_chart,
-    { x = (area_to_chart.center.x - 16 * a), y = (area_to_chart.center.y - 16 * math.sqrt(c^2 - a^2)) },
-    i,
-    j,
-    optionals
-  )
-  Storage_Service.stage_chunk_to_chart(
-    area_to_chart,
-    { x = (area_to_chart.center.x + 16 * a), y = (area_to_chart.center.y - 16 * math.sqrt(c^2 - a^2)) },
-    i,
-    j,
-    optionals
-  )
+  if (i == 0 and j == 0 and optionals.mode == Constants.optionals.mode.queue) then
+    Storage_Service.stage_chunk_to_chart(
+      area_to_chart,
+      { x = (area_to_chart.center.x), y = (area_to_chart.center.y) },
+      i,
+      j,
+      optionals
+    )
+  else
+    Storage_Service.stage_chunk_to_chart(
+      area_to_chart,
+      { x = (area_to_chart.center.x + 16 * a), y = (area_to_chart.center.y + 16 * math.sqrt(c^2 - a^2)) },
+      i,
+      j,
+      optionals
+    )
+    Storage_Service.stage_chunk_to_chart(
+      area_to_chart,
+      { x = (area_to_chart.center.x - 16 * a), y = (area_to_chart.center.y + 16 * math.sqrt(c^2 - a^2)) },
+      i,
+      j,
+      optionals
+    )
+    Storage_Service.stage_chunk_to_chart(
+      area_to_chart,
+      { x = (area_to_chart.center.x - 16 * a), y = (area_to_chart.center.y - 16 * math.sqrt(c^2 - a^2)) },
+      i,
+      j,
+      optionals
+    )
+    Storage_Service.stage_chunk_to_chart(
+      area_to_chart,
+      { x = (area_to_chart.center.x + 16 * a), y = (area_to_chart.center.y - 16 * math.sqrt(c^2 - a^2)) },
+      i,
+      j,
+      optionals
+    )
 
--- Not sure why part of the circle is missing, but doing it again with x and y ~flipped fixes the issue;
--- seems like overkill/unoptimal, though
+  -- Not sure why part of the circle is missing, but doing it again with x and y ~flipped fixes the issue;
+  -- seems like overkill/unoptimal, though
 
-  Storage_Service.stage_chunk_to_chart(
-    area_to_chart,
-    { x = (area_to_chart.center.x + 16 * math.sqrt(c^2 - a^2)), y = (area_to_chart.center.y + 16 * a) },
-    i,
-    j,
-    optionals
-  )
-  Storage_Service.stage_chunk_to_chart(
-    area_to_chart,
-    { x = (area_to_chart.center.x - 16 * math.sqrt(c^2 - a^2)), y = (area_to_chart.center.y + 16 * a) },
-    i,
-    j,
-    optionals
-  )
-  Storage_Service.stage_chunk_to_chart(
-    area_to_chart,
-    { x = (area_to_chart.center.x - 16 * math.sqrt(c^2 - a^2)), y = (area_to_chart.center.y - 16 * a) },
-    i,
-    j,
-    optionals
-  )
-  Storage_Service.stage_chunk_to_chart(
-    area_to_chart,
-    { x = (area_to_chart.center.x + 16 * math.sqrt(c^2 - a^2)), y = (area_to_chart.center.y - 16 * a) },
-    i,
-    j,
-    optionals
-  )
+    Storage_Service.stage_chunk_to_chart(
+      area_to_chart,
+      { x = (area_to_chart.center.x + 16 * math.sqrt(c^2 - a^2)), y = (area_to_chart.center.y + 16 * a) },
+      i,
+      j,
+      optionals
+    )
+    Storage_Service.stage_chunk_to_chart(
+      area_to_chart,
+      { x = (area_to_chart.center.x - 16 * math.sqrt(c^2 - a^2)), y = (area_to_chart.center.y + 16 * a) },
+      i,
+      j,
+      optionals
+    )
+    Storage_Service.stage_chunk_to_chart(
+      area_to_chart,
+      { x = (area_to_chart.center.x - 16 * math.sqrt(c^2 - a^2)), y = (area_to_chart.center.y - 16 * a) },
+      i,
+      j,
+      optionals
+    )
+    Storage_Service.stage_chunk_to_chart(
+      area_to_chart,
+      { x = (area_to_chart.center.x + 16 * math.sqrt(c^2 - a^2)), y = (area_to_chart.center.y - 16 * a) },
+      i,
+      j,
+      optionals
+    )
+  end
 
   j = j + 1
   area_to_chart[optionals.mode].j = j
@@ -168,15 +182,17 @@ function scan_chunk_service.scan_selected_chunk(area_to_chart, optionals)
     mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode
   }
 
-  if (not area_to_chart) then return end
+  local return_val = false
+
+  if (not area_to_chart) then return return_val end
   Log.debug("1")
-  if (not game or not game.forces) then return end
+  if (not game or not game.forces) then return return_val end
   Log.debug("2")
-  if (not area_to_chart.player_index or not game.forces[area_to_chart.player_index]) then return end
+  if (not area_to_chart.player_index or not game.forces[area_to_chart.player_index]) then return return_val end
   Log.debug("3")
-  if (not area_to_chart.surface) then return end
+  if (not area_to_chart.surface) then return return_val end
   Log.debug("4")
-  if (not area_to_chart.center or not area_to_chart.center.x or not area_to_chart.center.y) then return end
+  if (not area_to_chart.pos or not area_to_chart.pos.x or not area_to_chart.pos.y) then return return_val end
   Log.debug("scanning")
 
   Log.info(area_to_chart)
@@ -187,7 +203,8 @@ function scan_chunk_service.scan_selected_chunk(area_to_chart, optionals)
       {(area_to_chart.pos.x) + 16, (area_to_chart.pos.y) + 16}
     })
 
-  return area_to_chart.complete
+  return_val = true
+  return return_val
 end
 
 scan_chunk_service.all_seeing_satellite = true

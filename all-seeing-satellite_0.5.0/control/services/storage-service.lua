@@ -207,8 +207,8 @@ function storage_service.stage_chunk_to_chart(area_to_chart, center, i, j, optio
   table.insert(storage.all_seeing_satellite.staged_chunks_to_chart[tick], chunk_to_chart)
 end
 
-function storage_service.get_staged_chunk_to_chart(optionals)
-  Log.debug("storage_service.get_staged_chunk_to_chart")
+function storage_service.get_staged_chunks_to_chart(optionals)
+  Log.debug("storage_service.get_staged_chunks_to_chart")
 
   optionals = optionals or {
     mode = Constants.optionals.mode.stack
@@ -258,6 +258,8 @@ function storage_service.remove_chunk_to_chart_from_stage(optionals)
 
   if (not storage.all_seeing_satellite.staged_chunks_to_chart) then return end
 
+  Log.error(storage.all_seeing_satellite.staged_chunks_to_chart)
+
   if (table_size(storage.all_seeing_satellite.staged_chunks_to_chart) > 0) then
     if (optionals.mode == Constants.optionals.mode.queue) then
       for k, v in pairs(storage.all_seeing_satellite.staged_chunks_to_chart) do
@@ -269,10 +271,14 @@ function storage_service.remove_chunk_to_chart_from_stage(optionals)
       for k, v in pairs(storage.all_seeing_satellite.staged_chunks_to_chart) do
         obj.k = k
         obj.v = storage.all_seeing_satellite.staged_chunks_to_chart[k]
+        break
       end
       storage.all_seeing_satellite.staged_chunks_to_chart[obj.k] = nil
     end
   end
+
+  Log.error(storage.all_seeing_satellite.staged_chunks_to_chart)
+  return storage.all_seeing_satellite.staged_chunks_to_chart
 end
 
 function storage_service.remove_chunk_to_chart_from_stage_by_id(id, optionals)
@@ -419,7 +425,7 @@ function storage_service.set_satellites_launched(set_val, surface_name)
 end
 
 function storage_service.get_all_satellites_in_orbit()
-  Log.debug("storage_service.get_satellites_in_orbit")
+  Log.debug("storage_service.get_all_satellites_in_orbit")
   if (not storage) then return end
   if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
   if (not storage.all_seeing_satellite.satellites_in_orbit) then
@@ -429,7 +435,20 @@ function storage_service.get_all_satellites_in_orbit()
     if (storage.satellites_in_orbit ~= nil) then
       -- Migrate
       Log.warn("migrating satellites_in_orbit")
-      storage.all_seeing_satellite.satellites_in_orbit = storage.satellites_in_orbit
+      -- Check/add missing properties
+      for planet_name, satellites in pairs(storage.satellites_in_orbit) do
+        if (not storage.all_seeing_satellite.satellites_in_orbit[planet_name]) then storage.all_seeing_satellite.satellites_in_orbit[planet_name] = {} end
+        for _, satellite in pairs(satellites) do
+          if (satellite) then
+            satellite.tick_off_cooldown = satellite.tick_created
+            satellite.scan_count = 0
+
+            if (not storage.all_seeing_satellite.satellites_in_orbit[planet_name].satellites_cooldown) then storage.all_seeing_satellite.satellites_in_orbit[planet_name].satellites_cooldown = {} end
+            storage.all_seeing_satellite.satellites_in_orbit[planet_name].satellites_cooldown[satellite.tick_off_cooldown] = satellite
+          end
+        end
+        storage.all_seeing_satellite.satellites_in_orbit[planet_name].satellites = storage.satellites_in_orbit[planet_name]
+      end
       storage.satellites_in_orbit = nil
     end
   end
@@ -448,14 +467,27 @@ function storage_service.get_satellites_in_orbit(surface_name)
     if (storage.satellites_in_orbit ~= nil) then
       -- Migrate
       Log.warn("migrating satellites_in_orbit")
-      storage.all_seeing_satellite.satellites_in_orbit = storage.satellites_in_orbit
+      -- Check/add missing properties
+      for planet_name, satellites in pairs(storage.satellites_in_orbit) do
+        if (not storage.all_seeing_satellite.satellites_in_orbit[planet_name]) then storage.all_seeing_satellite.satellites_in_orbit[planet_name] = {} end
+        for _, satellite in pairs(satellites) do
+          if (satellite) then
+            satellite.tick_off_cooldown = satellite.tick_created
+            satellite.scan_count = 0
+
+            if (not storage.all_seeing_satellite.satellites_in_orbit[planet_name].satellites_cooldown) then storage.all_seeing_satellite.satellites_in_orbit[planet_name].satellites_cooldown = {} end
+            storage.all_seeing_satellite.satellites_in_orbit[planet_name].satellites_cooldown[satellite.tick_off_cooldown] = satellite
+          end
+        end
+        storage.all_seeing_satellite.satellites_in_orbit[planet_name].satellites = storage.satellites_in_orbit[planet_name]
+      end
       storage.satellites_in_orbit = nil
     end
   end
-
   if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name]) then storage.all_seeing_satellite.satellites_in_orbit[surface_name] = {} end
+  if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites) then storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites = {} end
 
-  return storage.all_seeing_satellite.satellites_in_orbit[surface_name]
+  return storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites
 end
 
 function storage_service.set_satellites_in_orbit(set_val, surface_name)
@@ -476,13 +508,178 @@ function storage_service.add_to_satellites_in_orbit(satellite, surface_name, tic
   if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
   if (not storage.all_seeing_satellite.satellites_in_orbit) then storage.all_seeing_satellite.satellites_in_orbit = {} end
   if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name]) then storage.all_seeing_satellite.satellites_in_orbit[surface_name] = {} end
+  if (storage.all_seeing_satellite.satellites_in_orbit[surface_name].scanned == nil) then storage.all_seeing_satellite.satellites_in_orbit[surface_name].scanned = false end
+  if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites) then storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites = {} end
+  if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) then storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown = {} end
 
-  table.insert(storage.all_seeing_satellite.satellites_in_orbit[surface_name], {
+  local _satellite = {
     entity = satellite,
     planet_name = surface_name,
     tick_created = tick,
-    tick_to_die = death_tick
-  })
+    tick_to_die = death_tick,
+    tick_off_cooldown = tick + math.random(0, 111),
+    scan_count = 0,
+  }
+
+  Log.error("5")
+  -- table.insert(storage.all_seeing_satellite.satellites_in_orbit[surface_name], {
+  table.insert(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites, _satellite)
+
+  Log.error("6")
+  -- storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown[tick] = _satellite
+  storage_service.add_to_satellites_in_orbit_cooldown(surface_name, _satellite)
+end
+
+function storage_service.set_satellites_in_orbit_scanned(set_val, surface_name)
+  Log.debug("storage_service.add_to_satellites_in_orbit")
+
+  if (not storage or not surface_name or set_val == nil) then return end
+  if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+  if (not storage.all_seeing_satellite.satellites_in_orbit) then storage.all_seeing_satellite.satellites_in_orbit = {} end
+  if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name]) then storage.all_seeing_satellite.satellites_in_orbit[surface_name] = {} end
+  if (storage.all_seeing_satellite.satellites_in_orbit[surface_name].scanned == nil) then storage.all_seeing_satellite.satellites_in_orbit[surface_name].scanned = false end
+
+  storage.all_seeing_satellite.satellites_in_orbit[surface_name].scanned = set_val
+end
+
+function storage_service.get_satellites_in_orbit_scanned(surface_name)
+  Log.debug("storage_service.add_to_satellites_in_orbit")
+
+  if (not storage or not surface_name) then return end
+  if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+  if (not storage.all_seeing_satellite.satellites_in_orbit) then storage.all_seeing_satellite.satellites_in_orbit = {} end
+  if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name]) then storage.all_seeing_satellite.satellites_in_orbit[surface_name] = {} end
+  if (storage.all_seeing_satellite.satellites_in_orbit[surface_name].scanned == nil) then storage.all_seeing_satellite.satellites_in_orbit[surface_name].scanned = false end
+
+  return storage.all_seeing_satellite.satellites_in_orbit[surface_name].scanned
+end
+
+-- function storage_service.add_to_satellites_in_orbit_cooldown(satellite, surface_name, tick, death_tick)
+function storage_service.add_to_satellites_in_orbit_cooldown(surface_name, satellite)
+  Log.debug("storage_service.add_to_satellites_in_orbit_cooldown")
+
+  if (not storage or not surface_name or not satellite) then return end
+  if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+  if (not storage.all_seeing_satellite.satellites_in_orbit) then storage.all_seeing_satellite.satellites_in_orbit = {} end
+  if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name]) then storage.all_seeing_satellite.satellites_in_orbit[surface_name] = {} end
+  if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) then storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown = {} end
+
+  Log.error(serpent.block(satellite.tick_off_cooldown and satellite.tick_off_cooldown))
+  Log.error(game.tick)
+  local tick = satellite.tick_off_cooldown and satellite.tick_off_cooldown or game.tick
+  while (storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown[tick] ~= nil) do
+    tick = tick + 1
+  end
+  Log.error("tick: " .. serpent.block(tick))
+  Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
+  storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown[tick] = satellite
+  Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
+end
+
+function storage_service.get_satellites_in_orbit_cooldown(surface_name)
+  Log.debug("storage_service.get_satellites_in_orbit_cooldown")
+
+  if (not storage or not surface_name) then return end
+  if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+  if (not storage.all_seeing_satellite.satellites_in_orbit) then storage.all_seeing_satellite.satellites_in_orbit = {} end
+  if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name]) then storage.all_seeing_satellite.satellites_in_orbit[surface_name] = {} end
+  if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) then storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown = {} end
+
+  return storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown
+end
+
+function storage_service.dequeue_satellites_in_orbit_cooldown(surface_name)
+  Log.debug("storage_service.dequeue_satellites_in_orbit_cooldown")
+
+  local return_val = {
+    valid = false
+  }
+
+  if (not storage or not surface_name) then return return_val end
+  if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+  if (not storage.all_seeing_satellite.satellites_in_orbit) then storage.all_seeing_satellite.satellites_in_orbit = {} end
+  if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name]) then storage.all_seeing_satellite.satellites_in_orbit[surface_name] = {} end
+  if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) then storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown = {} end
+
+  Log.error("1")
+
+  if (  storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown
+    -- and #storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown > 0
+  )
+  then
+    Log.error("2")
+    for k,v in pairs(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) do
+      Log.error(k)
+      return_val.obj = v
+      return_val.valid = true
+      storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown[k] = nil
+      break
+    end
+  end
+
+  return return_val
+end
+
+function storage_service.dequeue_satellites_in_orbit_cooldown(surface_name)
+  Log.debug("storage_service.dequeue_satellites_in_orbit_cooldown")
+
+  local return_val = {
+    valid = false
+  }
+
+  if (not storage or not surface_name) then return return_val end
+  if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+  if (not storage.all_seeing_satellite.satellites_in_orbit) then storage.all_seeing_satellite.satellites_in_orbit = {} end
+  if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name]) then storage.all_seeing_satellite.satellites_in_orbit[surface_name] = {} end
+  if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) then storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown = {} end
+
+  Log.error("9")
+
+  if (  storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown
+    )
+  then
+    Log.error("10")
+    Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
+    for k,v in pairs(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) do
+      Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
+      return_val.obj = storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown[k]
+      return_val.valid = true
+      storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown[k] = nil
+      Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
+      return return_val
+    end
+  end
+end
+
+function storage_service.remove_from_satellites_in_orbit_cooldown_by_id(surface_name, id)
+  Log.debug("storage_service.remove_from_satellites_in_orbit_cooldown_by_id")
+
+  if (not storage or not surface_name or not id) then return end
+  if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
+  if (not storage.all_seeing_satellite.satellites_in_orbit) then storage.all_seeing_satellite.satellites_in_orbit = {} end
+  if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name]) then storage.all_seeing_satellite.satellites_in_orbit[surface_name] = {} end
+  if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) then storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown = {} end
+
+  Log.error("3")
+
+  if (  storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown
+    -- and #storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown > 0)
+    )
+  then
+    Log.error("4")
+    Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
+    -- for k,v in pairs(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) do
+    --   Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
+    --   storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown[k] = nil
+    --   Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
+    --   return
+    -- end
+    Log.error("7")
+    Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
+    storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown[id] = nil
+    Log.error("8")
+    Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
+  end
 end
 
 storage_service.all_seeing_satellite = true

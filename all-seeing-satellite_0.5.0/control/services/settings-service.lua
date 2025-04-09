@@ -89,6 +89,17 @@ function settings_service.get_restrict_satellite_scanning()
   return setting
 end
 
+-- SATELLITE_SCAN_COOLDOWN_DURATION
+function settings_service.get_satellite_scan_cooldown_duration()
+  local setting = Settings_Constants.settings.SATELLITE_SCAN_COOLDOWN_DURATION.default_value
+
+  if (settings and settings.global and settings.global[Settings_Constants.settings.SATELLITE_SCAN_COOLDOWN_DURATION.name]) then
+    setting = settings.global[Settings_Constants.settings.SATELLITE_SCAN_COOLDOWN_DURATION.name].value
+  end
+
+  return setting
+end
+
 function settings_service.mod_setting_changed(event)
   Log.info(event)
   if (event and event.setting) then
