@@ -521,12 +521,8 @@ function storage_service.add_to_satellites_in_orbit(satellite, surface_name, tic
     scan_count = 0,
   }
 
-  Log.error("5")
-  -- table.insert(storage.all_seeing_satellite.satellites_in_orbit[surface_name], {
   table.insert(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites, _satellite)
 
-  Log.error("6")
-  -- storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown[tick] = _satellite
   storage_service.add_to_satellites_in_orbit_cooldown(surface_name, _satellite)
 end
 
@@ -554,7 +550,6 @@ function storage_service.get_satellites_in_orbit_scanned(surface_name)
   return storage.all_seeing_satellite.satellites_in_orbit[surface_name].scanned
 end
 
--- function storage_service.add_to_satellites_in_orbit_cooldown(satellite, surface_name, tick, death_tick)
 function storage_service.add_to_satellites_in_orbit_cooldown(surface_name, satellite)
   Log.debug("storage_service.add_to_satellites_in_orbit_cooldown")
 
@@ -564,16 +559,12 @@ function storage_service.add_to_satellites_in_orbit_cooldown(surface_name, satel
   if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name]) then storage.all_seeing_satellite.satellites_in_orbit[surface_name] = {} end
   if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) then storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown = {} end
 
-  Log.error(serpent.block(satellite.tick_off_cooldown and satellite.tick_off_cooldown))
-  Log.error(game.tick)
   local tick = satellite.tick_off_cooldown and satellite.tick_off_cooldown or game.tick
   while (storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown[tick] ~= nil) do
     tick = tick + 1
   end
-  Log.error("tick: " .. serpent.block(tick))
-  Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
+
   storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown[tick] = satellite
-  Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
 end
 
 function storage_service.get_satellites_in_orbit_cooldown(surface_name)
@@ -601,15 +592,9 @@ function storage_service.dequeue_satellites_in_orbit_cooldown(surface_name)
   if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name]) then storage.all_seeing_satellite.satellites_in_orbit[surface_name] = {} end
   if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) then storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown = {} end
 
-  Log.error("1")
 
-  if (  storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown
-    -- and #storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown > 0
-  )
-  then
-    Log.error("2")
+  if (  storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) then
     for k,v in pairs(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) do
-      Log.error(k)
       return_val.obj = v
       return_val.valid = true
       storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown[k] = nil
@@ -633,19 +618,14 @@ function storage_service.dequeue_satellites_in_orbit_cooldown(surface_name)
   if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name]) then storage.all_seeing_satellite.satellites_in_orbit[surface_name] = {} end
   if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) then storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown = {} end
 
-  Log.error("9")
 
-  if (  storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown
-    )
-  then
-    Log.error("10")
-    Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
+  if (  storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) then
     for k,v in pairs(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) do
-      Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
+
       return_val.obj = storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown[k]
       return_val.valid = true
       storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown[k] = nil
-      Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
+
       return return_val
     end
   end
@@ -660,25 +640,8 @@ function storage_service.remove_from_satellites_in_orbit_cooldown_by_id(surface_
   if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name]) then storage.all_seeing_satellite.satellites_in_orbit[surface_name] = {} end
   if (not storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) then storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown = {} end
 
-  Log.error("3")
-
-  if (  storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown
-    -- and #storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown > 0)
-    )
-  then
-    Log.error("4")
-    Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
-    -- for k,v in pairs(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) do
-    --   Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
-    --   storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown[k] = nil
-    --   Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
-    --   return
-    -- end
-    Log.error("7")
-    Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
+  if (  storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown) then
     storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown[id] = nil
-    Log.error("8")
-    Log.error(storage.all_seeing_satellite.satellites_in_orbit[surface_name].satellites_cooldown)
   end
 end
 

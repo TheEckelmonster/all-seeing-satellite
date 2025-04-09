@@ -113,48 +113,65 @@ function all_seeing_satellite_service.do_scan(surface_name)
     -- Log.error("k: " .. serpent.block(k))
     -- Log.error("chunk_to_chart: " .. serpent.block(chunk_to_chart))
 
-    if (Planet_Utils.allow_scan(chunk_to_chart.surface.name)) then
+    if (not Settings_Service.get_restrict_satellite_scanning()) then
+      if (Scan_Chunk_Service.scan_selected_chunk(chunk_to_chart, optionals)) then
+        chunks_to_chart[k] = nil
 
-      local satellites = Storage_Service.get_satellites_in_orbit_cooldown(chunk_to_chart.surface.name)
-      Log.warn(satellites)
-
-      -- if (not satellites or #satellites <= 0) then break end
-      if (not satellites) then break end
-
-      for id, satellite in pairs(satellites) do
-        Log.error("game.tick: " .. serpent.block(game.tick))
-        Log.error("id: " .. serpent.block(id))
-        Log.error(satellite)
-        if (satellite.tick_off_cooldown < game.tick) then
-          if (Scan_Chunk_Service.scan_selected_chunk(chunk_to_chart, optionals)) then
-            Log.error("scanned")
+        if (chunks_to_chart and #chunks_to_chart == 0) then
+          local result = Storage_Service.remove_chunk_to_chart_from_stage(optionals)
+          if (result and table_size(result) == 0) then
+            Log.warn("scan complete")
+            game.players[chunk_to_chart.player_index].force.print("Scan complete")
             Storage_Service.set_satellites_in_orbit_scanned(true, chunk_to_chart.surface.name)
-            -- set scan cooldown, accounting for quality
-            local quality_modifier = Satellite_Utils.get_quality_multiplier(satellite.quality)
-            satellite.tick_off_cooldown = game.tick + satellite.scan_count + i + math.floor(((Constants.TICKS_PER_SECOND * Settings_Service.get_satellite_scan_cooldown_duration()) * (1 / quality_modifier)))
-            satellite.scan_count = satellite.scan_count + 1
-
-            -- Storage_Service.dequeue_satellites_in_orbit_cooldown(chunk_to_chart.surface.name)
-            Storage_Service.add_to_satellites_in_orbit_cooldown(chunk_to_chart.surface.name, satellite)
-            Storage_Service.remove_from_satellites_in_orbit_cooldown_by_id(chunk_to_chart.surface.name, id)
-            chunks_to_chart[k] = nil
-
-            if (chunks_to_chart and #chunks_to_chart == 0) then
-              local result = Storage_Service.remove_chunk_to_chart_from_stage(optionals)
-              if (result and table_size(result) == 0) then
-                Log.warn("scan complete")
-                game.players[chunk_to_chart.player_index].force.print("Scan complete")
-                Storage_Service.set_satellites_in_orbit_scanned(true, chunk_to_chart.surface.name)
-              end
-            end
-
-            i = i + 1
           end
-        else
-          Log.error("breaking")
-          do_break = true
         end
-        break
+      end
+    else
+      if (Planet_Utils.allow_scan(chunk_to_chart.surface.name)) then
+
+        local satellites = Storage_Service.get_satellites_in_orbit_cooldown(chunk_to_chart.surface.name)
+        Log.warn(satellites)
+
+        if (not satellites) then break end
+
+        for id, satellite in pairs(satellites) do
+          Log.warn("game.tick: " .. serpent.block(game.tick))
+          Log.warn("id: " .. serpent.block(id))
+          Log.warn(satellite)
+          if (satellite.tick_off_cooldown < game.tick) then
+            if (Scan_Chunk_Service.scan_selected_chunk(chunk_to_chart, optionals)) then
+              Log.error("scanned")
+              Storage_Service.set_satellites_in_orbit_scanned(true, chunk_to_chart.surface.name)
+              -- set scan cooldown, accounting for quality
+              local quality_modifier = Satellite_Utils.get_quality_multiplier(satellite.quality)
+              local cooldown_duration = Settings_Service.get_satellite_scan_cooldown_duration()
+              local use_cooldown = 0
+              if (cooldown_duration > 0) then use_cooldown = 1 end
+
+              satellite.tick_off_cooldown = game.tick + math.floor(satellite.scan_count * 0.1 * use_cooldown) + math.floor(((Constants.TICKS_PER_SECOND * cooldown_duration) * (1 / quality_modifier)))
+              satellite.scan_count = satellite.scan_count + 1
+
+              Storage_Service.add_to_satellites_in_orbit_cooldown(chunk_to_chart.surface.name, satellite)
+              Storage_Service.remove_from_satellites_in_orbit_cooldown_by_id(chunk_to_chart.surface.name, id)
+              chunks_to_chart[k] = nil
+
+              if (chunks_to_chart and #chunks_to_chart == 0) then
+                local result = Storage_Service.remove_chunk_to_chart_from_stage(optionals)
+                if (result and table_size(result) == 0) then
+                  Log.warn("scan complete")
+                  game.players[chunk_to_chart.player_index].force.print("Scan complete")
+                  Storage_Service.set_satellites_in_orbit_scanned(true, chunk_to_chart.surface.name)
+                end
+              end
+
+              i = i + 1
+            end
+          else
+            Log.error("breaking")
+            do_break = true
+          end
+          break
+        end
       end
     end
 
