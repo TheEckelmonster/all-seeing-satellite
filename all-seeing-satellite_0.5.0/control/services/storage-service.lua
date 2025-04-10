@@ -90,7 +90,7 @@ function storage_service.get_area_to_chart(optionals)
     mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode
   }
 
-  local return_val = { valid = false }
+  local return_val = { obj = {}, valid = false }
 
   if (not storage) then return return_val end
   if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then
@@ -525,8 +525,8 @@ function storage_service.add_to_satellites_in_orbit(satellite, surface_name, tic
 end
 
 function storage_service.set_satellites_in_orbit_scanned(set_val, surface_name)
-  Log.error("storage_service.set_satellites_in_orbit_scanned")
-  Log.error(surface_name)
+  Log.debug("storage_service.set_satellites_in_orbit_scanned")
+  Log.debug(surface_name)
 
   if (not storage or not surface_name or set_val == nil) then return end
   if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end
