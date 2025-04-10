@@ -49,9 +49,9 @@ function all_seeing_satellite_service.check_for_areas_to_stage()
 
 
   obj_wrapper = Storage_Service.get_staged_chunks_to_chart(optionals)
-  if (not obj_wrapper or not obj_wrapper.obj or not obj_wrapper.valid) then
+  if (not obj_wrapper or not obj_wrapper.obj) then
     obj_wrapper = Storage_Service.get_staged_chunks_to_chart({ mode = Constants.optionals.mode.queue })
-    if (not obj_wrapper or not obj_wrapper.obj or not obj_wrapper.valid) then return end
+    if (not obj_wrapper or not obj_wrapper.obj) then return end
   end
   Log.debug(obj_wrapper)
   local chunks_to_chart = obj_wrapper.obj
@@ -117,6 +117,14 @@ function all_seeing_satellite_service.do_scan(surface_name)
   Log.debug(obj_wrapper)
   local chunks_to_chart = obj_wrapper.obj
 
+  if (chunks_to_chart and #chunks_to_chart == 0) then
+    local result = Storage_Service.remove_chunk_to_chart_from_stage(optionals)
+    if (result and table_size(result) == 0) then
+      Storage_Service.set_satellites_in_orbit_scanned(true, surface_name)
+    end
+    return
+  end
+
   local i = 0
   local did_break = false
   local do_break = false
@@ -135,7 +143,9 @@ function all_seeing_satellite_service.do_scan(surface_name)
 
     if (game and game.players and game.players[chunk_to_chart.player_index] and game.players[chunk_to_chart.player_index].force) then
       local force = game.players[chunk_to_chart.player_index].force
-      if (force.is_chunk_charted(chunk_to_chart.surface, chunk_to_chart.pos)) then
+      if ( force.is_chunk_charted(chunk_to_chart.surface, chunk_to_chart.pos)
+        or force.is_chunk_requested_for_charting(chunk_to_chart.surface, chunk_to_chart.pos)
+      ) then
         chunks_to_chart[k] = nil
 
         if (chunks_to_chart and #chunks_to_chart == 0) then
@@ -200,6 +210,7 @@ function all_seeing_satellite_service.do_scan(surface_name)
               end
 
               i = i + 1
+              break
             end
           else
             Log.warn("breaking")

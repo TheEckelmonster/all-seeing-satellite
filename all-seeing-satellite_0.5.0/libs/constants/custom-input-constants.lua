@@ -39,6 +39,14 @@ custom_input_constants.CANCEL_SCANNING = {
   localised_name = 'Cancel Scanning'
 }
 
+custom_input_constants.TOGGLE_SATELLITE_MODE = {
+  type = "custom-input",
+  name = "all-seeing-satellite-toggle-satellite-mode",
+  key_sequence = "COMMA",
+  consuming = "none",
+  localised_name = 'Toggle Satellite Mode'
+}
+
 custom_input_constants.all_seeing_satellite = true
 
 local _custom_input_constants = custom_input_constants

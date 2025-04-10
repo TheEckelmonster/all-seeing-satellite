@@ -39,6 +39,7 @@ function fog_of_war_controller.cancel_scanning(event)
   if (not event.player_index) then return end
   if (not game or not game.players or not game.players[event.player_index] or not game.players[event.player_index].force) then return end
   game.players[event.player_index].force.print("Cancelling scan(s)")
+  game.players[event.player_index].force.cancel_charting()
   Log.warn("cancelling scan(s)")
   Storage_Service.clear_stages()
 end

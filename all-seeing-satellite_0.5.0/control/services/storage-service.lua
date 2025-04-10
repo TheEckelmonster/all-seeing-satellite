@@ -101,13 +101,13 @@ function storage_service.get_area_to_chart(optionals)
   if (not storage.all_seeing_satellite.staged_areas_to_chart) then return return_val end
 
   if (optionals and optionals.mode == Constants.optionals.mode.stack and table_size(storage.all_seeing_satellite.staged_areas_to_chart) > 0) then
-    Log.warn("found something to chart; mode = stack")
+    Log.warn("staged_areas_to_chart: found something to chart; mode = stack")
     for _, v in pairs(storage.all_seeing_satellite.staged_areas_to_chart) do
       return_val.obj = v
     end
     return_val.valid = true
   elseif (optionals and optionals.mode == Constants.optionals.mode.queue and table_size(storage.all_seeing_satellite.staged_areas_to_chart) > 0) then
-    Log.warn("found something to chart; mode = queue")
+    Log.warn("staged_areas_to_chart: found something to chart; mode = queue")
     for _, v in pairs(storage.all_seeing_satellite.staged_areas_to_chart) do
       return_val.obj = v
       break
@@ -224,15 +224,14 @@ function storage_service.get_staged_chunks_to_chart(optionals)
 
   if (not storage.all_seeing_satellite.staged_chunks_to_chart) then storage.all_seeing_satellite.staged_chunks_to_chart = {} end
 
-  -- if (optionals and optionals.mode == Constants.optionals.mode.stack and table_size(storage.all_seeing_satellite.staged_chunks_to_chart) > 0) then
-  if (optionals and optionals.mode == Constants.optionals.mode.stack) then
-    Log.warn("found something to chart; mode = stack")
+  if (optionals and optionals.mode == Constants.optionals.mode.stack and table_size(storage.all_seeing_satellite.staged_chunks_to_chart) > 0) then
+    Log.warn("get_staged_chunks_to_chart: found something to chart; mode = stack")
     for _, v in pairs(storage.all_seeing_satellite.staged_chunks_to_chart) do
       return_val.obj = v
     end
     return_val.valid = true
-  elseif (optionals and optionals.mode == Constants.optionals.mode.queue) then
-    Log.warn("found something to chart; mode = queue")
+  elseif (optionals and optionals.mode == Constants.optionals.mode.queue and table_size(storage.all_seeing_satellite.staged_chunks_to_chart) > 0) then
+    Log.warn("get_staged_chunks_to_chart: found something to chart; mode = queue")
     for _, v in pairs(storage.all_seeing_satellite.staged_chunks_to_chart) do
       return_val.obj = v
       break

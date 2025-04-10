@@ -36,6 +36,18 @@ script.on_event(defines.events.on_rocket_launch_ordered, Satellite_Controller.tr
 script.on_event(defines.events.on_runtime_mod_setting_changed, Settings_Controller.mod_setting_changed)
 
 script.on_event(defines.events.on_player_selected_area, Scan_Chunk_Controller.stage_selected_chunk)
+script.on_event(defines.events.on_player_controller_changed, function (event)
+  -- Log.error(event)
+  -- if (not storage.player_controllers) then storage.player_controllers = {} end
+  -- storage.player_controllers[event.player_index] = event.old_type
+
+  -- local player = game.get_player(chunk_to_chart.player_index)
+  -- if (player) then
+  --   player.set_controller({ type = defines.controllers.god })
+  --   return
+  -- end
+
+end)
 
 -- rocket-silo tracking
 script.on_event(defines.events.on_built_entity, Rocket_Silo_Controller.rocket_silo_built, Rocket_Silo_Controller.filter)
