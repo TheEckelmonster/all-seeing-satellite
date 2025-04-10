@@ -211,10 +211,10 @@ function storage_service.get_staged_chunks_to_chart(optionals)
   Log.debug("storage_service.get_staged_chunks_to_chart")
 
   optionals = optionals or {
-    mode = Constants.optionals.mode.stack
+    mode = Constants.optionals.mode.queue
   }
 
-  local return_val = { valid = false }
+  local return_val = { obj = {}, valid = false }
 
   if (not storage) then return return_val end
   if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then
@@ -224,13 +224,14 @@ function storage_service.get_staged_chunks_to_chart(optionals)
 
   if (not storage.all_seeing_satellite.staged_chunks_to_chart) then storage.all_seeing_satellite.staged_chunks_to_chart = {} end
 
-  if (optionals and optionals.mode == Constants.optionals.mode.stack and table_size(storage.all_seeing_satellite.staged_chunks_to_chart) > 0) then
+  -- if (optionals and optionals.mode == Constants.optionals.mode.stack and table_size(storage.all_seeing_satellite.staged_chunks_to_chart) > 0) then
+  if (optionals and optionals.mode == Constants.optionals.mode.stack) then
     Log.warn("found something to chart; mode = stack")
     for _, v in pairs(storage.all_seeing_satellite.staged_chunks_to_chart) do
       return_val.obj = v
     end
     return_val.valid = true
-  elseif (optionals and optionals.mode == Constants.optionals.mode.queue and table_size(storage.all_seeing_satellite.staged_chunks_to_chart) > 0) then
+  elseif (optionals and optionals.mode == Constants.optionals.mode.queue) then
     Log.warn("found something to chart; mode = queue")
     for _, v in pairs(storage.all_seeing_satellite.staged_chunks_to_chart) do
       return_val.obj = v
@@ -238,7 +239,7 @@ function storage_service.get_staged_chunks_to_chart(optionals)
     end
     return_val.valid = true
   else
-    Log.debug("didn't find anything to chart")
+    Log.warn("didn't find anything to chart")
   end
 
   return return_val
@@ -258,8 +259,6 @@ function storage_service.remove_chunk_to_chart_from_stage(optionals)
 
   if (not storage.all_seeing_satellite.staged_chunks_to_chart) then return end
 
-  Log.error(storage.all_seeing_satellite.staged_chunks_to_chart)
-
   if (table_size(storage.all_seeing_satellite.staged_chunks_to_chart) > 0) then
     if (optionals.mode == Constants.optionals.mode.queue) then
       for k, v in pairs(storage.all_seeing_satellite.staged_chunks_to_chart) do
@@ -277,7 +276,6 @@ function storage_service.remove_chunk_to_chart_from_stage(optionals)
     end
   end
 
-  Log.error(storage.all_seeing_satellite.staged_chunks_to_chart)
   return storage.all_seeing_satellite.staged_chunks_to_chart
 end
 
@@ -527,7 +525,8 @@ function storage_service.add_to_satellites_in_orbit(satellite, surface_name, tic
 end
 
 function storage_service.set_satellites_in_orbit_scanned(set_val, surface_name)
-  Log.debug("storage_service.add_to_satellites_in_orbit")
+  Log.error("storage_service.set_satellites_in_orbit_scanned")
+  Log.error(surface_name)
 
   if (not storage or not surface_name or set_val == nil) then return end
   if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then Initialization.reinit() end

@@ -47,27 +47,35 @@ function all_seeing_satellite_service.check_for_areas_to_stage()
   optionals.i = area_to_chart[optionals.mode].i
   optionals.j = area_to_chart[optionals.mode].j
 
-  -- local satellites = Storage_Service.get_satellites_in_orbit_cooldown(area_to_chart.surface.name)
-  -- Log.warn(satellites)
-
-  -- If a satellite is available
-  -- if (satellites and #satellites > 0) then
   if (not Settings_Service.get_restrict_satellite_scanning()) then
     Scan_Chunk_Service.stage_selected_area(area_to_chart, optionals)
-    -- elseif (satellites) then
   else
     local satellites = Storage_Service.get_satellites_in_orbit_cooldown(area_to_chart.surface.name)
-    Log.warn(satellites)
+    Log.debug(satellites)
     if (satellites) then
       -- Search for a satellite not on cooldown
       for _, satellite in pairs(satellites) do
         if (satellite and satellite.tick_off_cooldown and game.tick > satellite.tick_off_cooldown) then
+          local obj_wrapper = Storage_Service.get_staged_chunks_to_chart(optionals)
+          if (not obj_wrapper or not obj_wrapper.obj or not obj_wrapper.valid) then
+            obj_wrapper = Storage_Service.get_staged_chunks_to_chart({ mode = Constants.optionals.mode.queue })
+            if (not obj_wrapper or not obj_wrapper.obj or not obj_wrapper.valid) then return end
+          end
+          Log.debug(obj_wrapper)
+          local chunks_to_chart = obj_wrapper.obj
+          Log.debug(chunks_to_chart)
+          Log.debug(#chunks_to_chart)
+          Log.debug(area_to_chart.complete)
+
           -- Log.error(satellite)
           -- Log.error(Storage_Service.get_satellites_in_orbit_scanned(area_to_chart.surface.name))
-          -- if (Storage_Service.get_satellites_in_orbit_scanned(area_to_chart.surface.name)) then
-            Storage_Service.set_satellites_in_orbit_scanned(false, area_to_chart.surface.name)
+          if ( Storage_Service.get_satellites_in_orbit_scanned(area_to_chart.surface.name)
+            or (chunks_to_chart and #chunks_to_chart == 0 and not area_to_chart.complete)
+          ) then
+            Log.error("hello")
             Scan_Chunk_Service.stage_selected_area(area_to_chart, optionals)
-          -- end
+            Storage_Service.set_satellites_in_orbit_scanned(false, area_to_chart.surface.name)
+          end
           -- Scan_Chunk_Service.stage_selected_area(area_to_chart, optionals)
         end
         break
@@ -139,15 +147,17 @@ function all_seeing_satellite_service.do_scan(surface_name)
           Log.warn("id: " .. serpent.block(id))
           Log.warn(satellite)
           if (satellite.tick_off_cooldown < game.tick) then
+
             if (Scan_Chunk_Service.scan_selected_chunk(chunk_to_chart, optionals)) then
               Log.error("scanned")
-              Storage_Service.set_satellites_in_orbit_scanned(true, chunk_to_chart.surface.name)
+              -- Storage_Service.set_satellites_in_orbit_scanned(true, chunk_to_chart.surface.name)
               -- set scan cooldown, accounting for quality
               local quality_modifier = Satellite_Utils.get_quality_multiplier(satellite.quality)
               local cooldown_duration = Settings_Service.get_satellite_scan_cooldown_duration()
               local use_cooldown = 0
               if (cooldown_duration > 0) then use_cooldown = 1 end
 
+              -- TODO: Make scan count modifier a configurable setting; the 0.1 value, currently
               satellite.tick_off_cooldown = game.tick + math.floor(satellite.scan_count * 0.1 * use_cooldown) + math.floor(((Constants.TICKS_PER_SECOND * cooldown_duration) * (1 / quality_modifier)))
               satellite.scan_count = satellite.scan_count + 1
 

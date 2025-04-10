@@ -47,7 +47,7 @@ function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
   if (optionals and optionals.i == nil) then optionals.i = 0 end
   if (optionals and optionals.j == nil) then optionals.j = 0 end
 
-  Log.warn(area_to_chart)
+  Log.debug(area_to_chart)
 
   if (not area_to_chart[optionals.mode]) then area_to_chart[optionals.mode] = {} end
   if (not area_to_chart[optionals.mode].i) then area_to_chart[optionals.mode].i = 0 end
@@ -73,27 +73,40 @@ function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
 
   if (optionals.mode == Constants.optionals.mode.stack) then
     if (area_to_chart[optionals.mode].j > c or optionals.j > c) then
+    -- if (area_to_chart[optionals.mode].j > i or optionals.j > i) then
       area_to_chart[optionals.mode].i = area_to_chart[optionals.mode].i + 1
       area_to_chart[optionals.mode].j = 0
-      return
+      i = area_to_chart[optionals.mode].i
+      j = 0
+      -- return
     end
   elseif (optionals.mode == Constants.optionals.mode.queue) then
     if (area_to_chart[optionals.mode].j > i or optionals.j > i) then
       area_to_chart[optionals.mode].i = area_to_chart[optionals.mode].i + 1
       area_to_chart[optionals.mode].j = 0
-      return
+      i = area_to_chart[optionals.mode].i
+      j = 0
+      -- return
     end
   end
 
   local a = 0
   if (optionals.mode == Constants.optionals.mode.stack) then
     if (j > c) then
+      -- return
+      area_to_chart[optionals.mode].i = area_to_chart[optionals.mode].i + 1
+      area_to_chart[optionals.mode].j = 0
+      -- i = area_to_chart[optionals.mode].i
+      -- j = 0
       return
     end
     a = c - j
   elseif (optionals.mode == Constants.optionals.mode.queue) then
     a = j
   end
+
+  -- TODO: Parameterize this
+  local distance_modifier = 16
 
   if (i == 0 and j == 0 and optionals.mode == Constants.optionals.mode.queue) then
     Storage_Service.stage_chunk_to_chart(
@@ -103,31 +116,60 @@ function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
       j,
       optionals
     )
+  elseif (i == 0 and j == 0 and optionals.mode == Constants.optionals.mode.stack) then
+    Storage_Service.stage_chunk_to_chart(
+      area_to_chart,
+      { x = (area_to_chart.center.x + distance_modifier * a), y = (area_to_chart.center.y) },
+      i,
+      j,
+      optionals
+    )
+    Storage_Service.stage_chunk_to_chart(
+      area_to_chart,
+      { x = (area_to_chart.center.x - distance_modifier * a), y = (area_to_chart.center.y) },
+      i,
+      j,
+      optionals
+    )
+    Storage_Service.stage_chunk_to_chart(
+      area_to_chart,
+      { x = (area_to_chart.center.x), y = (area_to_chart.center.y + distance_modifier * a) },
+      i,
+      j,
+      optionals
+    )
+    Storage_Service.stage_chunk_to_chart(
+      area_to_chart,
+      { x = (area_to_chart.center.x), y = (area_to_chart.center.y - distance_modifier * a) },
+      i,
+      j,
+      optionals
+    )
   else
     Storage_Service.stage_chunk_to_chart(
       area_to_chart,
-      { x = (area_to_chart.center.x + 16 * a), y = (area_to_chart.center.y + 16 * math.sqrt(c^2 - a^2)) },
+      { x = (area_to_chart.center.x + distance_modifier * a), y = (area_to_chart.center.y + distance_modifier * math.sqrt(c^2 - a^2)) },
       i,
       j,
       optionals
     )
     Storage_Service.stage_chunk_to_chart(
       area_to_chart,
-      { x = (area_to_chart.center.x - 16 * a), y = (area_to_chart.center.y + 16 * math.sqrt(c^2 - a^2)) },
+      { x = (area_to_chart.center.x - distance_modifier * a), y = (area_to_chart.center.y + distance_modifier * math.sqrt(c^2 - a^2)) },
       i,
       j,
       optionals
     )
     Storage_Service.stage_chunk_to_chart(
       area_to_chart,
-      { x = (area_to_chart.center.x - 16 * a), y = (area_to_chart.center.y - 16 * math.sqrt(c^2 - a^2)) },
+      { x = (area_to_chart.center.x - distance_modifier * a), y = (area_to_chart.center.y - distance_modifier * math.sqrt(c^2 - a^2)) },
       i,
       j,
       optionals
     )
     Storage_Service.stage_chunk_to_chart(
       area_to_chart,
-      { x = (area_to_chart.center.x + 16 * a), y = (area_to_chart.center.y - 16 * math.sqrt(c^2 - a^2)) },
+      { x = (area_to_chart.center.x + distance_modifier * a), y = (area_to_chart.center.y - distance_modifier * math.sqrt(c^2 - a^2)) },
       i,
       j,
       optionals
@@ -138,38 +180,48 @@ function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
 
     Storage_Service.stage_chunk_to_chart(
       area_to_chart,
-      { x = (area_to_chart.center.x + 16 * math.sqrt(c^2 - a^2)), y = (area_to_chart.center.y + 16 * a) },
+      { x = (area_to_chart.center.x + distance_modifier * math.sqrt(c^2 - a^2)), y = (area_to_chart.center.y + distance_modifier * a) },
       i,
       j,
       optionals
     )
     Storage_Service.stage_chunk_to_chart(
       area_to_chart,
-      { x = (area_to_chart.center.x - 16 * math.sqrt(c^2 - a^2)), y = (area_to_chart.center.y + 16 * a) },
+      { x = (area_to_chart.center.x - distance_modifier * math.sqrt(c^2 - a^2)), y = (area_to_chart.center.y + distance_modifier * a) },
       i,
       j,
       optionals
     )
     Storage_Service.stage_chunk_to_chart(
       area_to_chart,
-      { x = (area_to_chart.center.x - 16 * math.sqrt(c^2 - a^2)), y = (area_to_chart.center.y - 16 * a) },
+      { x = (area_to_chart.center.x - distance_modifier * math.sqrt(c^2 - a^2)), y = (area_to_chart.center.y - distance_modifier * a) },
       i,
       j,
       optionals
     )
     Storage_Service.stage_chunk_to_chart(
       area_to_chart,
-      { x = (area_to_chart.center.x + 16 * math.sqrt(c^2 - a^2)), y = (area_to_chart.center.y - 16 * a) },
+      { x = (area_to_chart.center.x + distance_modifier * math.sqrt(c^2 - a^2)), y = (area_to_chart.center.y - distance_modifier * a) },
       i,
       j,
       optionals
     )
   end
 
-  j = j + 1
+  if (optionals.mode == Constants.optionals.mode.stack) then
+    -- if (i == 0 and j == 0) then
+      -- j = j + math.pi/4
+    -- else
+      j = j + 1
+    -- end
+  elseif (optionals.mode == Constants.optionals.mode.queue) then
+    j = j + 1
+  end
+
+  -- j = j + 1
   area_to_chart[optionals.mode].j = j
 
-  Log.warn(storage.all_seeing_satellite)
+  Log.debug(storage.all_seeing_satellite)
 
   return area_to_chart.complete
 end
@@ -197,10 +249,13 @@ function scan_chunk_service.scan_selected_chunk(area_to_chart, optionals)
 
   Log.info(area_to_chart)
 
+  -- TODO: Parameterize this
+  local distance_modifier = 16
+
   game.forces[area_to_chart.player_index].chart(
     area_to_chart.surface, {
-      {(area_to_chart.pos.x) - 16, (area_to_chart.pos.y) - 16},
-      {(area_to_chart.pos.x) + 16, (area_to_chart.pos.y) + 16}
+      {(area_to_chart.pos.x) - distance_modifier, (area_to_chart.pos.y) - distance_modifier},
+      {(area_to_chart.pos.x) + distance_modifier, (area_to_chart.pos.y) + distance_modifier}
     })
 
   return_val = true
