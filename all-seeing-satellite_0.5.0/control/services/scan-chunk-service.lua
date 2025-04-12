@@ -14,15 +14,18 @@ local scan_chunk_service = {}
 function scan_chunk_service.stage_selected_chunk(event)
   Log.debug("scan_chunk_service.stage_selected_chunk")
   Log.info(event)
-  if (not event or not event.item or not event.item == "satellite-scanning-remote") then return end
-  if (not event.surface or not event.surface or not event.surface.valid) then return end
-  if (not event.player_index or not event.area) then return end
-  if (not Planet_Utils.allow_scan(event.surface.name)) then return end
+
+  if (not event) then return end
 
   local optionals = { mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode }
 
   Log.debug("staging area")
   Storage_Service.stage_area_to_chart(event, optionals)
+end
+
+function scan_chunk_service.clear_selected_chunks(event)
+  Log.error("scan_chunk_service.clear_selected_chunks")
+  Log.warn(event)
 end
 
 function scan_chunk_service.stage_selected_area(area_to_chart, optionals)
