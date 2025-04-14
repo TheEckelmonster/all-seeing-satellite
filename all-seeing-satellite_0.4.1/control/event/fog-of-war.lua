@@ -21,6 +21,7 @@ function fog_of_war.toggle_FoW(event)
     for k, satellite in pairs(storage.satellites_toggled) do
       -- If inputs are valid, and the surface the player is currently viewing is toggled
       if (  satellite
+        and type(satellite) == "table"
         and satellite.toggle
         and player
         and player.force
@@ -63,7 +64,7 @@ function fog_of_war.toggle(event)
       Log.debug("Invalid surface!")
       Log.debug(surface_name)
       Log.debug("Toggled by player:")
-      Log.debug(plaer)
+      Log.debug(player)
       return
     end
 
