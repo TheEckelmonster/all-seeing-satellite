@@ -81,6 +81,14 @@ settings_constants.settings.RESTRICT_SATELLITE_SCANNING = {
   default_value = true,
 }
 
+settings_constants.settings.RESTRICT_SATELLITE_MODE = {
+  type = "bool-setting",
+  name = "all-see-satellite-restrict-satellite-mode",
+  setting_type = "runtime-global",
+  order = "aac",
+  default_value = true,
+}
+
 settings_constants.settings.SATELLITE_SCAN_MODE = {
   type = "string-setting",
   name = "all-seeing-satellite-satellite-scan-mode",

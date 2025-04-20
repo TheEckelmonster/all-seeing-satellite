@@ -18,12 +18,22 @@ if (not nth_tick or nth_tick <= 0) then
   nth_tick = Settings_Constants.settings.NTH_TICK.value
 end
 
+local on_entity_died_filter = {}
+
+for _, v in pairs(Rocket_Silo_Controller.filter) do
+  table.insert(on_entity_died_filter, v)
+end
+
+for _, v in pairs(Player_Controller.filter) do
+  table.insert(on_entity_died_filter, v)
+end
+
 --
 -- Register events
 
 Log.info("Registering events")
 
-script.on_init(init)
+-- script.on_init(init)
 
 script.on_event(defines.events.on_tick, All_Seeing_Satellite_Controller.do_tick)
 
@@ -59,6 +69,20 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, Settings_Controll
 script.on_event(defines.events.on_player_selected_area, Scan_Chunk_Controller.stage_selected_chunks)
 script.on_event(defines.events.on_player_reverse_selected_area, Scan_Chunk_Controller.clear_selected_chunks)
 
+script.on_event(defines.events.on_entity_died, function (event)
+  if (not event) then return end
+  if (not event.entity or not event.entity.name) then return end
+
+  if (event.entity.name == "character") then
+    Player_Controller.entity_died(event)
+  elseif (event.entity.name == "rocket-silo") then
+    Rocket_Silo_Controller.rocket_silo_mined(event)
+  end
+end,
+-- Rocket_Silo_Controller.filter)
+on_entity_died_filter)
+
+--
 -- rocket-silo tracking
 script.on_event(defines.events.on_built_entity, Rocket_Silo_Controller.rocket_silo_built, Rocket_Silo_Controller.filter)
 script.on_event(defines.events.on_robot_built_entity, Rocket_Silo_Controller.rocket_silo_built, Rocket_Silo_Controller.filter)
@@ -66,7 +90,6 @@ script.on_event(defines.events.script_raised_built, Rocket_Silo_Controller.rocke
 script.on_event(defines.events.script_raised_revive, Rocket_Silo_Controller.rocket_silo_built, Rocket_Silo_Controller.filter)
 script.on_event(defines.events.on_player_mined_entity, Rocket_Silo_Controller.rocket_silo_mined, Rocket_Silo_Controller.filter)
 script.on_event(defines.events.on_robot_mined_entity, Rocket_Silo_Controller.rocket_silo_mined, Rocket_Silo_Controller.filter)
-script.on_event(defines.events.on_entity_died, Rocket_Silo_Controller.rocket_silo_mined, Rocket_Silo_Controller.filter)
 script.on_event(defines.events.script_raised_destroy, Rocket_Silo_Controller.rocket_silo_mined_script, Rocket_Silo_Controller.filter)
 
 Log.info("Finished registering events")

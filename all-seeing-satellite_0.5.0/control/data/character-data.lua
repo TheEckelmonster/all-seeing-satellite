@@ -1,26 +1,35 @@
--- If already defined, return
-if _character_data and _character_data.all_seeing_satellite then
-  return _character_data
-end
-
 local Data = require("control.data.data")
+local Log = require("libs.log.log")
 
 local character_data = Data:new()
 
 character_data.player_index = -1
+character_data.unit_number = nil
 character_data.character = {}
 character_data.surface_index = -1
 character_data.position = nil
 
-function character_data:new (obj)
-  obj = obj or {}
+function character_data:new(obj)
+  Log.debug("character_data:new")
+  Log.info(obj)
+
+  obj = obj and Data:new(obj) or Data:new()
+
+  local defaults = {
+    player_index = self.player_index,
+    unit_number = self.unit_number,
+    character = self.character,
+    surface_index = self.surface_index,
+    position = self.position,
+  }
+
+  for k, v in pairs(defaults) do
+    if (obj[k] == nil) then obj[k] = v end
+  end
+
   setmetatable(obj, self)
   self.__index = self
   return obj
 end
-
-character_data.all_seeing_satellite = true
-
-local _character_data = character_data
 
 return character_data

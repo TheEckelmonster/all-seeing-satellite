@@ -5,6 +5,7 @@ end
 
 local Initialization = require("control.initialization")
 local Log = require("libs.log.log")
+local Player_Data_Repository = require("control.repositories.player-data-repository")
 local Storage_Service = require("control.services.storage-service")
 
 local all_seeing_satellite_commands = {}
@@ -74,6 +75,15 @@ function all_seeing_satellite_commands.get_do_nth_tick(command)
   end)
 end
 
+function all_seeing_satellite_commands.print_player_data(event)
+  validate_command(event, function (player)
+    Log.info("commands.print_player_data", true)
+    local player_data = Player_Data_Repository.get_player_data(player.index)
+    log(serpent.block(player_data))
+    player.print(serpent.block(player_data))
+  end)
+end
+
 function validate_command(event, fun)
   Log.info(event)
   if (event) then
@@ -93,6 +103,7 @@ end
 commands.add_command("all_seeing.init","Initialize from scratch. Will erase existing data.", all_seeing_satellite_commands.init)
 commands.add_command("all_seeing.reinit","Tries to reinitialize, attempting to preserve existing data.", all_seeing_satellite_commands.reinit)
 commands.add_command("all_seeing.print_storage","Prints the underlying storage data.", all_seeing_satellite_commands.print_storage)
+commands.add_command("all_seeing.print_player_data","Prints the given players data.", all_seeing_satellite_commands.print_player_data)
 commands.add_command("all_seeing.satellites_launched","Prints the the number of satellites launched for each surface/planet.", all_seeing_satellite_commands.print_satellites_launched)
 commands.add_command("all_seeing.set_do_nth_tick", "Sets whether to process or not depending on the parameter passed.", all_seeing_satellite_commands.set_do_nth_tick)
 commands.add_command("all_seeing.get_do_nth_tick", "Gets the value of the underlying variable for whether to process or not.", all_seeing_satellite_commands.get_do_nth_tick)

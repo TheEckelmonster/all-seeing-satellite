@@ -29,7 +29,6 @@ function character_data_repository.save_character_data(player_index, optionals)
   if (not player or not player.valid) then return return_val end
 
   local character = player.character
-  Log.error(character)
   if (not character) then return return_val end
 
   if (not storage) then return return_val end
@@ -38,11 +37,10 @@ function character_data_repository.save_character_data(player_index, optionals)
   if (not storage.all_seeing_satellite.player_data[player_index]) then storage.all_seeing_satellite.player_data[player_index] = {} end
   if (not storage.all_seeing_satellite.player_data[player_index].character_data) then storage.all_seeing_satellite.player_data[player_index].character_data = return_val end
 
-  local return_val = storage.all_seeing_satellite.player_data[player_index].character_data
+  return_val = storage.all_seeing_satellite.player_data[player_index].character_data
   return_val.valid = true
-  return_val.created = return_val.created or game.tick
-  return_val.updated = game.tick
   return_val.player_index = player_index
+  return_val.unit_number = character.unit_number
   return_val.character = character
   return_val.surface_index = character.surface_index
   return_val.position = character.position
@@ -150,7 +148,13 @@ function character_data_repository.get_all_character_data(optionals)
   if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
   if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
 
-  return storage.all_seeing_satellite.player_data
+  local all_player_data = storage.all_seeing_satellite.player_data
+
+  for player_index, player_data in pairs(all_player_data) do
+    table.insert(return_val, player_data.character_data)
+  end
+
+  return return_val
 end
 
 character_data_repository.all_seeing_satellite = true

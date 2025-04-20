@@ -114,7 +114,7 @@ function storage_service.get_area_to_chart(optionals)
     end
     return_val.valid = true
   else
-    Log.debug("didn't find anything to chart")
+    Log.info("didn't find anything to chart")
   end
 
   return return_val
@@ -238,7 +238,7 @@ function storage_service.get_staged_chunks_to_chart(optionals)
     end
     return_val.valid = true
   else
-    Log.warn("didn't find anything to chart")
+    Log.info("didn't find anything to chart")
   end
 
   return return_val

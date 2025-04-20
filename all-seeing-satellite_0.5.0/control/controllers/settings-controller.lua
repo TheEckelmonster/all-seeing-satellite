@@ -13,7 +13,7 @@ local settings_controller = {}
 settings_controller.all_seeing_satellite = true
 
 function settings_controller.mod_setting_changed(event)
-  Log.info("settings_controller.mod_setting_changed")
+  Log.debug("settings_controller.mod_setting_changed")
   Log.info(event)
   if (event and event.setting) then
     if (event.setting == Settings_Constants.DEBUG_LEVEL.name) then

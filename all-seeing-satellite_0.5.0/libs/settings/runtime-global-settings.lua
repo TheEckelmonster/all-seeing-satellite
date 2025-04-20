@@ -9,4 +9,5 @@ data:extend({
   Settings_Constants.settings.RESTRICT_SATELLITE_SCANNING,
   Settings_Constants.settings.SATELLITE_SCAN_COOLDOWN_DURATION,
   Settings_Constants.settings.SATELLITE_SCAN_MODE,
+  Settings_Constants.settings.RESTRICT_SATELLITE_MODE,
 })

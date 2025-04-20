@@ -31,12 +31,10 @@ function player_data_repository.save_player_data(player_index, optionals)
   if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
   if (not storage.all_seeing_satellite.player_data[player_index]) then storage.all_seeing_satellite.player_data[player_index] = return_val end
 
-  local return_val = storage.all_seeing_satellite.player_data[player_index]
+  return_val = storage.all_seeing_satellite.player_data[player_index]
   local character_data = Character_Data_Repository.save_character_data(player_index)
 
   return_val.valid = true
-  return_val.created = return_val.created or game.tick
-  return_val.updated = game.tick
   return_val.player_index = player.index
   return_val.character_data = character_data.valid and character_data or return_val.character_data
   return_val.controller_type = defines.controllers.character

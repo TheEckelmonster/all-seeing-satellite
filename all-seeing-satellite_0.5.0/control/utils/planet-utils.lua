@@ -12,12 +12,30 @@ local Storage_Service = require("control.services.storage-service")
 local planet_utils = {}
 
 function planet_utils.allow_toggle(surface_name)
+  Log.debug("planet_utils.allow_toggle")
+  Log.info(surface_name)
+
   if (not Settings_Service.get_require_satellites_in_orbit()) then return true end
+
+  if (surface_name) then
+    return  Storage_Service.is_storage_valid()
+    and Storage_Service.get_satellites_launched(surface_name) >= planet_utils.planet_launch_threshold(surface_name)
+  end
+
+  return false
+end
+
+function planet_utils.allow_satellite_mode(surface_name)
+  Log.debug("planet_utils.allow_satellite_mode")
+  Log.info(surface_name)
+
+  if (not Settings_Service.get_restrict_satellite_mode()) then return true end
 
   if (surface_name) then
     return  Storage_Service.is_storage_valid()
         and Storage_Service.get_satellites_launched(surface_name) >= planet_utils.planet_launch_threshold(surface_name)
   end
+
   return false
 end
 

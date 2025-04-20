@@ -7,12 +7,15 @@ local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
 local Settings_Service = require("control.services.settings-service")
 local Storage_Service = require("control.services.storage-service")
--- local Validations = require("control.validations.validations")
 
 local satellite_utils = {}
 
 function satellite_utils.satellite_launched(planet_name, item, tick)
-  -- if (Validations.validate_satellites_launched(planet_name) and Validations.validate_satellites_in_orbit(planet_name)) then
+  Log.debug("satellite_utils.satellite_launched")
+  Log.info(planet_name)
+  Log.info(item)
+  Log.info(tick)
+
   if (Storage_Service.get_satellites_launched(planet_name) and Storage_Service.get_satellites_in_orbit(planet_name)) then
     satellite_utils.start_satellite_countdown(item, tick, planet_name)
   else
@@ -22,6 +25,11 @@ function satellite_utils.satellite_launched(planet_name, item, tick)
 end
 
 function satellite_utils.start_satellite_countdown(satellite, tick, planet_name)
+  Log.debug("satellite_utils.start_satellite_countdown")
+  Log.info(satellite)
+  Log.info(tick)
+  Log.info(planet_name)
+
   if (  Storage_Service.is_storage_valid()
     and Storage_Service.get_satellites_launched(planet_name)
     and Storage_Service.get_satellites_in_orbit(planet_name)
@@ -42,6 +50,9 @@ function satellite_utils.start_satellite_countdown(satellite, tick, planet_name)
 end
 
 function satellite_utils.get_num_satellites_in_orbit(planet_name)
+  Log.debug("satellite_utils.get_num_satellites_in_orbit")
+  Log.info(planet_name)
+
   if (Storage_Service.get_satellites_launched(planet_name) and Storage_Service.get_satellites_in_orbit(planet_name)) then
     Log.debug("Setting num satellites launched for planet: " .. serpent.block(planet_name))
     Storage_Service.set_satellites_launched(#Storage_Service.get_satellites_in_orbit(planet_name), planet_name)
@@ -52,6 +63,10 @@ function satellite_utils.get_num_satellites_in_orbit(planet_name)
 end
 
 function satellite_utils.calculate_tick_to_die(tick, satellite)
+  Log.debug("satellite_utils.calculate_tick_to_die")
+  Log.info(tick)
+  Log.info(satellite)
+
   local death_tick = 0
   local quality_multiplier = 1
 
@@ -72,21 +87,25 @@ function satellite_utils.calculate_tick_to_die(tick, satellite)
 end
 
 function satellite_utils.get_quality_multiplier(quality)
+  Log.debug("satellite_utils.get_quality_multiplier")
+  Log.info(quality)
+
   local return_val = 1
 
-  -- TODO: Make this configurable
-  local x = 0
+  -- TODO: Make these configurable
+  local exp = 0
+  local b = 1.3
 
   if (quality == "normal") then
-    return_val = 1.3^(x + 0) -- 1
+    return_val = b^(exp + 0) -- 1
   elseif (quality == "uncommon") then
-    return_val = 1.3^(x + 1) -- 1.3
+    return_val = b^(exp + 1) -- 1.3
   elseif (quality == "rare") then
-    return_val = 1.3^(x + 2) -- 1.69
+    return_val = b^(exp + 2) -- 1.69
   elseif (quality == "epic") then
-    return_val = 1.3^(x + 3) -- 2.197
+    return_val = b^(exp + 3) -- 2.197
   elseif (quality == "legendary") then
-    return_val = 1.3^(x + 4) -- 2.8561
+    return_val = b^(exp + 4) -- 2.8561
   end
 
   return return_val
