@@ -1,16 +1,16 @@
 -- If already defined, return
-if _player_data_repository and _player_data_repository.all_seeing_satellite then
-  return _player_data_repository
+if _player_repository and _player_repository.all_seeing_satellite then
+  return _player_repository
 end
 
 local Log = require("libs.log.log")
-local Character_Data_Repository = require("control.repositories.character-data-repository")
+local Character_Repository = require("control.repositories.character-repository")
 local Player_Data = require("control.data.player-data")
 
-local player_data_repository = {}
+local player_repository = {}
 
-function player_data_repository.save_player_data(player_index, optionals)
-  Log.debug("player_data_repository.save_player_data")
+function player_repository.save_player_data(player_index, optionals)
+  Log.debug("player_repository.save_player_data")
   Log.info(player_index)
   Log.info(optionals)
 
@@ -26,13 +26,13 @@ function player_data_repository.save_player_data(player_index, optionals)
   local player = optionals.player or game.get_player(player_index)
   if (not player or not player.valid) then return return_val end
 
-  if (not storage) then return end
+  if (not storage) then return return_val end
   if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
   if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
   if (not storage.all_seeing_satellite.player_data[player_index]) then storage.all_seeing_satellite.player_data[player_index] = return_val end
 
   return_val = storage.all_seeing_satellite.player_data[player_index]
-  local character_data = Character_Data_Repository.save_character_data(player_index)
+  local character_data = Character_Repository.save_character_data(player_index)
 
   return_val.valid = true
   return_val.player_index = player.index
@@ -45,11 +45,11 @@ function player_data_repository.save_player_data(player_index, optionals)
   return_val.physical_position = player.physical_position
   return_val.physical_vehicle = player.physical_vehicle
 
-  return player_data_repository.update_player_data(return_val)
+  return player_repository.update_player_data(return_val)
 end
 
-function player_data_repository.update_player_data(update_data, optionals)
-  Log.debug("player_data_repository.update_player_data")
+function player_repository.update_player_data(update_data, optionals)
+  Log.debug("player_repository.update_player_data")
   Log.info(update_data)
   Log.info(optionals)
 
@@ -63,13 +63,13 @@ function player_data_repository.update_player_data(update_data, optionals)
 
   local player_index = update_data.player_index
 
-  if (not storage) then return end
+  if (not storage) then return return_val end
   if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
   if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
   if (not storage.all_seeing_satellite.player_data[player_index]) then
     -- If it doesn't exist, generate it
     storage.all_seeing_satellite.player_data[player_index] = return_val
-    player_data_repository.save_player_data(player_index)
+    player_repository.save_player_data(player_index)
   end
 
   local player_data = storage.all_seeing_satellite.player_data[player_index]
@@ -86,8 +86,8 @@ function player_data_repository.update_player_data(update_data, optionals)
   return player_data
 end
 
-function player_data_repository.delete_player_data(player_index, optionals)
-  Log.debug("player_data_repository.delete_player_data")
+function player_repository.delete_player_data(player_index, optionals)
+  Log.debug("player_repository.delete_player_data")
   Log.info(player_index)
   Log.info(optionals)
 
@@ -109,8 +109,8 @@ function player_data_repository.delete_player_data(player_index, optionals)
   return return_val
 end
 
-function player_data_repository.get_player_data(player_index, optionals)
-  Log.debug("player_data_repository.get_player_data")
+function player_repository.get_player_data(player_index, optionals)
+  Log.debug("player_repository.get_player_data")
   Log.info(player_index)
   Log.info(optionals)
 
@@ -127,29 +127,31 @@ function player_data_repository.get_player_data(player_index, optionals)
   if (not storage.all_seeing_satellite.player_data[player_index]) then
     -- If it doesn't exist, generate it
     storage.all_seeing_satellite.player_data[player_index] = return_val
-    player_data_repository.save_player_data(player_index)
+    player_repository.save_player_data(player_index)
   end
 
   return storage.all_seeing_satellite.player_data[player_index]
 end
 
-function player_data_repository.get_all_player_data(optionals)
-  Log.debug("player_data_repository.get_all_player_data")
+function player_repository.get_all_player_data(optionals)
+  Log.debug("player_repository.get_all_player_data")
   Log.info(optionals)
 
-  if (not game) then return end
+  local return_val = {}
+
+  if (not game) then return return_val end
 
   optionals = optionals or {}
 
-  if (not storage) then return end
+  if (not storage) then return return_val end
   if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
   if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
 
   return storage.all_seeing_satellite.player_data
 end
 
-player_data_repository.all_seeing_satellite = true
+player_repository.all_seeing_satellite = true
 
-local _player_data_repository = player_data_repository
+local _player_repository = player_repository
 
-return player_data_repository
+return player_repository

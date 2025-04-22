@@ -3,10 +3,12 @@ if _all_seeing_satellite_commands and _all_seeing_satellite_commands.all_seeing_
   return _all_seeing_satellite_commands
 end
 
+local All_Seeing_Satellite_Repository = require("control.repositories.all-seeing-satellite-repository")
 local Initialization = require("control.initialization")
 local Log = require("libs.log.log")
-local Player_Data_Repository = require("control.repositories.player-data-repository")
-local Storage_Service = require("control.services.storage-service")
+local Player_Repository = require("control.repositories.player-repository")
+local Satellite_Meta_Repository = require("control.repositories.satellite-meta-repository")
+-- local Storage_Service = require("control.services.storage-service")
 
 local all_seeing_satellite_commands = {}
 
@@ -40,34 +42,53 @@ end
 function all_seeing_satellite_commands.print_satellites_launched(event)
   validate_command(event, function (player)
     Log.info("commands.print_satellites_launched", true)
-    local obj = Storage_Service.get_all_satellites_launched()
-    log(serpent.block(obj))
-    player.print(serpent.block(obj))
-    Log.debug(storage)
+    -- local obj = Storage_Service.get_all_satellites_launched()
+    local all_satellite_meta_data = Satellite_Meta_Repository.get_all_satellite_meta_data()
+
+    for planet_name, satellite_meta_data in pairs(all_satellite_meta_data) do
+      log(serpent.block(satellite_meta_data.planet_name .. ": " .. satellite_meta_data.satellites_in_orbit))
+      player.print(serpent.block(satellite_meta_data.planet_name .. ": " .. satellite_meta_data.satellites_in_orbit))
+    end
+    -- log(serpent.block(obj))
+    -- player.print(serpent.block(obj))
   end)
 end
 
 function all_seeing_satellite_commands.set_do_nth_tick(command)
   validate_command(command, function (player)
     Log.info("commands.set_do_nth_tick", true)
+
+    local all_seeing_satellite_data = All_Seeing_Satellite_Repository.get_all_seeing_satellite_data()
+    if (not all_seeing_satellite_data.valid) then return end
+
     if (command.parameter ~= nil and (command.parameter or command.parameter == "true" or command.parameter >= 1)) then
       log("Setting do_nth_tick to true")
       player.print("Setting do_nth_tick to true")
-      Storage_Service.set_do_nth_tick(true)
+      -- Storage_Service.set_do_nth_tick(true)
+      all_seeing_satellite_data.do_nth_tick = true
+      -- all_seeing_satellite_data.updated = game.tick
     else
       log("Setting do_nth_tick to false")
       player.print("Setting do_nth_tick to false")
-      Storage_Service.set_do_nth_tick(false)
+      -- Storage_Service.set_do_nth_tick(false)
+      all_seeing_satellite_data.do_nth_tick = false
+      -- all_seeing_satellite_data.updated = game.tick
     end
+    all_seeing_satellite_data.updated = game.tick
   end)
 end
 
 function all_seeing_satellite_commands.get_do_nth_tick(command)
   validate_command(command, function (player)
     Log.info("commands.get_do_nth_tick", true)
-    if (Storage_Service.get_do_nth_tick() ~= nil) then
-      log("do_nth_tick = " .. serpent.block(Storage_Service.get_do_nth_tick()))
-      player.print("do_nth_tick = " .. serpent.block(Storage_Service.get_do_nth_tick()))
+
+    local all_seeing_satellite_data = All_Seeing_Satellite_Repository.get_all_seeing_satellite_data()
+    if (not all_seeing_satellite_data.valid) then return end
+
+
+    if (all_seeing_satellite_data.do_nth_tick ~= nil) then
+      log("do_nth_tick = " .. serpent.block(all_seeing_satellite_data.do_nth_tick))
+      player.print("do_nth_tick = " .. serpent.block(all_seeing_satellite_data.do_nth_tick))
     else
       Log.error("storage is either nil or invalid")
       player.print("storage is either nil or invalid; command failed")
@@ -78,7 +99,7 @@ end
 function all_seeing_satellite_commands.print_player_data(event)
   validate_command(event, function (player)
     Log.info("commands.print_player_data", true)
-    local player_data = Player_Data_Repository.get_player_data(player.index)
+    local player_data = Player_Repository.get_player_data(player.index)
     log(serpent.block(player_data))
     player.print(serpent.block(player_data))
   end)

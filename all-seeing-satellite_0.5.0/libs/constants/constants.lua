@@ -4,6 +4,7 @@ if _constants and _constants.all_seeing_satellite then
 end
 
 local Log = require("libs.log.log")
+local Planet_Data = require("control.data.planet-data")
 local String_Utils = require("control.utils.string-utils")
 
 local constants = {
@@ -12,6 +13,8 @@ local constants = {
   gleba = {},
   vulcanus = {}
 }
+
+constants.mod_name = "all-seeing-satellite"
 
 constants.TICKS_PER_SECOND = 60
 constants.SECONDS_PER_MINUTE = 60
@@ -28,7 +31,7 @@ constants.optionals.mode.stack = "stack"
 constants.optionals.mode.queue = "queue"
 
 function constants.get_planets(reindex)
-  if (not reindex and constants.planets) then
+  if (not reindex and constants.planets and #constants.planets > 0) then
     return constants.planets
   end
 
@@ -66,15 +69,23 @@ function get_planets()
 
           -- Surface can be nil
           -- Trying to use on_surface_created event to add them to the appropriate planet after the fact
-          local _planet = {
+          -- local _planet = {
+          --   name = planet_name,
+          --   surface = planet_surface,
+          --   magnitude = planet_magnitude,
+          -- }
+          local planet_data = Planet_Data:new({
             name = planet_name,
             surface = planet_surface,
             magnitude = planet_magnitude,
-          }
+            valid = true,
+          })
 
           Log.debug("Adding planet")
-          Log.info(_planet)
-          table.insert(constants.planets, _planet)
+          -- Log.info(_planet)
+          -- table.insert(constants.planets, _planet)
+          Log.info(planet_data)
+          table.insert(constants.planets, planet_data)
         end
       end
     end
@@ -84,13 +95,13 @@ function get_planets()
 end
 
 -- TODO: Not needed anymore?
-function find_invalid_substrings(string)
-  Log.debug(string)
-  return string.find(string, "-", 1, true)
-      or string.find(string, "EE_", 1, true)
-      or string.find(string, "TEST", 1, true)
-      or string.find(string, "test", 1, true)
-end
+-- function find_invalid_substrings(string)
+--   Log.debug(string)
+--   return string.find(string, "-", 1, true)
+--       or string.find(string, "EE_", 1, true)
+--       or string.find(string, "TEST", 1, true)
+--       or string.find(string, "test", 1, true)
+-- end
 
 constants.all_seeing_satellite = true
 

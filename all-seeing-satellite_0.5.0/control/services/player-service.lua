@@ -3,9 +3,9 @@ if _player_service and _player_service.all_seeing_satellite then
   return _player_service
 end
 
-local Character_Data_Repository = require("control.repositories.character-data-repository")
+local Character_Repository = require("control.repositories.character-repository")
 local Log = require("libs.log.log")
-local Player_Data_Repository = require("control.repositories.player-data-repository")
+local Player_Repository = require("control.repositories.player-repository")
 local Settings_Service = require("control.services.settings-service")
 
 local player_service = {}
@@ -19,12 +19,13 @@ function player_service.toggle_satellite_mode(event)
 
   local player_index = event.player_index
   local player = game.get_player(player_index)
-  local player_data = Player_Data_Repository.get_player_data(player_index)
+  local player_data = Player_Repository.get_player_data(player_index)
   local position_to_place = player_data.physical_position
-  local physical_surface = game.surfaces[player_data.physical_surface_index]
+  -- local physical_surface = game.surfaces[player_data.physical_surface_index]
+  local physical_surface = game.get_surface(player_data.physical_surface_index)
 
   local update_player_data_fun = function (index, toggled, player)
-    Player_Data_Repository.update_player_data({
+    Player_Repository.update_player_data({
       player_index = index,
       satellite_mode_toggled = toggled,
     })
@@ -99,10 +100,11 @@ function player_service.disable_satellite_mode_and_die(data)
   local player = game.get_player(player_index)
   if (not player or not player.valid) then return end
 
-  local character_data = Character_Data_Repository.get_character_data(player_index)
+  local character_data = Character_Repository.get_character_data(player_index)
   if (not character_data or not character_data.valid) then return end
 
-  local surface = game.surfaces[character_data.surface_index]
+  -- local surface = game.surfaces[character_data.surface_index]
+  local surface = game.get_surface(character_data.surface_index)
   if (not surface or not surface.valid) then return end
 
   local character_position = character.position
@@ -115,12 +117,12 @@ function player_service.disable_satellite_mode_and_die(data)
   player.create_character(character)
   player.game_view_settings.show_surface_list = true
 
-  Player_Data_Repository.update_player_data({
+  Player_Repository.update_player_data({
     player_index = player_index,
     satellite_mode_toggled = false,
   })
 
-  Character_Data_Repository.update_character_data({
+  Character_Repository.update_character_data({
     player_index = player_index,
     character = character,
     position = character.position,

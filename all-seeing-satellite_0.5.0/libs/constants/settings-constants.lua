@@ -28,7 +28,7 @@ settings_constants.settings.SATELLITE_SCAN_COOLDOWN_DURATION = {
   name = "all-seeing-satellite-satellite-scan-cooldown-duration",
   setting_type = "runtime-global",
   order = "ccc",
-  default_value = 10,
+  default_value = 0.85,
   maximum_value = 1111,  -- What should be the maximum, if any?
   minimum_value = 0,
 }

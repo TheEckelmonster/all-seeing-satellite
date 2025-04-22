@@ -5,9 +5,10 @@ end
 
 local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
+local Satellite_Meta_Repository = require("control.repositories.satellite-meta-repository")
 local Settings_Constants = require("libs.constants.settings-constants")
 local Settings_Service = require("control.services.settings-service")
-local Storage_Service = require("control.services.storage-service")
+-- local Storage_Service = require("control.services.storage-service")
 
 local planet_utils = {}
 
@@ -18,8 +19,10 @@ function planet_utils.allow_toggle(surface_name)
   if (not Settings_Service.get_require_satellites_in_orbit()) then return true end
 
   if (surface_name) then
-    return  Storage_Service.is_storage_valid()
-    and Storage_Service.get_satellites_launched(surface_name) >= planet_utils.planet_launch_threshold(surface_name)
+    -- return  Storage_Service.is_storage_valid()
+    -- and Storage_Service.get_satellites_launched(surface_name) >= planet_utils.planet_launch_threshold(surface_name)
+    local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(surface_name)
+    return satellite_meta_data and satellite_meta_data.valid and satellite_meta_data.satellites_in_orbit >= planet_utils.planet_launch_threshold(surface_name)
   end
 
   return false
@@ -32,8 +35,10 @@ function planet_utils.allow_satellite_mode(surface_name)
   if (not Settings_Service.get_restrict_satellite_mode()) then return true end
 
   if (surface_name) then
-    return  Storage_Service.is_storage_valid()
-        and Storage_Service.get_satellites_launched(surface_name) >= planet_utils.planet_launch_threshold(surface_name)
+    -- return  Storage_Service.is_storage_valid()
+    --     and Storage_Service.get_satellites_launched(surface_name) >= planet_utils.planet_launch_threshold(surface_name)
+    local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(surface_name)
+    return satellite_meta_data and satellite_meta_data.valid and satellite_meta_data.satellites_in_orbit >= planet_utils.planet_launch_threshold(surface_name)
   end
 
   return false
@@ -63,9 +68,11 @@ function planet_utils.allow_scan(surface_name)
   if (not Settings_Service.get_restrict_satellite_scanning()) then return true end
 
   if (surface_name) then
-    return  Storage_Service.is_storage_valid()
-        and Storage_Service.get_satellites_launched(surface_name)
-        and Storage_Service.get_satellites_launched(surface_name) > 0
+    -- return  Storage_Service.is_storage_valid()
+    --     and Storage_Service.get_satellites_launched(surface_name)
+    --     and Storage_Service.get_satellites_launched(surface_name) > 0
+    local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(surface_name)
+    return satellite_meta_data and satellite_meta_data.valid and satellite_meta_data.satellites_in_orbit > 0
   end
   return false
 end

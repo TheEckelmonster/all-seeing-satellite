@@ -3,11 +3,14 @@ if _player_controller and _player_controller.all_seeing_satellite then
   return _player_controller
 end
 
-local Character_Data_Repository = require("control.repositories.character-data-repository")
+local Character_Repository = require("control.repositories.character-repository")
+local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
 local Planet_Utils = require("control.utils.planet-utils")
 local Player_Service = require("control.services.player-service")
-local Player_Data_Repository = require("control.repositories.player-data-repository")
+local Player_Repository = require("control.repositories.player-repository")
+local Research_Utils = require("control.utils.research-utils")
+local Satellite_Meta_Repository = require("control.repositories.satellite-meta-repository")
 
 local player_controller = {}
 
@@ -26,7 +29,7 @@ function player_controller.toggle_satellite_mode(event)
   local surface = player.surface
   if (not surface or not surface.valid) then return end
 
-  local player_data = Player_Data_Repository.get_player_data(event.player_index)
+  local player_data = Player_Repository.get_player_data(event.player_index)
   if (not player_data or not player_data.valid) then return end
 
   local allow_satellite_mode = false
@@ -34,8 +37,29 @@ function player_controller.toggle_satellite_mode(event)
     allow_satellite_mode = true
   end
 
-  if (not allow_satellite_mode and not player_data.satellite_mode_allowed) then return end
-  if (not allow_satellite_mode and not Planet_Utils.allow_satellite_mode(surface.name)) then return end
+  if (not allow_satellite_mode and not Planet_Utils.allow_satellite_mode(surface.name)) then
+    if (not Research_Utils.has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name)) then
+      player.print("Rocket Silo/Satellite not researched yet")
+    else
+
+      local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(surface.name)
+      if (not satellite_meta_data.valid) then return end
+      player.print("Insufficient satellite(s) orbiting "
+        .. surface.name
+        .. " : "
+        .. satellite_meta_data.satellites_in_orbit
+        .. " orbiting, "
+        .. Planet_Utils.planet_launch_threshold(surface.name)
+        .. " minimum"
+      )
+    end
+    return
+  end
+
+  if (not allow_satellite_mode and not player_data.satellite_mode_allowed) then
+    player.print("Satellite mode is currently not allowed")
+    return
+  end
 
   Player_Service.toggle_satellite_mode(event)
 end
@@ -47,7 +71,7 @@ function player_controller.player_created(event)
   if (not event) then return end
   if (not event.player_index) then return end
 
-  Player_Data_Repository.save_player_data(event.player_index)
+  Player_Repository.save_player_data(event.player_index)
 end
 
 function player_controller.pre_player_died(event)
@@ -57,7 +81,7 @@ function player_controller.pre_player_died(event)
   if (not event) then return end
   if (not event.player_index) then return end
 
-  Player_Data_Repository.save_player_data(event.player_index)
+  Player_Repository.save_player_data(event.player_index)
 end
 
 function player_controller.player_died(event)
@@ -67,7 +91,7 @@ function player_controller.player_died(event)
   if (not event) then return end
   if (not event.player_index) then return end
 
-  Player_Data_Repository.save_player_data(event.player_index)
+  Player_Repository.save_player_data(event.player_index)
 end
 
 function player_controller.entity_died(event)
@@ -78,7 +102,7 @@ function player_controller.entity_died(event)
   if (not event.entity or not event.entity.name) then return end
   if (event.entity.name ~= "character") then return end
 
-  local all_character_data = Character_Data_Repository.get_all_character_data()
+  local all_character_data = Character_Repository.get_all_character_data()
 
   local character_data = nil
 
@@ -95,7 +119,7 @@ function player_controller.entity_died(event)
 
     if (player.controller_type == defines.controllers.character) then return end
 
-    local player_data = Player_Data_Repository.get_player_data(player.index)
+    local player_data = Player_Repository.get_player_data(player.index)
     if (not player_data or not player_data.valid) then return end
 
     if (player_data.satellite_mode_toggled) then
@@ -111,7 +135,7 @@ function player_controller.player_respawned(event)
   if (not event) then return end
   if (not event.player_index) then return end
 
-  Player_Data_Repository.save_player_data(event.player_index)
+  Player_Repository.save_player_data(event.player_index)
 end
 
 function player_controller.player_joined_game(event)
@@ -121,7 +145,7 @@ function player_controller.player_joined_game(event)
   if (not event) then return end
   if (not event.player_index) then return end
 
-  Player_Data_Repository.update_player_data({ player_index = event.player_index })
+  Player_Repository.update_player_data({ player_index = event.player_index })
 end
 
 function player_controller.pre_player_left_game(event)
@@ -131,7 +155,7 @@ function player_controller.pre_player_left_game(event)
   if (not event) then return end
   if (not event.player_index) then return end
 
-  Player_Data_Repository.save_player_data(event.player_index)
+  Player_Repository.save_player_data(event.player_index)
 end
 
 function player_controller.pre_player_removed(event)
@@ -141,7 +165,7 @@ function player_controller.pre_player_removed(event)
   if (not event) then return end
   if (not event.player_index) then return end
 
-  Player_Data_Repository.delete_player_data(event.player_index)
+  Player_Repository.delete_player_data(event.player_index)
 end
 
 function player_controller.surface_cleared(event)
@@ -151,11 +175,11 @@ function player_controller.surface_cleared(event)
   if (not event) then return end
   if (not event.surface_index) then return end
 
-  local all_player_data = Player_Data_Repository.get_all_player_data()
+  local all_player_data = Player_Repository.get_all_player_data()
 
   for player_index, player_data in pairs(all_player_data) do
     if (player_data.surface_index and player_data.surface_index == event.surface_index) then
-      Player_Data_Repository.save_player_data(player_index)
+      Player_Repository.save_player_data(player_index)
     end
   end
 end
@@ -167,11 +191,11 @@ function player_controller.surface_deleted(event)
   if (not event) then return end
   if (not event.surface_index) then return end
 
-  local all_player_data = Player_Data_Repository.get_all_player_data()
+  local all_player_data = Player_Repository.get_all_player_data()
 
   for player_index, player_data in pairs(all_player_data) do
     if (player_data.surface_index and player_data.surface_index == event.surface_index) then
-      Player_Data_Repository.save_player_data(player_index)
+      Player_Repository.save_player_data(player_index)
     end
   end
 end
@@ -188,7 +212,7 @@ function player_controller.changed_surface(event)
 
   if (player.controller_type == defines.controllers.character) then
     Log.warn("1")
-    Player_Data_Repository.save_player_data(event.player_index)
+    Player_Repository.save_player_data(event.player_index)
   elseif (player.controller_type == defines.controllers.remote) then
     Log.warn("2")
   elseif (player.controller_type == defines.controllers.god) then
@@ -205,7 +229,7 @@ function player_controller.cargo_pod_finished_ascending(event)
   if (not event) then return end
   if (not event.player_index) then return end
 
-  Player_Data_Repository.save_player_data(event.player_index)
+  Player_Repository.save_player_data(event.player_index)
 end
 
 function player_controller.cargo_pod_finished_descending(event)
@@ -215,12 +239,12 @@ function player_controller.cargo_pod_finished_descending(event)
   if (not event) then return end
   if (not event.player_index) then return end
 
-  local player_data = Player_Data_Repository.get_player_data(event.player_index)
+  local player_data = Player_Repository.get_player_data(event.player_index)
   if (not player_data.valid) then return end -- This should, in theory, only happen if the player does not exist
 
   if (not event.launched_by_rocket) then
     player_data.satellite_mode_allowed = true
-    Player_Data_Repository.save_player_data(event.player_index)
+    Player_Repository.save_player_data(event.player_index)
 
   end
 end
@@ -238,12 +262,12 @@ function player_controller.rocket_launch_ordered(event)
   if (not passenger or not passenger.valid) then return end
 
   if (passenger and passenger.valid and passenger.player and passenger.player.valid) then
-    local player_data = Player_Data_Repository.get_player_data(passenger.player.index)
+    local player_data = Player_Repository.get_player_data(passenger.player.index)
 
     if (not player_data.valid) then return end -- This should, in theory, only happen if the player does not exist
 
     player_data.satellite_mode_allowed = false
-    Player_Data_Repository.save_player_data(passenger.player.index)
+    Player_Repository.save_player_data(passenger.player.index)
   end
 end
 
@@ -254,14 +278,14 @@ function player_controller.player_toggled_map_editor(event)
   if (not event) then return end
   if (not event.player_index) then return end
 
-  local player_data = Player_Data_Repository.get_player_data(event.player_index)
+  local player_data = Player_Repository.get_player_data(event.player_index)
   if (not player_data or not player_data.valid) then return end
 
   if (player_data.editor_mode_toggled) then
     player_data.satellite_mode_allowed = false
   elseif (not player_data.editor_mode_toggled) then
     if (not player_data.character_data.character or not player_data.character_data.character.valid) then
-      local character_data = Character_Data_Repository.save_character_data(event.player_index)
+      local character_data = Character_Repository.save_character_data(event.player_index)
       if (character_data.valid) then
         player_data.character_data = character_data
         player_data.satellite_mode_allowed = true
@@ -284,7 +308,7 @@ function player_controller.pre_player_toggled_map_editor(event)
 
   if (not event) then return end
   if (not event.player_index) then return end
-  local player_data = Player_Data_Repository.get_player_data(event.player_index)
+  local player_data = Player_Repository.get_player_data(event.player_index)
 
   if (player_data.editor_mode_toggled) then
     player_data.editor_mode_toggled = false

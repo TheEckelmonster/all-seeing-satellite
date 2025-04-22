@@ -6,6 +6,7 @@ end
 local Constants = require("libs.constants.constants")
 local Initialization = require("control.initialization")
 local Log = require("libs.log.log")
+local Satellite_Meta_Repository = require("control.repositories.satellite-meta-repository")
 local Storage_Service = require("control.services.storage-service")
 local String_Utils = require("control.utils.string-utils")
 
@@ -74,25 +75,42 @@ end
 function rocket_silo_utils.launch_rocket(event)
   Log.debug("rocket_silo_utils.launch_rocket")
   Log.info(event)
-  if (not Storage_Service.is_storage_valid()) then
-    Log.warn("Storage is invalid; initializing")
-    Initialization.init()
-  end
+
+  if (not event) then return end
+  if (not event.tick or not event.planet or not event.planet.valid) then return end
+  -- if (not event.planet.surface or not event.planet.surface.valid) then return end
+  if (not event.planet.name) then return end
+  local planet = event.planet
+  if (not planet) then return end
+
+  -- if (not Storage_Service.is_storage_valid()) then
+  --   Log.warn("Storage is invalid; initializing")
+  --   Initialization.init()
+  -- end
+
+  -- local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(event.planet.surface.index)
+  local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(planet.name)
 
   -- local tick = event.tick
   -- local nth_tick = event.nth_tick
 
   -- local tick_mod = tick % nth_tick
 
-  if (storage.rocket_silos) then
-    for _, planet in pairs(Constants.get_planets(false)) do
-      for _, rocket_silo_unit_numbers in pairs(storage.rocket_silos) do
-        for i=1, #rocket_silo_unit_numbers do
-          local rocket_silos = storage.rocket_silos[planet.name]
+  -- if (storage.rocket_silos) then
+  -- if (satellite_meta_data.rocket_silos) then
+    -- for _, planet in pairs(Constants.get_planets(false)) do
+      -- for _, rocket_silo_unit_numbers in pairs(storage.rocket_silos) do
+      -- for _, rocket_silo_unit_numbers in pairs(satellite_meta_data.rocket_silos) do
+      for _, rocket_silo_data in pairs(satellite_meta_data.rocket_silos) do
+        -- for i=1, #rocket_silo_unit_numbers do
+          -- local rocket_silos = storage.rocket_silos[planet.name]
           local rocket_silo = nil
 
-          if (rocket_silos and rocket_silos[i] and rocket_silos[i].entity) then
-            rocket_silo = rocket_silos[i].entity
+          -- if (rocket_silos and rocket_silos[i] and rocket_silos[i].entity) then
+          --   rocket_silo = rocket_silos[i].entity
+          -- end
+          if (rocket_silo_data.entity and rocket_silo_data.entity.valid) then
+            rocket_silo = rocket_silo_data.entity
           end
 
           if (rocket_silo and rocket_silo.valid) then
@@ -119,10 +137,10 @@ function rocket_silo_utils.launch_rocket(event)
               end
             end
           end
-        end
+        -- end
       end
-    end
-  end
+    -- end
+  -- end
 end
 
 rocket_silo_utils.all_seeing_satellite = true
