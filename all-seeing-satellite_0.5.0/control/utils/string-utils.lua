@@ -15,7 +15,7 @@ function string_utils.find_invalid_substrings(string)
   return string.find(string, "EE_", 1, true)
       or string.find(string, "TEST", 1, true)
       or string.find(string, "test", 1, true)
-      or string.find(string, "platform-", 1, true)
+      -- or string.find(string, "platform-", 1, true)
 end
 
 function string_utils.is_all_seeing_satellite_added_planet(string)

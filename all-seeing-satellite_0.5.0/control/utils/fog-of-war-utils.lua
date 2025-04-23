@@ -5,7 +5,6 @@ end
 
 local Log = require("libs.log.log")
 local Planet_Utils = require("control.utils.planet-utils")
--- local Storage_Service = require("control.services.storage-service")
 local Satellite_Meta_Repository = require("control.repositories.satellite-meta-repository")
 
 local fog_of_war_utils = {}
@@ -17,21 +16,17 @@ function fog_of_war_utils.print_toggle_message(message, surface_name, add_count)
   Log.info(add_count)
 
   local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(surface_name)
-  -- if (Storage_Service.is_storage_valid() and Storage_Service.get_satellites_launched(surface_name)) then
   if (satellite_meta_data.valid) then
     if (add_count) then
       game.print(message
               .. surface_name
               .. " : "
-              -- .. Storage_Service.get_satellites_launched(surface_name)
               .. satellite_meta_data.satellites_in_orbit
               ..  " orbiting, "
-              -- .. serpent.block(Planet_Utils.planet_launch_threshold(surface_name))
               .. Planet_Utils.planet_launch_threshold(surface_name)
               .. " minimum"
             )
     else
-      -- game.print(message .. surface_name .. " : " .. Storage_Service.get_satellites_launched(surface_name))
       game.print(message .. surface_name .. " : " .. satellite_meta_data.satellites_in_orbit)
     end
   else

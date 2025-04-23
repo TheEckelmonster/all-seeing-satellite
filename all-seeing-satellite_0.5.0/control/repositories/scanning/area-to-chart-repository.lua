@@ -54,11 +54,6 @@ function area_to_chart_repository.save_area_to_chart_data(data, optionals)
   return_val.surface_index = surface.index
   return_val.valid = true
 
-  -- return_val[optionals.mode] = {
-  --   i = 0,
-  --   j = 0,
-  -- }
-
   table.insert(staged_areas_to_chart, return_val)
 
   return area_to_chart_repository.update_area_to_chart_data(return_val)
@@ -122,7 +117,7 @@ function area_to_chart_repository.delete_area_to_chart_data(data, optionals)
   local staged_areas_to_chart = storage.all_seeing_satellite.staged_areas_to_chart
 
   -- if (index_pos > table_size(staged_areas_to_chart)) then return return_val end
-  if (index_pos > staged_areas_to_chart) then return return_val end
+  if (index_pos > #staged_areas_to_chart) then return return_val end
 
   table.remove(staged_areas_to_chart, index_pos)
   return_val = true
@@ -150,11 +145,6 @@ function area_to_chart_repository.delete_area_to_chart_data_by_id(id, optionals)
 
   local staged_areas_to_chart = storage.all_seeing_satellite.staged_areas_to_chart
 
-  -- if (id > table_size(staged_areas_to_chart)) then return return_val end
-  -- if (id > #staged_areas_to_chart) then return return_val end
-
-  -- staged_areas_to_chart[id] = nil
-
   for k, area_to_chart_data in pairs(staged_areas_to_chart) do
     if (area_to_chart_data.id == id) then
       staged_areas_to_chart[k] = nil
@@ -165,43 +155,6 @@ function area_to_chart_repository.delete_area_to_chart_data_by_id(id, optionals)
 
   return return_val
 end
-
--- function storage_service.get_area_to_chart(optionals)
---   Log.debug("storage_service.get_area_to_chart")
-
---   optionals = optionals or {
---     mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode
---   }
-
---   local return_val = { obj = {}, valid = false }
-
---   if (not storage) then return return_val end
---   if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then
---     Initialization.reinit()
---     return return_val
---   end
-
---   if (not storage.all_seeing_satellite.staged_areas_to_chart) then return return_val end
-
---   if (optionals and optionals.mode == Constants.optionals.mode.stack and table_size(storage.all_seeing_satellite.staged_areas_to_chart) > 0) then
---     Log.warn("staged_areas_to_chart: found something to chart; mode = stack")
---     for _, v in pairs(storage.all_seeing_satellite.staged_areas_to_chart) do
---       return_val.obj = v
---     end
---     return_val.valid = true
---   elseif (optionals and optionals.mode == Constants.optionals.mode.queue and table_size(storage.all_seeing_satellite.staged_areas_to_chart) > 0) then
---     Log.warn("staged_areas_to_chart: found something to chart; mode = queue")
---     for _, v in pairs(storage.all_seeing_satellite.staged_areas_to_chart) do
---       return_val.obj = v
---       break
---     end
---     return_val.valid = true
---   else
---     Log.info("didn't find anything to chart")
---   end
-
---   return return_val
--- end
 
 function area_to_chart_repository.get_area_to_chart_data(optionals)
   Log.debug("area_to_chart_repository.get_area_to_chart_data")
@@ -221,15 +174,10 @@ function area_to_chart_repository.get_area_to_chart_data(optionals)
 
   local staged_areas_to_chart = storage.all_seeing_satellite.staged_areas_to_chart
 
-  -- if (table_size(staged_areas_to_chart) > 0) then
-    -- Log.warn("staged_areas_to_chart: found something to chart; mode = " .. serpent.line(optionals.mode))
-    for _, v in pairs(staged_areas_to_chart) do
-      return_val = v
-      if (optionals.mode == Constants.optionals.mode.queue) then break end
-    end
-  -- else
-  --   Log.info("didn't find anything to chart")
-  -- end
+  for _, v in pairs(staged_areas_to_chart) do
+    return_val = v
+    if (optionals.mode == Constants.optionals.mode.queue) then break end
+  end
 
   return return_val
 end
@@ -261,7 +209,7 @@ function area_to_chart_repository.get_area_to_chart_data_by_index(data, optional
   local staged_areas_to_chart = storage.all_seeing_satellite.staged_areas_to_chart
 
   -- if (index_pos > table_size(staged_areas_to_chart)) then return return_val end
-  if (index_pos > staged_areas_to_chart) then return return_val end
+  if (index_pos > #staged_areas_to_chart) then return return_val end
 
   for i, area_to_chart in pairs(staged_areas_to_chart) do
     if (i == index_pos) then return_val = area_to_chart; break end

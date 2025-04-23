@@ -68,7 +68,6 @@ function satellite_repository.add_satellite_data_to_cooldown(data, optionals)
 
   if (not game) then return return_val end
   if (not data or type(data) ~= "table") then return return_val end
-  -- if (not data.satellite or type(data.satellite) ~= "table" or not data.satellite.valid) then return return_val end
   if (not data.satellite or type(data.satellite) ~= "table") then return return_val end
   if (not data.planet_name or type(data.planet_name) ~= "string") then return return_val end
 
@@ -121,9 +120,6 @@ function satellite_repository.update_satellite_data(update_data, index, optional
 
   local planet_name = update_data.planet_name
   if (not planet_name) then return return_val end
-
-  -- local surface = game.get_surface(planet_name)
-  -- if (not surface or not surface.valid) then return end
 
   if (not storage) then return return_val end
   if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end

@@ -41,7 +41,6 @@ function player_controller.toggle_satellite_mode(event)
     if (not Research_Utils.has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name)) then
       player.print("Rocket Silo/Satellite not researched yet")
     else
-
       local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(surface.name)
       if (not satellite_meta_data.valid) then return end
       player.print("Insufficient satellite(s) orbiting "
@@ -53,6 +52,7 @@ function player_controller.toggle_satellite_mode(event)
         .. " minimum"
       )
     end
+
     return
   end
 
@@ -211,14 +211,14 @@ function player_controller.changed_surface(event)
   local player = game.get_player(event.player_index)
 
   if (player.controller_type == defines.controllers.character) then
-    Log.warn("1")
+    Log.debug("1")
     Player_Repository.save_player_data(event.player_index)
   elseif (player.controller_type == defines.controllers.remote) then
-    Log.warn("2")
+    Log.debug("2")
   elseif (player.controller_type == defines.controllers.god) then
-    Log.warn("3")
+    Log.debug("3")
   else
-    Log.warn("4")
+    Log.debug("4")
   end
 end
 

@@ -11,8 +11,8 @@ local Log = require("libs.log.log")
 local chunk_to_chart_repository = {}
 
 function chunk_to_chart_repository.save_chunk_to_chart_data(data, optionals)
-  Log.warn("chunk_to_chart_repository.save_chunk_to_chart_data")
-  Log.warn(data)
+  Log.debug("chunk_to_chart_repository.save_chunk_to_chart_data")
+  Log.info(data)
   Log.info(optionals)
 
   local return_val = Chunk_To_Chart_Data:new()
@@ -23,9 +23,6 @@ function chunk_to_chart_repository.save_chunk_to_chart_data(data, optionals)
   if (not data.chunk_to_chart) then return return_val end
   local chunk_to_chart = data.chunk_to_chart
   if (not chunk_to_chart.valid) then return end
-  -- if (not data.area) then return return_val end
-  -- if (not data.player_index) then return return_val end
-  -- if (not data.surface) then return return_val end
   if (not data.pos) then return return_val end
   if (not data.pos.x or not data.pos.y) then return return_val end
   if (not data.i) then return return_val end
@@ -43,13 +40,6 @@ function chunk_to_chart_repository.save_chunk_to_chart_data(data, optionals)
 
   local staged_chunks_to_chart = storage.all_seeing_satellite.staged_chunks_to_chart[tick]
 
-  -- local center = {
-  --   x = (data.area.left_top.x + data.area.right_bottom.x) / 2,
-  --   y = (data.area.left_top.y + data.area.right_bottom.y) / 2
-  -- }
-
-  -- local radius = math.floor(math.sqrt((center.x - event.area.right_bottom.x)^2 + (center.y - event.area.right_bottom.y)^2) / 16)
-
   return_val[optionals.mode] = { i = data.i, j = data.j, }
 
   return_val.area = chunk_to_chart.area
@@ -65,14 +55,13 @@ function chunk_to_chart_repository.save_chunk_to_chart_data(data, optionals)
   return_val.valid = true
 
   table.insert(staged_chunks_to_chart, return_val)
-  -- table.insert(storage.all_seeing_satellite.staged_chunks_to_chart[tick], chunk_to_chart)
 
   return chunk_to_chart_repository.update_chunk_to_chart_data(return_val)
 end
 
 function chunk_to_chart_repository.update_chunk_to_chart_data(update_data, index, optionals)
-  Log.warn("chunk_to_chart_repository.update_chunk_to_chart_data")
-  Log.debug(update_data)
+  Log.debug("chunk_to_chart_repository.update_chunk_to_chart_data")
+  Log.info(update_data)
   Log.info(index)
   Log.info(optionals)
 
@@ -110,40 +99,6 @@ function chunk_to_chart_repository.update_chunk_to_chart_data(update_data, index
 
   return return_val
 end
-
--- function storage_service.remove_chunk_to_chart_from_stage(optionals)
---   Log.debug("storage_service.remove_chunk_to_chart_from_stage")
---   optionals = optionals or {
---    mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode
---   }
-
---   if (not storage) then return end
---   if (not storage.all_seeing_satellite or not storage.all_seeing_satellite.valid) then
---     Initialization.reinit()
---     return
---   end
-
---   if (not storage.all_seeing_satellite.staged_chunks_to_chart) then return end
-
---   if (table_size(storage.all_seeing_satellite.staged_chunks_to_chart) > 0) then
---     if (optionals.mode == Constants.optionals.mode.queue) then
---       for k, v in pairs(storage.all_seeing_satellite.staged_chunks_to_chart) do
---         storage.all_seeing_satellite.staged_chunks_to_chart[k] = nil
---         break
---       end
---     else
---       local obj = {}
---       for k, v in pairs(storage.all_seeing_satellite.staged_chunks_to_chart) do
---         obj.k = k
---         obj.v = storage.all_seeing_satellite.staged_chunks_to_chart[k]
---         break
---       end
---       storage.all_seeing_satellite.staged_chunks_to_chart[obj.k] = nil
---     end
---   end
-
---   return storage.all_seeing_satellite.staged_chunks_to_chart
--- end
 
 function chunk_to_chart_repository.delete_chunk_to_chart_data(optionals)
   Log.debug("chunk_to_chart_repository.delete_chunk_to_chart_data")
@@ -233,15 +188,10 @@ function chunk_to_chart_repository.get_chunk_to_chart_data(optionals)
 
   local staged_chunks_to_chart = storage.all_seeing_satellite.staged_chunks_to_chart
 
-  -- if (table_size(staged_chunks_to_chart) > 0) then
-    -- Log.warn("staged_chunks_to_chart: found something to chart; mode = " .. serpent.line(optionals.mode))
-    for _, v in pairs(staged_chunks_to_chart) do
-      return_val = v
-      if (optionals.mode == Constants.optionals.mode.queue) then break end
-    end
-  -- else
-  --   Log.info("didn't find anything to chart")
-  -- end
+  for _, v in pairs(staged_chunks_to_chart) do
+    return_val = v
+    if (optionals.mode == Constants.optionals.mode.queue) then break end
+  end
 
   return return_val
 end

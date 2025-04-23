@@ -21,7 +21,6 @@ function player_service.toggle_satellite_mode(event)
   local player = game.get_player(player_index)
   local player_data = Player_Repository.get_player_data(player_index)
   local position_to_place = player_data.physical_position
-  -- local physical_surface = game.surfaces[player_data.physical_surface_index]
   local physical_surface = game.get_surface(player_data.physical_surface_index)
 
   local update_player_data_fun = function (index, toggled, player)
@@ -30,7 +29,7 @@ function player_service.toggle_satellite_mode(event)
       satellite_mode_toggled = toggled,
     })
     if (player and player.game_view_settings) then
-      Log.error("disabling surface list")
+      Log.debug("disabling surface list")
       -- If satellite mode is toggled on, don't show the surface list
       player.game_view_settings.show_surface_list = not toggled
       -- But show the surface list if satellites aren't required
@@ -103,7 +102,6 @@ function player_service.disable_satellite_mode_and_die(data)
   local character_data = Character_Repository.get_character_data(player_index)
   if (not character_data or not character_data.valid) then return end
 
-  -- local surface = game.surfaces[character_data.surface_index]
   local surface = game.get_surface(character_data.surface_index)
   if (not surface or not surface.valid) then return end
 

@@ -69,11 +69,6 @@ function get_planets()
 
           -- Surface can be nil
           -- Trying to use on_surface_created event to add them to the appropriate planet after the fact
-          -- local _planet = {
-          --   name = planet_name,
-          --   surface = planet_surface,
-          --   magnitude = planet_magnitude,
-          -- }
           local planet_data = Planet_Data:new({
             name = planet_name,
             surface = planet_surface,
@@ -82,8 +77,6 @@ function get_planets()
           })
 
           Log.debug("Adding planet")
-          -- Log.info(_planet)
-          -- table.insert(constants.planets, _planet)
           Log.info(planet_data)
           table.insert(constants.planets, planet_data)
         end
@@ -93,15 +86,6 @@ function get_planets()
 
   return constants.planets
 end
-
--- TODO: Not needed anymore?
--- function find_invalid_substrings(string)
---   Log.debug(string)
---   return string.find(string, "-", 1, true)
---       or string.find(string, "EE_", 1, true)
---       or string.find(string, "TEST", 1, true)
---       or string.find(string, "test", 1, true)
--- end
 
 constants.all_seeing_satellite = true
 

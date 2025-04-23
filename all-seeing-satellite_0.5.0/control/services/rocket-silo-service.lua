@@ -5,7 +5,6 @@ end
 
 local Log = require("libs.log.log")
 local Rocket_Silo_Utils = require("control.utils.rocket-silo-utils")
-local Storage_Service = require("control.services.storage-service")
 
 local rocket_silo_service = {}
 
@@ -14,15 +13,9 @@ function rocket_silo_service.rocket_silo_built(rocket_silo)
   Log.info(rocket_silo)
 
 	if (rocket_silo and rocket_silo.valid and rocket_silo.surface) then
-
-		if (not Storage_Service.is_storage_valid()) then
-      Log.error("all-seeing-satellite: Storage is invalid; initializing")
-      Initialization.init()
-    else
-      Rocket_Silo_Utils.add_rocket_silo(rocket_silo)
-      Log.info("Built rocket silo")
-      Log.info(serpent.block(rocket_silo))
-    end
+    Rocket_Silo_Utils.add_rocket_silo(rocket_silo)
+    Log.info("Built rocket silo")
+    Log.info(serpent.block(rocket_silo))
   end
 end
 

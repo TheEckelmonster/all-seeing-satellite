@@ -8,7 +8,6 @@ local Initialization = require("control.initialization")
 local Log = require("libs.log.log")
 local Player_Repository = require("control.repositories.player-repository")
 local Satellite_Meta_Repository = require("control.repositories.satellite-meta-repository")
--- local Storage_Service = require("control.services.storage-service")
 
 local all_seeing_satellite_commands = {}
 
@@ -42,15 +41,12 @@ end
 function all_seeing_satellite_commands.print_satellites_launched(event)
   validate_command(event, function (player)
     Log.info("commands.print_satellites_launched", true)
-    -- local obj = Storage_Service.get_all_satellites_launched()
     local all_satellite_meta_data = Satellite_Meta_Repository.get_all_satellite_meta_data()
 
     for planet_name, satellite_meta_data in pairs(all_satellite_meta_data) do
       log(serpent.block(satellite_meta_data.planet_name .. ": " .. satellite_meta_data.satellites_in_orbit))
       player.print(serpent.block(satellite_meta_data.planet_name .. ": " .. satellite_meta_data.satellites_in_orbit))
     end
-    -- log(serpent.block(obj))
-    -- player.print(serpent.block(obj))
   end)
 end
 
@@ -64,15 +60,11 @@ function all_seeing_satellite_commands.set_do_nth_tick(command)
     if (command.parameter ~= nil and (command.parameter or command.parameter == "true" or command.parameter >= 1)) then
       log("Setting do_nth_tick to true")
       player.print("Setting do_nth_tick to true")
-      -- Storage_Service.set_do_nth_tick(true)
       all_seeing_satellite_data.do_nth_tick = true
-      -- all_seeing_satellite_data.updated = game.tick
     else
       log("Setting do_nth_tick to false")
       player.print("Setting do_nth_tick to false")
-      -- Storage_Service.set_do_nth_tick(false)
       all_seeing_satellite_data.do_nth_tick = false
-      -- all_seeing_satellite_data.updated = game.tick
     end
     all_seeing_satellite_data.updated = game.tick
   end)

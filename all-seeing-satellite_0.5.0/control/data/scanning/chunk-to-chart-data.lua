@@ -37,10 +37,8 @@ function chunk_to_chart_data:new(obj)
     parent_id = self.parent_id,
     player_index = self.player_index,
     pos = { x = 0, y = 0, },
-    -- queue = { i = 0, j = 0, },
     radius = self.radius,
     surface = self.surface,
-    -- stack = { i = 0, j = 0, },
     started = self.started,
   }
 

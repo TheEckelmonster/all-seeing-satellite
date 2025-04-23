@@ -13,7 +13,6 @@ local Planet_Utils = require("control.utils.planet-utils")
 local Research_Utils = require("control.utils.research-utils")
 local Satellite_Meta_Repository = require("control.repositories.satellite-meta-repository")
 local String_Utils = require("control.utils.string-utils")
--- local Storage_Service = require("control.services.storage-service")
 
 local fog_of_war_controller = {}
 
@@ -31,11 +30,13 @@ function fog_of_war_controller.toggle_scanning(event)
   if (not all_seeing_satellite_data.valid) then return end
 
   if (all_seeing_satellite_data.do_scan) then
-    game.players[event.player_index].force.print("Toggling scan(s) off")
+    -- game.players[event.player_index].force.print("Toggling scan(s) off")
+    game.get_player(event.player_index).force.print("Toggling scan(s) off")
     Log.warn("toggling scan(s) off")
     all_seeing_satellite_data.do_scan = false
   else
-    game.players[event.player_index].force.print("Toggling scan(s) on")
+    -- game.players[event.player_index].force.print("Toggling scan(s) on")
+    game.get_player(event.player_index).force.print("Toggling scan(s) on")
     Log.warn("toggling scan(s) on")
     all_seeing_satellite_data.do_scan = true
   end
@@ -46,15 +47,16 @@ function fog_of_war_controller.cancel_scanning(event)
   Log.debug("fog_of_war_controller.cancel_scanning")
   Log.info(event)
 
-    -- Validate inputs
+  -- Validate inputs
   if (not event) then return end
   if (event.input_name ~= Custom_Input_Constants.CANCEL_SCANNING.name) then return end
   if (not event.player_index) then return end
   if (not game or not game.players or not game.players[event.player_index] or not game.players[event.player_index].force) then return end
-  game.players[event.player_index].force.print("Cancelling scan(s)")
-  game.players[event.player_index].force.cancel_charting()
+  -- game.players[event.player_index].force.print("Cancelling scan(s)")
+  -- game.players[event.player_index].force.cancel_charting()
+  game.get_player(event.player_index).force.print("Cancelling scan(s)")
+  game.get_player(event.player_index).force.cancel_charting()
   Log.warn("cancelling scan(s)")
-  -- Storage_Service.clear_stages()
 
   local all_seeing_satellite_data = All_Seeing_Satellite_Repository.get_all_seeing_satellite_data()
   if (not all_seeing_satellite_data.valid) then return end
@@ -71,14 +73,11 @@ function fog_of_war_controller.toggle(event)
   if (not event) then return end
   local name = event.input_name or event.prototype_name
 
-  -- if (event.input_name ~= Custom_Input_Constants.FOG_OF_WAR_TOGGLE.name and event.prototype_name ~= Custom_Input_Constants.FOG_OF_WAR_TOGGLE.name) then
   if (name ~= Custom_Input_Constants.FOG_OF_WAR_TOGGLE.name) then return end
 
-  -- local player = game.players[event.player_index]
   local player = game.get_player(event.player_index)
   if (not player or not player.valid) then return end
   if (not player.surface or not player.surface.valid) then return end
-  -- local satellites_toggled = storage.satellites_toggled
 
   local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(player.surface.name)
   if (not satellite_meta_data.valid) then return end
@@ -91,72 +90,46 @@ function fog_of_war_controller.toggle(event)
     if (  not Planet_Utils.allow_toggle(surface_name)
       and not Research_Utils.has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name))
     then
-      -- local all_seeing_satellite_data = All_Seeing_Satellite_Repository.get_all_seeing_satellite_data()
-      -- if (not all_seeing_satellite_data.valid) then return end
-      -- if (not storage.warn_technology_not_available_yet and player.force) then
-      --   player.force.print("Rocket Silo/Satellite not researched yet")
-      -- end
-      -- storage.warn_technology_not_available_yet = true
-      -- if (not all_seeing_satellite_data.warn_technology_not_available_yet and player.force) then
       player.print("Rocket Silo/Satellite not researched yet")
       -- all_seeing_satellite_data.warn_technology_not_available_yet = true
       return
     end
 
-    -- storage.satellite_toggled_by_player = player
     Satellite_Meta_Repository.update_satellite_meta_data({
       planet_name = satellite_meta_data.planet_name,
       satellite_toggled_by_player = player,
     })
 
     if (String_Utils.find_invalid_substrings(surface_name)) then
-      Log.debug("Invalid surface!")
+      Log.debug("Invalid surface name!")
       Log.debug(surface_name)
       Log.debug("Toggled by player:")
       Log.debug(player)
+
+      player.print("Invalid surface name detected: " .. surface_name)
       return
     end
 
-    -- local satellite
-    -- for k,_satellite in pairs(satellites_toggled) do
-    --   if (_satellite and _satellite.planet_name == surface_name) then
-    --     satellite = _satellite
-    --     break
-    --   end
-    -- end
-
-    -- if (satellite) then
-      -- if (satellite.toggle) then
-      if (satellites_toggled.toggle) then
-        if (Planet_Utils.allow_toggle(surface_name)) then
-          Fog_Of_War_Utils.print_toggle_message("Disabled satellite(s) orbiting ", surface_name, true)
-          player.force.cancel_charting(surface_name)
-        else
-          Fog_Of_War_Utils.print_toggle_message("Insufficient satellite(s) orbiting ", surface_name, true)
-        end
-        -- satellite.toggle = false
-        satellites_toggled.toggle = false
-      -- elseif (not satellite.toggle) then
-      elseif (not satellites_toggled.toggle) then
-        if (Planet_Utils.allow_toggle(surface_name)) then
-          Fog_Of_War_Utils.print_toggle_message("Enabled satellite(s) orbiting ", surface_name, true)
-          -- satellite.toggle = true
-          satellites_toggled.toggle = true
-        else
-          Fog_Of_War_Utils.print_toggle_message("Insufficient satellite(s) orbiting ", surface_name, true)
-          -- This shouldn't be necessary, but oh well
-          -- satellite.toggle = false
-          satellites_toggled.toggle = false
-        end
+    if (satellites_toggled.toggle) then
+      if (Planet_Utils.allow_toggle(surface_name)) then
+        Fog_Of_War_Utils.print_toggle_message("Disabled satellite(s) orbiting ", surface_name, true)
+        player.force.cancel_charting(surface_name)
       else
-        Log.error("This shouldn't be possible")
+        Fog_Of_War_Utils.print_toggle_message("Insufficient satellite(s) orbiting ", surface_name, true)
       end
-    -- else
-    --   Log.error("satetllite was nil")
-    --   Log.error("Reinitializing")
-    --   Log.debug(surface_name)
-    --   Initialization.reinit()
-    -- end
+      satellites_toggled.toggle = false
+    elseif (not satellites_toggled.toggle) then
+      if (Planet_Utils.allow_toggle(surface_name)) then
+        Fog_Of_War_Utils.print_toggle_message("Enabled satellite(s) orbiting ", surface_name, true)
+        satellites_toggled.toggle = true
+      else
+        Fog_Of_War_Utils.print_toggle_message("Insufficient satellite(s) orbiting ", surface_name, true)
+        -- This shouldn't be necessary, but oh well
+        satellites_toggled.toggle = false
+      end
+    else
+      Log.error("This shouldn't be possible")
+    end
   end
 end
 

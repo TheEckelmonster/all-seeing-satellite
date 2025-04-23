@@ -9,7 +9,7 @@ local All_Seeing_Satellite_Data = require("control.data.all-seeing-satellite-dat
 local all_seeing_satellite_repository = {}
 
 function all_seeing_satellite_repository.save_all_seeing_satellite_data(optionals)
-  Log.warn("all_seeing_satellite_repository.save_all_seeing_satellite_data")
+  Log.debug("all_seeing_satellite_repository.save_all_seeing_satellite_data")
   Log.info(optionals)
 
   local return_val = All_Seeing_Satellite_Data:new()
@@ -27,8 +27,8 @@ function all_seeing_satellite_repository.save_all_seeing_satellite_data(optional
 end
 
 function all_seeing_satellite_repository.update_all_seeing_satellite_data(update_data, optionals)
-  Log.warn("all_seeing_satellite_repository.update_all_seeing_satellite_data")
-  Log.warn(update_data)
+  Log.debug("all_seeing_satellite_repository.update_all_seeing_satellite_data")
+  Log.info(update_data)
   Log.info(optionals)
 
   local return_val = All_Seeing_Satellite_Data:new()
@@ -60,7 +60,7 @@ function all_seeing_satellite_repository.update_all_seeing_satellite_data(update
 end
 
 function all_seeing_satellite_repository.delete_all_seeing_satellite_data(optionals)
-  Log.warn("all_seeing_satellite_repository.delete_all_seeing_satellite_data")
+  Log.debug("all_seeing_satellite_repository.delete_all_seeing_satellite_data")
   Log.info(optionals)
 
   local return_val = false

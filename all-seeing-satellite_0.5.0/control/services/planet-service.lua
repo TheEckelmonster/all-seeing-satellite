@@ -13,7 +13,7 @@ function planet_service.on_surface_created(event)
   Log.debug("planet_service.on_surface_created")
   Log.info(event)
   local planets = Constants.get_planets(true)
-  Log.info(planets)
+  Log.debug(planets)
   Initialization.reinit()
 end
 

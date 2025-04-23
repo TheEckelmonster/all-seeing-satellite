@@ -12,13 +12,11 @@ local Planet_Utils = require("control.utils.planet-utils")
 local Rocket_Silo_Service = require("control.services.rocket-silo-service")
 local Satellite_Service = require("control.services.satellite-service")
 local Settings_Service = require("control.services.settings-service")
--- local Storage_Service = require("control.services.storage-service")
 local Version_Validations = require("control.validations.version-validations")
 
 local all_seeing_satellite_controller = {}
 
 function all_seeing_satellite_controller.do_tick(event)
-  -- if (not Storage_Service.get_do_nth_tick()) then return end
   local all_seeing_satellite_data = All_Seeing_Satellite_Repository.get_all_seeing_satellite_data()
   if (not all_seeing_satellite_data.do_nth_tick and all_seeing_satellite_data.version_data) then return end
 
@@ -49,7 +47,6 @@ function all_seeing_satellite_controller.do_tick(event)
   if (tick_modulo == 2 * (math.floor(nth_tick / 3))) then
     -- TODO: Make this configurable
     -- Thinking just a simple boolean
-    -- Rocket_Silo_Service.launch_rocket({ tick = game.tick })
     -- TODO: Break this up over multiple ticks
     for k, planet in pairs(Constants.get_planets()) do
       Rocket_Silo_Service.launch_rocket({ tick = game.tick, planet = planet })
@@ -59,7 +56,6 @@ function all_seeing_satellite_controller.do_tick(event)
 
   -- TODO: Make this configurable
   if (tick_modulo % 2 == 0) then
-    -- if (not Storage_Service.get_do_scan()) then return end
     if (not all_seeing_satellite_data.do_scan) then return end
 
     -- TODO: Break this up over multiple ticks
@@ -68,8 +64,6 @@ function all_seeing_satellite_controller.do_tick(event)
         or not Settings_Service.get_require_satellites_in_orbit()
         or Planet_Utils.allow_scan(planet.name))
       then
-        -- All_Seeing_Satellite_Service.check_for_areas_to_stage()
-        -- All_Seeing_Satellite_Service.do_scan(planet.name)
         if (All_Seeing_Satellite_Service.check_for_areas_to_stage()) then
           All_Seeing_Satellite_Service.do_scan(planet.name)
         end

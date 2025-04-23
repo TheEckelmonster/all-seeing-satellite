@@ -8,7 +8,6 @@ local Log = require("libs.log.log")
 local Satellite_Meta_Repository = require("control.repositories.satellite-meta-repository")
 local Satellite_Repository = require("control.repositories.satellite-repository")
 local Satellite_Utils = require("control.utils.satellite-utils")
-local Storage_Service = require("control.services.storage-service")
 
 local satellite_service = {}
 
@@ -40,77 +39,34 @@ function satellite_service.check_for_expired_satellites(event)
   local offset = Constants.TICKS_PER_SECOND / 2
   local tick_modulo = tick % offset
 
-  -- if (not Storage_Service.is_storage_valid()) then return end
   local planets = Constants.get_planets()
   if (not planets) then return end
 
   local all_satellite_meta_data = Satellite_Meta_Repository.get_all_satellite_meta_data()
 
-  -- for _, planet in pairs(planets) do
   for planet, satellite_meta_data in pairs(all_satellite_meta_data) do
-    -- local all_satellite_meta_data = Storage_Service.get_all_satellites_in_orbit()
-    -- local all_satellite_data = Satellite_Repository.get_all_satellite_data()
-    -- for _, satellite_meta_data in pairs(all_satellite_meta_data) do
-    --   if (satellite_meta_data) then
     for i, satellite_data in pairs(satellite_meta_data.satellites) do
-      -- if (satellite_meta_data) then
-        -- local satellites = satellite_meta_data.satellites
-        -- for i, satellite in pairs(satellites) do
-          -- if (not satellite or not satellite.entity) then
-          --   return
-          -- end
-          if (not satellite_data or not satellite_data.entity) then
-            return
-          end
+      if (not satellite_data or not satellite_data.entity) then
+        return
+      end
 
-          -- if (satellite.tick_created % offset ~= tick_modulo and satellite.tick_to_die % offset ~= tick_modulo) then
-          --   return
-          -- end
-          if (satellite_data.created % offset ~= tick_modulo and satellite_data.tick_to_die % offset ~= tick_modulo) then
-            return
-          end
+      if (satellite_data.created % offset ~= tick_modulo and satellite_data.tick_to_die % offset ~= tick_modulo) then
+        return
+      end
 
-          -- In theory:
-          --   -> valid satellite
-          --   -> unit_id and tick modulos match
-          -- if (tick >= satellite.tick_to_die) then
-          if (tick >= satellite_data.tick_to_die) then
-            -- if (i <= #satellites and satellites[i] and satellites[i].entity == satellite.entity) then
-              -- if (Validations.validate_satellites_launched(planet.name) and #satellites > 0) then
-              -- if (Storage_Service.get_satellites_launched(planet.name) and #satellites > 0) then
-              if (satellite_meta_data.satellites_launched and #satellite_meta_data.satellites > 0) then
-                -- table.remove(satellites, i)
-                -- table.remove(satellite_meta_data.satellites, i)
-                Satellite_Repository.delete_satellite_data_by_index({
-                  planet_name = satellite_data.planet_name,
-                  index = i,
-                })
-                -- if (Storage_Service.get_satellites_in_orbit(satellite.planet_name)) then
-                if (satellite_meta_data.satellites_in_orbit) then
-                  -- Satellite_Utils.get_num_satellites_in_orbit(satellite_data.planet_name)
-                  Satellite_Utils.get_num_satellites_in_orbit(satellite_meta_data)
-                end
-                -- TODO: Change this to force.print
-                -- game.print("Satellite ran out of fuel orbiting " .. serpent.block(satellite.planet_name))
-                game.print("Satellite ran out of fuel orbiting " .. serpent.block(satellite_data.planet_name))
-              end
-            -- elseif (i > #satellites) then
-            --   Low.debug("Index out of bounds")
-            -- elseif (not satellites[i]) then
-            --   Log.debug("satellites[" .. serpent.block(i) .. "] is nil")
-            -- elseif (satellites[i] ~= satellite) then
-            --   Log.debug("satellites[" .. serpent.block(i) .. "].entity ~= satellite.entity")
-            -- else
-            --   Log.error("Unable to remove satellite for unknown reason")
-            --   Log.warn(i)
-            --   Log.warn(satellites)
-            --   Log.warn(satellites[i])
-            --   Log.warn(satellites[i].entity)
-            --   Log.warn(satellite)
-            -- end
+      -- In theory:
+      --   -> valid satellite
+      --   -> unit_id and tick modulos match
+      if (tick >= satellite_data.tick_to_die) then
+          if (satellite_meta_data.satellites_launched and #satellite_meta_data.satellites > 0) then
+            Satellite_Repository.delete_satellite_data_by_index({ planet_name = satellite_data.planet_name, index = i, })
+            if (satellite_meta_data.satellites_in_orbit) then
+              Satellite_Utils.get_num_satellites_in_orbit(satellite_meta_data)
+            end
+            -- TODO: Change this to force.print
+            game.print("Satellite ran out of fuel orbiting " .. serpent.block(satellite_data.planet_name))
           end
-        -- end
-      -- end
+      end
     end
   end
 end
@@ -120,18 +76,8 @@ function satellite_service.recalculate_satellite_time_to_die(tick)
   Log.info(tick)
   tick = tick or 1 --math.huge
 
-  -- if (tick > 1 and Storage_Service.is_storage_valid()) then
   if (tick > 1) then
-    -- local all_satellite_meta_data = Storage_Service.get_all_satellites_in_orbit()
     local all_satellite_data = Satellite_Repository.get_all_satellite_data()
-    -- for _, satellite_meta_data in pairs(all_satellite_meta_data) do
-    -- for _, satellite_meta_data in pairs(all_satellite_data) do
-    --   for _, satellite in pairs(satellite_meta_data.satellites) do
-    --     if (satellite) then
-    --       satellite.tick_to_die = Satellite_Utils.calculate_tick_to_die(satellite.tick_created, satellite)
-    --     end
-    --   end
-    -- end
     for _, satellite_data in pairs(all_satellite_data) do
       satellite_data.tick_to_die = Satellite_Utils.calculate_tick_to_die(satellite_data.created, satellite_data)
     end

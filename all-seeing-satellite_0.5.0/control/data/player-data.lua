@@ -25,7 +25,6 @@ function player_data:new(obj)
 
   local defaults = {
     player_index = self.player_index,
-    -- character_data = self.character_data
     character_data = Character_Data:new(),
     controller_type = self.controller_type,
     surface_index = self.surface_index,

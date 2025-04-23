@@ -27,7 +27,6 @@ function version_repository.save_version_data(optionals)
   if (not storage.all_seeing_satellite.version_data) then storage.all_seeing_satellite.version_data = return_val end
 
   return_val = storage.all_seeing_satellite.version_data
-  -- return_val.created = return_val.created or game.tick
 
   return version_repository.update_version_data(return_val)
 end

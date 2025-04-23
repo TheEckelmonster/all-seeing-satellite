@@ -1,5 +1,5 @@
 require("prototypes.custom-inputs")
-require("prototypes.entity.entities")
+-- require("prototypes.entity.entities")
 require("prototypes.item")
 require("prototypes.recipe")
 require("prototypes.shortcuts")
