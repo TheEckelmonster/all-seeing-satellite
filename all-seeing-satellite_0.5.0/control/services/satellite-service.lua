@@ -12,21 +12,32 @@ local Satellite_Utils = require("control.utils.satellite-utils")
 local satellite_service = {}
 
 function satellite_service.track_satellite_launches_ordered(event)
-  if (event and event.rocket and event.rocket.valid and event.rocket.cargo_pod and event.rocket.cargo_pod.valid) then
+  Log.debug("satellite_service.track_satellite_launches_ordered")
+  Log.info(event)
 
-    -- Check for a satellite if the cargo pod doesn't have a station and has a destination type of 1
-    --   -> no station implies it was sent to "orbit"
-    --   -> .type is 1 for some reason, and not defines.cargo_destination.orbit as I would have thought
-    if (  event.rocket.cargo_pod.cargo_pod_destination
-      and not event.rocket.cargo_pod.cargo_pod_destination.station
-      and event.rocket.cargo_pod.cargo_pod_destination.type == 1)
-    then
-      local inventory = event.rocket.cargo_pod.get_inventory(defines.inventory.cargo_unit)
+  if (not event) then return end
+  if (not event.cargo_pod or not event.cargo_pod.valid) then return end
+  local cargo_pod = event.cargo_pod
+  if (not cargo_pod.cargo_pod_destination) then return end
 
-      if (inventory) then
-        for _, item in ipairs(inventory.get_contents()) do
-          if (item.name == "satellite") then
-            Satellite_Utils.satellite_launched(event.rocket_silo.surface.name, item, event.tick)
+  -- Check for a satellite if the cargo pod doesn't have a station and has a destination type of 1
+  --   -> no station implies it was sent to "orbit"
+  --   -> .type is 1 for some reason, and not defines.cargo_destination.orbit as I would have thought
+  if (  cargo_pod.cargo_pod_destination
+    and not cargo_pod.cargo_pod_destination.station
+    and cargo_pod.cargo_pod_destination.type == 1
+    and event.launched_by_rocket)
+  then
+    local inventory = cargo_pod.get_inventory(defines.inventory.cargo_unit)
+
+    if (inventory) then
+      for _, item in ipairs(inventory.get_contents()) do
+        if (item.name == "satellite") then
+          Satellite_Utils.satellite_launched(cargo_pod.surface.name, item, event.tick)
+
+          Log.info("destroying cargo pod")
+          if (cargo_pod.destroy()) then
+            Log.debug("cargo pod destroyed")
           end
         end
       end
@@ -35,6 +46,9 @@ function satellite_service.track_satellite_launches_ordered(event)
 end
 
 function satellite_service.check_for_expired_satellites(event)
+  Log.debug("satellite_service.check_for_expired_satellites")
+  Log.info(event)
+
   local tick = event.tick
   local offset = Constants.TICKS_PER_SECOND / 2
   local tick_modulo = tick % offset

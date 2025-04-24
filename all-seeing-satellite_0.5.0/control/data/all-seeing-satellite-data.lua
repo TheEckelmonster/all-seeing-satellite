@@ -13,8 +13,6 @@ all_seeing_satellite_data.staged_chunks_to_chart = {}
 
 all_seeing_satellite_data.version_data = Version_Data:new()
 
-all_seeing_satellite_data.warn_technology_not_available_yet = false
-
 function all_seeing_satellite_data:new(obj)
   Log.debug("all_seeing_satellite_data:new")
   Log.info(obj)

@@ -8,7 +8,6 @@ local Log = require("libs.log.log")
 local Constants = require("libs.constants.constants")
 local Custom_Input_Constants = require("libs.constants.custom-input-constants")
 local Fog_Of_War_Utils = require("control.utils.fog-of-war-utils")
-local Initialization = require("control.initialization")
 local Planet_Utils = require("control.utils.planet-utils")
 local Research_Utils = require("control.utils.research-utils")
 local Satellite_Meta_Repository = require("control.repositories.satellite-meta-repository")
@@ -30,12 +29,10 @@ function fog_of_war_controller.toggle_scanning(event)
   if (not all_seeing_satellite_data.valid) then return end
 
   if (all_seeing_satellite_data.do_scan) then
-    -- game.players[event.player_index].force.print("Toggling scan(s) off")
     game.get_player(event.player_index).force.print("Toggling scan(s) off")
     Log.warn("toggling scan(s) off")
     all_seeing_satellite_data.do_scan = false
   else
-    -- game.players[event.player_index].force.print("Toggling scan(s) on")
     game.get_player(event.player_index).force.print("Toggling scan(s) on")
     Log.warn("toggling scan(s) on")
     all_seeing_satellite_data.do_scan = true
@@ -52,8 +49,6 @@ function fog_of_war_controller.cancel_scanning(event)
   if (event.input_name ~= Custom_Input_Constants.CANCEL_SCANNING.name) then return end
   if (not event.player_index) then return end
   if (not game or not game.players or not game.players[event.player_index] or not game.players[event.player_index].force) then return end
-  -- game.players[event.player_index].force.print("Cancelling scan(s)")
-  -- game.players[event.player_index].force.cancel_charting()
   game.get_player(event.player_index).force.print("Cancelling scan(s)")
   game.get_player(event.player_index).force.cancel_charting()
   Log.warn("cancelling scan(s)")
@@ -91,7 +86,6 @@ function fog_of_war_controller.toggle(event)
       and not Research_Utils.has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name))
     then
       player.print("Rocket Silo/Satellite not researched yet")
-      -- all_seeing_satellite_data.warn_technology_not_available_yet = true
       return
     end
 

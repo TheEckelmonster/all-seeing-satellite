@@ -3,8 +3,10 @@ if _satellite_meta_repository and _satellite_meta_repository.all_seeing_satellit
   return _satellite_meta_repository
 end
 
+local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
 local Satellite_Meta_Data = require("control.data.satellite.satellite-meta-data")
+local String_Utils = require("control.utils.string-utils")
 
 local satellite_meta_repository = {}
 
@@ -17,6 +19,9 @@ function satellite_meta_repository.save_satellite_meta_data(planet_name, optiona
 
   if (not game) then return return_val end
   if (not planet_name or type(planet_name) ~= "string") then return return_val end
+  if (String_Utils.find_invalid_substrings(planet_name)) then return return_val end
+  if (not Constants.planets_dictionary) then Constants.get_planets(true) end
+  if (not Constants.planets_dictionary[planet_name]) then return return_val end
 
   optionals = optionals or {
     surface = game.get_surface(planet_name)
@@ -24,6 +29,7 @@ function satellite_meta_repository.save_satellite_meta_data(planet_name, optiona
 
   local surface = optionals.surface or game.get_surface(planet_name)
   if (not surface or not surface.valid) then return return_val end
+  if (surface.platform) then return return_val end
 
   if (not storage) then return return_val end
   if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
@@ -58,7 +64,6 @@ function satellite_meta_repository.update_satellite_meta_data(update_data, optio
   if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
   if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
     -- If it doesn't exist, generate it
-    storage.all_seeing_satellite.satellite_meta_data[planet_name] = return_val
     satellite_meta_repository.save_satellite_meta_data(planet_name)
   end
 
@@ -116,8 +121,7 @@ function satellite_meta_repository.get_satellite_meta_data(planet_name, optional
   if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
   if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
     -- If it doesn't exist, generate it
-    storage.all_seeing_satellite.satellite_meta_data[planet_name] = return_val
-    satellite_meta_repository.save_satellite_meta_data(planet_name)
+    return satellite_meta_repository.save_satellite_meta_data(planet_name)
   end
 
   return storage.all_seeing_satellite.satellite_meta_data[planet_name]

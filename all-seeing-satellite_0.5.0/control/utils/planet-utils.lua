@@ -8,12 +8,15 @@ local Log = require("libs.log.log")
 local Satellite_Meta_Repository = require("control.repositories.satellite-meta-repository")
 local Settings_Constants = require("libs.constants.settings-constants")
 local Settings_Service = require("control.services.settings-service")
+local String_Utils = require("control.utils.string-utils")
 
 local planet_utils = {}
 
 function planet_utils.allow_toggle(surface_name)
   Log.debug("planet_utils.allow_toggle")
   Log.info(surface_name)
+
+  if (String_Utils.find_invalid_substrings(surface_name)) then return false end
 
   if (not Settings_Service.get_require_satellites_in_orbit()) then return true end
 
@@ -28,6 +31,8 @@ end
 function planet_utils.allow_satellite_mode(surface_name)
   Log.debug("planet_utils.allow_satellite_mode")
   Log.info(surface_name)
+
+  if (String_Utils.find_invalid_substrings(surface_name)) then return false end
 
   if (not Settings_Service.get_restrict_satellite_mode()) then return true end
 
@@ -44,6 +49,8 @@ function planet_utils.planet_launch_threshold(surface_name)
     -- Intentionally calling with nil parameter to each, so as to get the default_value for each setting
     return Settings_Service.get_global_launch_satellite_threshold() * Settings_Service.get_global_launch_satellite_threshold_modifier()
   end
+
+  if (String_Utils.find_invalid_substrings(surface_name)) then return end
 
   local planet_magnitude = get_planet_magnitude(surface_name)
   local return_val = Settings_Service.get_global_launch_satellite_threshold(surface_name) * Settings_Service.get_global_launch_satellite_threshold_modifier(surface_name) * planet_magnitude^2

@@ -9,6 +9,7 @@ satellite_meta_data.satellites = {}
 satellite_meta_data.satellites_cooldown = {}
 satellite_meta_data.satellites_in_orbit = 0
 satellite_meta_data.satellites_launched = 0
+satellite_meta_data.satellites_toggled = {}
 satellite_meta_data.satellite_toggled_by_player = nil
 satellite_meta_data.scanned = false
 satellite_meta_data.surface_index = -1
@@ -26,6 +27,7 @@ function satellite_meta_data:new(obj)
     satellites_cooldown = {},
     satellites_in_orbit = self.satellites_in_orbit,
     satellites_launched = self.satellites_launched,
+    satellites_toggled = {},
     satellite_toggled_by_player = self.satellite_toggled_by_player,
     scanned = self.scanned,
     surface_index = self.surface_index,

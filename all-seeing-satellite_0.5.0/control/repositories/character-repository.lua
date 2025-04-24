@@ -5,12 +5,10 @@ end
 
 local Log = require("libs.log.log")
 local Character_Data = require("control.data.character-data")
+local Player_Data = require("control.data.player-data")
 
 local character_repository = {}
 
---- @param player_index int
---- @param optionals table table containing any optional parameters to be used/considered
---- @return boolean true if successful, false if not
 function character_repository.save_character_data(player_index, optionals)
   Log.debug("character_repository.save_character_data")
   Log.info(player_index)
@@ -32,12 +30,16 @@ function character_repository.save_character_data(player_index, optionals)
   if (not character) then return return_val end
 
   if (not storage) then return return_val end
-  if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
-  if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
-  if (not storage.all_seeing_satellite.player_data[player_index]) then storage.all_seeing_satellite.player_data[player_index] = {} end
-  if (not storage.all_seeing_satellite.player_data[player_index].character_data) then storage.all_seeing_satellite.player_data[player_index].character_data = return_val end
+  -- if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
+  -- if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
+  -- if (not storage.all_seeing_satellite.player_data[player_index]) then storage.all_seeing_satellite.player_data[player_index] = Player_Data:new() end
+  -- if (not storage.all_seeing_satellite.player_data[player_index].character_data) then storage.all_seeing_satellite.player_data[player_index].character_data = return_val end
+  if (not storage.player_data) then storage.player_data = {} end
+  if (not storage.player_data[player_index]) then storage.player_data[player_index] = Player_Data:new() end
+  if (not storage.player_data[player_index].character_data) then storage.player_data[player_index].character_data = return_val end
 
-  return_val = storage.all_seeing_satellite.player_data[player_index].character_data
+  -- return_val = storage.all_seeing_satellite.player_data[player_index].character_data
+  return_val = storage.player_data[player_index].character_data
   return_val.valid = true
   return_val.player_index = player_index
   return_val.unit_number = character.unit_number
@@ -63,26 +65,34 @@ function character_repository.update_character_data(update_data, optionals)
 
   local player_index = update_data.player_index
 
+  -- if (not storage) then return return_val end
+  -- if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
+  -- if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
+  -- if (not storage.all_seeing_satellite.player_data[player_index]) then storage.all_seeing_satellite.player_data[player_index] = Player_Data:new() end
+  -- if (not storage.all_seeing_satellite.player_data[player_index].character_data) then
+  --   -- If it doesn't exist, generate it
+  --   -- storage.all_seeing_satellite.player_data[player_index].character_data = return_val
+  --   storage.player_data[player_index].character_data = return_val
+  --   -- player_data_repository.save_character_data({ player_index = player_index })
+  -- end
   if (not storage) then return return_val end
-  if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
-  if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
-  if (not storage.all_seeing_satellite.player_data[player_index]) then storage.all_seeing_satellite.player_data[player_index] = {} end
-  if (not storage.all_seeing_satellite.player_data[player_index].character_data) then
+  if (not storage.player_data) then storage.player_data = {} end
+  if (not storage.player_data[player_index]) then storage.player_data[player_index] = Player_Data:new() end
+  if (not storage.player_data[player_index].character_data) then
     -- If it doesn't exist, generate it
-    storage.all_seeing_satellite.player_data[player_index].character_data = return_val
-    player_data_repository.save_character_data({ player_index = player_index })
+    -- storage.all_seeing_satellite.player_data[player_index].character_data = return_val
+    storage.player_data[player_index].character_data = return_val
+    character_repository.save_character_data(player_index)
   end
 
-  local character_data = storage.all_seeing_satellite.player_data[player_index].character_data
+  -- local character_data = storage.all_seeing_satellite.player_data[player_index].character_data
+  local character_data = storage.player_data[player_index].character_data
 
   for k,v in pairs(update_data) do
     character_data[k] = v
   end
 
   character_data.updated = game.tick
-
-  -- Don't think this is necessary, but oh well
-  storage.all_seeing_satellite.player_data[player_index].character_data = character_data
 
   return character_data
 end
@@ -100,10 +110,14 @@ function character_repository.delete_character_data(player_index, optionals)
   optionals = optionals or {}
 
   if (not storage) then return return_val end
-  if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
-  if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
-  if (storage.all_seeing_satellite.player_data[player_index] ~= nil) then
-    storage.all_seeing_satellite.player_data[player_index] = nil
+  -- if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
+  -- if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
+  -- if (storage.all_seeing_satellite.player_data[player_index] ~= nil) then
+  --   storage.all_seeing_satellite.player_data[player_index] = nil
+  -- end
+  if (not storage.player_data) then storage.player_data = {} end
+  if (storage.player_data[player_index] ~= nil) then
+    storage.player_data[player_index] = nil
   end
   return_val = true
 
@@ -123,15 +137,15 @@ function character_repository.get_character_data(player_index, optionals)
   optionals = optionals or {}
 
   if (not storage) then return return_val end
-  if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
-  if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
-  if (not storage.all_seeing_satellite.player_data[player_index]) then
-    -- If it doesn't exist, generate it
-    storage.all_seeing_satellite.player_data[player_index] = return_val
-    player_repository.save_player_data(player_index)
-  end
+  -- if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
+  -- if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
+  -- if (not storage.all_seeing_satellite.player_data[player_index]) then storage.all_seeing_satellite.player_data[player_index] = Player_Data:new() end
 
-  return storage.all_seeing_satellite.player_data[player_index]
+  -- return storage.all_seeing_satellite.player_data[player_index].character_data
+  if (not storage.player_data) then storage.player_data = {} end
+  if (not storage.player_data[player_index]) then storage.player_data[player_index] = Player_Data:new() end
+
+  return storage.player_data[player_index].character_data
 end
 
 function character_repository.get_all_character_data(optionals)
@@ -145,10 +159,13 @@ function character_repository.get_all_character_data(optionals)
   optionals = optionals or {}
 
   if (not storage) then return return_val end
-  if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
-  if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
+  -- if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
+  -- if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
 
-  local all_player_data = storage.all_seeing_satellite.player_data
+  -- local all_player_data = storage.all_seeing_satellite.player_data
+  if (not storage.player_data) then storage.player_data = {} end
+
+  local all_player_data = storage.player_data
 
   for player_index, player_data in pairs(all_player_data) do
     table.insert(return_val, player_data.character_data)

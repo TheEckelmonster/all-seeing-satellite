@@ -8,10 +8,10 @@ local Planet_Data = require("control.data.planet-data")
 local String_Utils = require("control.utils.string-utils")
 
 local constants = {
-  nauvis = {},
-  fulgora = {},
-  gleba = {},
-  vulcanus = {}
+  -- nauvis = {},
+  -- fulgora = {},
+  -- gleba = {},
+  -- vulcanus = {}
 }
 
 constants.mod_name = "all-seeing-satellite"
@@ -41,6 +41,7 @@ end
 
 function get_planets()
   constants.planets = {}
+  constants.planets_dictionary = {}
 
   if (prototypes) then
     local planet_prototypes = prototypes.get_entity_filtered({{ filter = "type", type = "constant-combinator"}})
@@ -79,6 +80,7 @@ function get_planets()
           Log.debug("Adding planet")
           Log.info(planet_data)
           table.insert(constants.planets, planet_data)
+          constants.planets_dictionary[planet_name] = planet_data
         end
       end
     end

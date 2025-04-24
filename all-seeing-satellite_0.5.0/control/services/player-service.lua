@@ -49,14 +49,26 @@ function player_service.toggle_satellite_mode(event)
           character_position = player_data.character_data.character.position
         end
 
+        local no_character = false
+        if (character_position == nil) then
+          no_character = true
+          character_position = player_data.position
+        end
+
         position_to_place =     physical_surface.can_place_entity({ name = "character", position = character_position })
                             and character_position
                             or physical_surface.find_non_colliding_position("character", character_position, 42, 0.01)
       end
 
-      player.teleport(position_to_place, physical_surface)
+      -- raise_teleported = true
+      player.teleport(position_to_place, physical_surface, true)
 
-      player.set_controller({ type = defines.controllers.character, character = player_data.character_data.character })
+      if (no_character) then
+        Log.error("No character found; creating a new one")
+        player.create_character()
+      else
+        player.set_controller({ type = defines.controllers.character, character = player_data.character_data.character })
+      end
       update_player_data_fun(player_index, false, player)
     elseif (player.controller_type == defines.controllers.character) then
       player.set_controller({ type = defines.controllers.god })
@@ -72,7 +84,8 @@ function player_service.toggle_satellite_mode(event)
       end
 
       if (not toggled) then
-        player.teleport(position_to_place, physical_surface)
+        -- raise_teleported = true
+        player.teleport(position_to_place, physical_surface, true)
         player.set_controller({ type = defines.controllers.character, character = player_data.character_data.character })
       end
       update_player_data_fun(player_index, toggled, player)
@@ -111,7 +124,9 @@ function player_service.disable_satellite_mode_and_die(data)
                       and character_position
                       or surface.find_non_colliding_position("character", character_position, 84, 0.01)
 
-  player.teleport(position_to_place, surface)
+  -- raise_teleported = true
+  player.teleport(position_to_place, surface, true)
+  player.set_controller({ type = defines.controllers.god })
   player.create_character(character)
   player.game_view_settings.show_surface_list = true
 

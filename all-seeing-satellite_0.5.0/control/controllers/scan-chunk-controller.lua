@@ -29,14 +29,16 @@ function scan_chunk_controller.stage_selected_chunks(event)
   if (not player or not player.valid) then return end
 
   if (not event.surface or not event.surface.valid) then return end
-  if (String_Utils.find_invalid_substrings(event.surface.name)) then
-    player.print("Invalid surface detected for scanning: " .. event.surface.name)
-    player.print("Scanning not allowed")
-    return
-  end
+
   -- No need to scan in space
   if (event.surface.platform ~= nil) then
     player.print("Scanning not allowed in space")
+    return
+  end
+
+  if (String_Utils.find_invalid_substrings(event.surface.name)) then
+    player.print("Invalid surface detected for scanning: " .. event.surface.name)
+    player.print("Scanning not allowed")
     return
   end
 
@@ -56,8 +58,6 @@ function scan_chunk_controller.stage_selected_chunks(event)
 
     return
   end
-
-  -- if (not Planet_Utils.allow_scan(event.surface.name)) then return end
 
   Scan_Chunk_Service.stage_selected_area(event)
 end

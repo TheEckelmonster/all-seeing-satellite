@@ -6,6 +6,7 @@ local Log = require("libs.log.log")
 local Planet_Controller = require("control.controllers.planet-controller")
 local Player_Controller = require("control.controllers.player-controller")
 local Rocket_Silo_Controller = require("control.controllers.rocket-silo-controller")
+local Research_Controller = require("control.controllers.research-controller")
 local Satellite_Controller = require("control.controllers.satellite-controller")
 local Scan_Chunk_Controller = require("control.controllers.scan-chunk-controller")
 local Settings_Controller = require("control.controllers.settings-controller")
@@ -52,17 +53,21 @@ script.on_event(defines.events.on_pre_player_removed, Player_Controller.pre_play
 script.on_event(defines.events.on_surface_cleared, Player_Controller.surface_cleared)
 script.on_event(defines.events.on_surface_deleted, Player_Controller.surface_deleted)
 script.on_event(defines.events.on_player_changed_surface, Player_Controller.changed_surface)
-script.on_event(defines.events.on_cargo_pod_finished_ascending, Player_Controller.cargo_pod_finished_ascending)
+script.on_event(defines.events.on_cargo_pod_finished_ascending, function (event)
+  Player_Controller.cargo_pod_finished_ascending(event)
+  Satellite_Controller.track_satellite_launches_ordered(event)
+end)
 script.on_event(defines.events.on_cargo_pod_finished_descending, Player_Controller.cargo_pod_finished_descending)
 script.on_event(defines.events.on_player_toggled_map_editor, Player_Controller.player_toggled_map_editor)
 script.on_event(defines.events.on_pre_player_toggled_map_editor, Player_Controller.pre_player_toggled_map_editor)
+script.on_event(defines.events.on_cutscene_cancelled, Player_Controller.cutscene_canelled)
+script.on_event(defines.events.on_cutscene_finished, Player_Controller.cutscene_finished)
 
 script.on_event(defines.events.on_surface_created, Planet_Controller.on_surface_created)
 
-script.on_event(defines.events.on_rocket_launch_ordered, function (event)
-  Player_Controller.rocket_launch_ordered(event)
-  Satellite_Controller.track_satellite_launches_ordered(event)
-end)
+script.on_event(defines.events.on_rocket_launch_ordered, Player_Controller.rocket_launch_ordered)
+
+script.on_event(defines.events.on_research_finished, Research_Controller.research_finished)
 
 script.on_event(defines.events.on_runtime_mod_setting_changed, Settings_Controller.mod_setting_changed)
 
@@ -79,8 +84,8 @@ script.on_event(defines.events.on_entity_died, function (event)
     Rocket_Silo_Controller.rocket_silo_mined(event)
   end
 end,
--- Rocket_Silo_Controller.filter)
-on_entity_died_filter)
+  on_entity_died_filter
+) -- script.on_event(defines.events.on_entity_died
 
 --
 -- rocket-silo tracking

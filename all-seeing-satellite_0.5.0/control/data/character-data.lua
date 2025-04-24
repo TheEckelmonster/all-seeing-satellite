@@ -5,9 +5,11 @@ local character_data = Data:new()
 
 character_data.player_index = -1
 character_data.unit_number = nil
-character_data.character = {}
-character_data.surface_index = -1
-character_data.position = nil
+character_data.character = nil
+-- Default of nauvis (methinks?)
+character_data.surface_index = 1
+-- Default to the origin
+character_data.position = { x = 0, y = 0,}
 
 function character_data:new(obj)
   Log.debug("character_data:new")

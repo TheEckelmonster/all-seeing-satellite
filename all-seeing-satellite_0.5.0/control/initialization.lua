@@ -7,6 +7,7 @@ local initialization = {}
 
 local All_Seeing_Satellite_Data = require("control.data.all-seeing-satellite-data")
 local All_Seeing_Satellite_Repository = require("control.repositories.all-seeing-satellite-repository")
+local Character_Repository = require("control.repositories.character-repository")
 local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
 local Player_Repository = require("control.repositories.player-repository")
@@ -14,6 +15,7 @@ local Rocket_Silo_Data = require("control.data.rocket-silo-data")
 local Rocket_Silo_Repository = require("control.repositories.rocket-silo-repository")
 local Satellite_Meta_Data = require("control.data.satellite.satellite-meta-data")
 local Satellite_Meta_Repository = require("control.repositories.satellite-meta-repository")
+local Satellite_Repository = require("control.repositories.satellite-repository")
 local Satellite_Toggle_Data = require("control.data.satellite.satellite-toggle-data")
 local String_Utils = require("control.utils.string-utils")
 local Version_Data = require("control.data.version-data")
@@ -41,13 +43,36 @@ function initialize(from_scratch)
 
   from_scratch = from_scratch or false
 
+  if (not from_scratch) then
+    -- Version check
+    local version_data = all_seeing_satellite_data.version_data
+    if (version_data and not version_data.valid) then
+      return initialize(true)
+    else
+      local version = Version_Service.validate_version()
+      if (not version or not version.valid) then
+        version_data.valid = false
+        return all_seeing_satellite_data
+      end
+    end
+  end
+
+  -- All seeing satellite data
   if (from_scratch) then
     log("all-seeing-satellite: Initializing anew")
     if (game) then game.print("all-seeing-satellite: Initializing anew") end
 
+    local _storage = storage
+    _storage.storage_old = nil
+
     storage = {}
     all_seeing_satellite_data = All_Seeing_Satellite_Data:new()
     storage.all_seeing_satellite = all_seeing_satellite_data
+
+    storage.storage_old = _storage
+
+    -- do migrations
+    migrate()
 
     local version_data = all_seeing_satellite_data.version_data
     version_data.valid = true
@@ -60,31 +85,32 @@ function initialize(from_scratch)
     if (not all_seeing_satellite_data.staged_chunks_to_chart) then all_seeing_satellite_data.staged_chunks_to_chart = {} end
   end
 
-  if (all_seeing_satellite_data) then
-    local version_data = all_seeing_satellite_data.version_data
-    if (version_data and not version_data.valid) then
-      return initialize(true)
-    else
-      local version = Version_Service.validate_version()
-      if (not version or not version.valid) then
-        version_data.valid = false
-        return all_seeing_satellite_data
+  -- Player data
+  if (game) then
+    for k, player in pairs(game.players) do
+      local player_data = Player_Repository.get_player_data(player.index)
+      if (not player_data or not player_data.valid) then
+        Log.error("Invalid player data detected")
+        Log.warn(player_data)
+        goto continue
+      elseif (player and player.valid and player.controller_type == defines.controllers.character) then
+        Player_Repository.save_player_data(player.index)
       end
-    end
 
-    if (game) then
-      for k, player in pairs(game.players) do
-        local player_data = Player_Repository.get_player_data(player.index)
-        if (not player_data or not player_data.valid) then
-          Log.error("Invalid player data detected")
-          Log.debug(player_data)
+      if (not player_data.character_data or not player_data.character_data.valid) then
+        local character_data = Character_Repository.get_character_data(player.index)
+        if (not character_data or not character_data.valid) then
+          Log.error("Invalid character data detected")
+          Log.warn(character_data)
+          Player_Repository.update_player_data({ player_index = player_data.player_index, valid = false, })
         end
       end
+      ::continue::
     end
   end
 
+  -- Planet/rocket-silo data
   local planets = Constants.get_planets(true)
-
   for k, planet in pairs(planets) do
     -- Search for planets
     if (planet and not String_Utils.find_invalid_substrings(planet.name)) then
@@ -94,6 +120,8 @@ function initialize(from_scratch)
       end
 
       local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(planet.name)
+
+      if (not satellite_meta_data.planet_name) then satellite_meta_data.planet_name = planet.name end
 
       if (not satellite_meta_data.satellites_toggled) then
         satellite_meta_data.satellites_toggled = Satellite_Toggle_Data:new({
@@ -148,6 +176,37 @@ function add_rocket_silo(satellite_meta_data, rocket_silo)
   end
 
   Rocket_Silo_Repository.save_rocket_silo_data(rocket_silo)
+end
+
+function migrate()
+  local storage_old = storage.storage_old
+  if (not storage_old) then return end
+  if (not type(storage_old) == "table") then return end
+
+  -- Satellites
+  if (storage_old.satellites_in_orbit ~= nil and type(storage_old.satellites_in_orbit) == "table") then
+    for planet_name, satellites in pairs(storage_old.satellites_in_orbit) do
+      for i, satellite in pairs(satellites) do
+        Satellite_Repository.save_satellite_data(satellite)
+      end
+    end
+
+    storage_old.satellites_in_orbit = nil
+  end
+
+  -- Satellite launch count
+  if (storage_old.satellites_launched ~= nil and type(storage_old.satellites_launched) == "table") then
+    for planet_name, value in pairs(storage_old.satellites_launched) do
+      local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(planet_name)
+
+      Satellite_Meta_Repository.update_satellite_meta_data({
+        planet_name = planet_name,
+        satellites_launched = satellite_meta_data.satellites_launched + value
+      })
+    end
+
+    storage_old.satellites_launched = nil
+  end
 end
 
 initialization.all_seeing_satellite = true

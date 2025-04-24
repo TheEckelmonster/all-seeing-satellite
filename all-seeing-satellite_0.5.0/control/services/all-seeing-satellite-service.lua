@@ -153,7 +153,12 @@ function all_seeing_satellite_service.do_scan(surface_name)
           local result = Chunk_To_Chart_Repository.delete_chunk_to_chart_data(optionals)
           if (result and table_size(result) == 0) then
             Log.debug("scan complete")
-            game.get_player(chunk_to_chart.player_index).force.print("Scan complete")
+
+            local area_to_chart = Area_To_Chart_Repository.get_area_to_chart_data(optionals)
+
+            if (area_to_chart and area_to_chart.complete) then
+              game.get_player(chunk_to_chart.player_index).force.print("Scan complete")
+            end
             Satellite_Meta_Repository.update_satellite_meta_data({
               planet_name = chunk_to_chart.surface.name,
               scanned = true,

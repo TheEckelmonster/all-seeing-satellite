@@ -47,7 +47,6 @@ function chunk_to_chart_repository.save_chunk_to_chart_data(data, optionals)
   return_val.id = game.tick
   return_val.parent_id = chunk_to_chart.id
   return_val.player_index = chunk_to_chart.player_index
-  -- return_val.pos = { x = center.x, y = center.y, }
   return_val.pos = data.pos
   return_val.radius = chunk_to_chart.radius
   return_val.surface = surface

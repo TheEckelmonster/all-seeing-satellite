@@ -10,8 +10,6 @@ local Settings_Service = require("control.services.settings-service")
 
 local settings_controller = {}
 
-settings_controller.all_seeing_satellite = true
-
 function settings_controller.mod_setting_changed(event)
   Log.debug("settings_controller.mod_setting_changed")
   Log.info(event)
@@ -23,6 +21,8 @@ function settings_controller.mod_setting_changed(event)
     end
   end
 end
+
+settings_controller.all_seeing_satellite = true
 
 local _settings_controller = settings_controller
 

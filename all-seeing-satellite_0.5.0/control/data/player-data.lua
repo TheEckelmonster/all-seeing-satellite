@@ -14,6 +14,7 @@ player_data.physical_surface_index = -1
 player_data.physical_position = nil
 player_data.physical_vehicle = nil
 player_data.satellite_mode_allowed = false
+player_data.satellite_mode_stashed = false
 player_data.satellite_mode_toggled = false
 player_data.editor_mode_toggled = false
 
@@ -34,6 +35,7 @@ function player_data:new(obj)
     physical_position = self.physical_position,
     physical_vehicle = self.physical_vehicle,
     satellite_mode_allowed = self.satellite_mode_allowed,
+    satellite_mode_stashed = self.satellite_mode_stashed,
     satellite_mode_toggled = self.satellite_mode_toggled,
     editor_mode_toggled = self.editor_mode_toggled,
   }

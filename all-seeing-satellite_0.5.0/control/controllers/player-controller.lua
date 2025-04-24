@@ -40,6 +40,10 @@ function player_controller.toggle_satellite_mode(event)
   if (not allow_satellite_mode and not Planet_Utils.allow_satellite_mode(surface.name)) then
     if (not Research_Utils.has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name)) then
       player.print("Rocket Silo/Satellite not researched yet")
+      return
+    elseif (not player_data.satellite_mode_allowed) then
+      player.print("Satellite mode is currently not allowed")
+      return
     else
       local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(surface.name)
       if (not satellite_meta_data.valid) then return end
@@ -51,13 +55,14 @@ function player_controller.toggle_satellite_mode(event)
         .. Planet_Utils.planet_launch_threshold(surface.name)
         .. " minimum"
       )
+      return
     end
 
-    return
-  end
+    if (not player_data.satellite_mode_allowed) then
+      player.print("Satellite mode is currently not allowed")
+      return
+    end
 
-  if (not allow_satellite_mode and not player_data.satellite_mode_allowed) then
-    player.print("Satellite mode is currently not allowed")
     return
   end
 
@@ -243,9 +248,8 @@ function player_controller.cargo_pod_finished_descending(event)
   if (not player_data.valid) then return end -- This should, in theory, only happen if the player does not exist
 
   if (not event.launched_by_rocket) then
-    player_data.satellite_mode_allowed = true
+    player_data.satellite_mode_allowed = player_data.satellite_mode_stashed
     Player_Repository.save_player_data(event.player_index)
-
   end
 end
 
@@ -266,6 +270,7 @@ function player_controller.rocket_launch_ordered(event)
 
     if (not player_data.valid) then return end -- This should, in theory, only happen if the player does not exist
 
+    player_data.satellite_mode_stashed = player_data.satellite_mode_allowed
     player_data.satellite_mode_allowed = false
     Player_Repository.save_player_data(passenger.player.index)
   end
@@ -282,13 +287,14 @@ function player_controller.player_toggled_map_editor(event)
   if (not player_data or not player_data.valid) then return end
 
   if (player_data.editor_mode_toggled) then
+    player_data.satellite_mode_stashed = player_data.satellite_mode_allowed
     player_data.satellite_mode_allowed = false
   elseif (not player_data.editor_mode_toggled) then
     if (not player_data.character_data.character or not player_data.character_data.character.valid) then
       local character_data = Character_Repository.save_character_data(event.player_index)
       if (character_data.valid) then
         player_data.character_data = character_data
-        player_data.satellite_mode_allowed = true
+        player_data.satellite_mode_allowed = player_data.satellite_mode_stashed
       end
     else
       local player = game.get_player(event.player_index)
@@ -297,7 +303,7 @@ function player_controller.player_toggled_map_editor(event)
       local surface = player.surface
       if (not surface or not surface.valid) then return end
 
-      player_data.satellite_mode_allowed = Planet_Utils.allow_satellite_mode(surface.name)
+      player_data.satellite_mode_allowed = player_data.satellite_mode_stashed
     end
   end
 end
@@ -313,8 +319,31 @@ function player_controller.pre_player_toggled_map_editor(event)
   if (player_data.editor_mode_toggled) then
     player_data.editor_mode_toggled = false
   elseif (not player_data.editor_mode_toggled) then
+    if (player_data.satellite_mode_toggled) then
+      Player_Service.toggle_satellite_mode(event)
+    end
     player_data.editor_mode_toggled = true
   end
+end
+
+function player_controller.cutscene_canelled(event)
+  Log.debug("player_controller.cutscene_canelled")
+  Log.info(event)
+
+  if (not event) then return end
+  if (not event.player_index or event.player_index < 1) then return end
+
+  Player_Repository.save_player_data(event.player_index)
+end
+
+function player_controller.cutscene_finished(event)
+  Log.debug("player_controller.cutscene_finished")
+  Log.info(event)
+
+  if (not event) then return end
+  if (not event.player_index or event.player_index < 1) then return end
+
+  Player_Repository.save_player_data(event.player_index)
 end
 
 player_controller.all_seeing_satellite = true

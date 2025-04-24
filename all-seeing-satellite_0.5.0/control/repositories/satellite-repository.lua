@@ -6,6 +6,7 @@ end
 local Log = require("libs.log.log")
 local Satellite_Data = require("control.data.satellite.satellite-data")
 local Satellite_Meta_Data = require("control.data.satellite.satellite-meta-data")
+local Satellite_Meta_Repository = require("control.repositories.satellite-meta-repository")
 
 local satellite_repository = {}
 
@@ -18,9 +19,7 @@ function satellite_repository.save_satellite_data(data, optionals)
 
   if (not game) then return return_val end
   if (not data or type(data) ~= "table") then return return_val end
-  -- if (not data.entity or type(data.entity) ~= "table" or not data.entity.valid) then return return_val end
   if (not data.entity or type(data.entity) ~= "table") then return return_val end
-  -- if (not data.force or type(data.force) ~= "table" or not data.force.valid) then return return_val end
   if (not data.planet_name or type(data.planet_name) ~= "string") then return return_val end
 
   optionals = optionals or {}
@@ -36,8 +35,7 @@ function satellite_repository.save_satellite_data(data, optionals)
   if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
   if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
     -- If it doesn't exist, generate it
-    storage.all_seeing_satellite.satellite_meta_data[planet_name] = Satellite_Meta_Data:new()
-    Satellite_Meta_Data.save_satellite_meta_data(planet_name)
+    Satellite_Meta_Repository.save_satellite_meta_data(planet_name)
   end
 
   local satellite_meta_data = storage.all_seeing_satellite.satellite_meta_data[planet_name]
@@ -45,7 +43,7 @@ function satellite_repository.save_satellite_data(data, optionals)
   return_val.entity = data.entity
   return_val.force = data.force -- Currently nil, TODO: Get a value for this somehow
   return_val.planet_name = surface.name
-  return_val.tick_to_die = data.death_tick or 1
+  return_val.tick_to_die = data.death_tick or data.tick_to_die or 1
   return_val.tick_off_cooldown = game.tick
   return_val.surface_index = surface.index
   return_val.valid = true
@@ -87,8 +85,7 @@ function satellite_repository.add_satellite_data_to_cooldown(data, optionals)
   if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
   if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
     -- If it doesn't exist, generate it
-    storage.all_seeing_satellite.satellite_meta_data[planet_name] = Satellite_Meta_Data:new()
-    Satellite_Meta_Data.save_satellite_meta_data(planet_name)
+    Satellite_Meta_Repository.save_satellite_meta_data(planet_name)
   end
 
   local satellite_meta_data = storage.all_seeing_satellite.satellite_meta_data[planet_name]
@@ -126,8 +123,7 @@ function satellite_repository.update_satellite_data(update_data, index, optional
   if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
   if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
     -- If it doesn't exist, generate it
-    storage.all_seeing_satellite.satellite_meta_data[planet_name] = Satellite_Meta_Data:new()
-    Satellite_Meta_Data.save_satellite_meta_data(planet_name)
+    Satellite_Meta_Repository.save_satellite_meta_data(planet_name)
   end
 
   local satellite_meta_data = storage.all_seeing_satellite.satellite_meta_data[planet_name]
@@ -171,8 +167,7 @@ function satellite_repository.delete_satellite_data_by_index(data, optionals)
   if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
   if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
     -- If it doesn't exist, generate it
-    storage.all_seeing_satellite.satellite_meta_data[planet_name] = Satellite_Data:new()
-    satellite_repository.save_satellite_meta_data(planet_name)
+    Satellite_Meta_Repository.save_satellite_meta_data(planet_name)
   end
 
   local satellite_meta_data = storage.all_seeing_satellite.satellite_meta_data[planet_name]
@@ -221,8 +216,7 @@ function satellite_repository.delete_satellite_data_from_cooldown(data, optional
   if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
   if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
     -- If it doesn't exist, generate it
-    storage.all_seeing_satellite.satellite_meta_data[planet_name] = Satellite_Data:new()
-    satellite_repository.save_satellite_meta_data(planet_name)
+    Satellite_Meta_Repository.save_satellite_meta_data(planet_name)
   end
 
   local satellite_meta_data = storage.all_seeing_satellite.satellite_meta_data[planet_name]
@@ -262,8 +256,7 @@ function satellite_repository.get_satellite_data(data, optionals)
   if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
   if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
     -- If it doesn't exist, generate it
-    storage.all_seeing_satellite.satellite_meta_data[planet_name] = return_val
-    satellite_repository.save_satellite_meta_data(planet_name)
+    Satellite_Meta_Repository.save_satellite_meta_data(planet_name)
   end
 
   local satellite_meta_data = storage.all_seeing_satellite.satellite_meta_data[planet_name]
