@@ -61,7 +61,7 @@ settings_constants.settings.NTH_TICK.setting = {
   setting_type = "runtime-global",
   order = "edd",
   default_value = settings_constants.settings.NTH_TICK.value,
-  maximum_value = 111,
+  maximum_value = 11111,
   minimum_value = 0,
 }
 
@@ -86,6 +86,14 @@ settings_constants.settings.RESTRICT_SATELLITE_MODE = {
   name = "all-see-satellite-restrict-satellite-mode",
   setting_type = "runtime-global",
   order = "aac",
+  default_value = true,
+}
+
+settings_constants.settings.DO_LAUNCH_ROCKETS = {
+  type = "bool-setting",
+  name = "all-see-satellite-do-launch-rockets",
+  setting_type = "runtime-global",
+  order = "aad",
   default_value = true,
 }
 

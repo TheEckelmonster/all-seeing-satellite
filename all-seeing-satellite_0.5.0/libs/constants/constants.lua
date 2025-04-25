@@ -7,12 +7,7 @@ local Log = require("libs.log.log")
 local Planet_Data = require("control.data.planet-data")
 local String_Utils = require("control.utils.string-utils")
 
-local constants = {
-  -- nauvis = {},
-  -- fulgora = {},
-  -- gleba = {},
-  -- vulcanus = {}
-}
+local constants = {}
 
 constants.mod_name = "all-seeing-satellite"
 

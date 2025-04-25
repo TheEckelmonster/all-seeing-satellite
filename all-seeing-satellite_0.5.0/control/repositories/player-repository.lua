@@ -25,28 +25,28 @@ function player_repository.save_player_data(player_index, optionals)
 
   local player = optionals.player or game.get_player(player_index)
   if (not player or not player.valid) then return return_val end
+  local force = player.force
+  if (not force or not force.valid) then return return_val end
 
   if (not storage) then return return_val end
-  -- if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
-  -- if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
-  -- if (not storage.all_seeing_satellite.player_data[player_index]) then storage.all_seeing_satellite.player_data[player_index] = return_val end
   if (not storage.player_data) then storage.player_data = {} end
-  if (not storage.player_data[player_index]) then storage.player_data[player_index] = return_val end
+  if (not storage.player_data[force.index]) then storage.player_data[force.index] = {} end
+  if (not storage.player_data[force.index][player_index]) then storage.player_data[force.index][player_index] = return_val end
 
-  -- return_val = storage.all_seeing_satellite.player_data[player_index]
-  return_val = storage.player_data[player_index]
+  return_val = storage.player_data[force.index][player_index]
   local character_data = Character_Repository.save_character_data(player_index)
   Log.info(character_data)
 
-  return_val.player_index = player.index
   return_val.character_data = character_data.valid and character_data or return_val.character_data
   return_val.controller_type = defines.controllers.character
-  return_val.surface_index = player.surface_index
+  return_val.force = force
   return_val.position = player.position
-  return_val.vehicle = player.vehicle
   return_val.physical_surface_index = player.physical_surface_index
   return_val.physical_position = player.physical_position
   return_val.physical_vehicle = player.physical_vehicle
+  return_val.player_index = player.index
+  return_val.surface_index = player.surface_index
+  return_val.vehicle = player.vehicle
   return_val.valid = true
 
   return player_repository.update_player_data(return_val)
@@ -63,25 +63,26 @@ function player_repository.update_player_data(update_data, optionals)
   if (not update_data) then return return_val end
   if (not update_data.player_index) then return return_val end
 
-  optionals = optionals or {}
-
   local player_index = update_data.player_index
 
+  optionals = optionals or {
+    player = game.get_player(player_index)
+  }
+
+  local player = optionals.player or game.get_player(player_index)
+  if (not player or not player.valid) then return return_val end
+  local force = player.force
+  if (not force or not force.valid) then return return_val end
+
   if (not storage) then return return_val end
-  -- if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
-  -- if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
-  -- if (not storage.all_seeing_satellite.player_data[player_index]) then
   if (not storage.player_data) then storage.player_data = {} end
-  -- if (not storage.all_seeing_satellite.player_data[player_index]) then
-  if (not storage.player_data[player_index]) then
+  if (not storage.player_data[force.index]) then storage.player_data[force.index] = {} end
+  if (not storage.player_data[force.index][player_index]) then
     -- If it doesn't exist, generate it
-    -- storage.all_seeing_satellite.player_data[player_index] = return_val
-    storage.player_data[player_index] = return_val
     player_repository.save_player_data(player_index)
   end
 
-  -- local player_data = storage.all_seeing_satellite.player_data[player_index]
-  local player_data = storage.player_data[player_index]
+  local player_data = storage.player_data[force.index][player_index]
 
   for k,v in pairs(update_data) do
     player_data[k] = v
@@ -102,17 +103,20 @@ function player_repository.delete_player_data(player_index, optionals)
   if (not game) then return return_val end
   if (not player_index) then return return_val end
 
-  optionals = optionals or {}
+  optionals = optionals or {
+    player = game.get_player(player_index)
+  }
+
+  local player = optionals.player or game.get_player(player_index)
+  if (not player or not player.valid) then return return_val end
+  local force = player.force
+  if (not force or not force.valid) then return return_val end
 
   if (not storage) then return return_val end
-  -- if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
-  -- if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
-  -- if (storage.all_seeing_satellite.player_data[player_index] ~= nil) then
-  --   storage.all_seeing_satellite.player_data[player_index] = nil
-  -- end
   if (not storage.player_data) then storage.player_data = {} end
-  if (storage.player_data[player_index] ~= nil) then
-    storage.player_data[player_index] = nil
+  if (not storage.player_data[force.index]) then storage.player_data[force.index] = {} end
+  if (storage.player_data[force.index][player_index] ~= nil) then
+    storage.player_data[force.index][player_index] = nil
   end
   return_val = true
 
@@ -129,25 +133,24 @@ function player_repository.get_player_data(player_index, optionals)
   if (not player_index) then return return_val end
   if (not game) then return return_val end
 
-  optionals = optionals or {}
+  optionals = optionals or {
+    player = game.get_player(player_index)
+  }
+
+  local player = optionals.player or game.get_player(player_index)
+  if (not player or not player.valid) then return return_val end
+  local force = player.force
+  if (not force or not force.valid) then return return_val end
 
   if (not storage) then return return_val end
-  -- if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
-  -- if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
-  -- if (not storage.all_seeing_satellite.player_data[player_index]) then
-  --   -- If it doesn't exist, generate it
-  --   storage.all_seeing_satellite.player_data[player_index] = return_val
-  --   player_repository.save_player_data(player_index)
-  -- end
   if (not storage.player_data) then storage.player_data = {} end
-  if (not storage.player_data[player_index]) then
+  if (not storage.player_data[force.index]) then storage.player_data[force.index] = {} end
+  if (not storage.player_data[force.index][player_index]) then
     -- If it doesn't exist, generate it
-    storage.player_data[player_index] = return_val
     player_repository.save_player_data(player_index)
   end
 
-  -- return storage.all_seeing_satellite.player_data[player_index]
-  return storage.player_data[player_index]
+  return storage.player_data[force.index][player_index]
 end
 
 function player_repository.get_all_player_data(optionals)
@@ -161,10 +164,6 @@ function player_repository.get_all_player_data(optionals)
   optionals = optionals or {}
 
   if (not storage) then return return_val end
-  -- if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
-  -- if (not storage.all_seeing_satellite.player_data) then storage.all_seeing_satellite.player_data = {} end
-
-  -- return storage.all_seeing_satellite.player_data
   if (not storage.player_data) then storage.player_data = {} end
 
   return storage.player_data

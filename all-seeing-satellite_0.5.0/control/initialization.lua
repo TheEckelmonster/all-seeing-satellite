@@ -11,6 +11,7 @@ local Character_Repository = require("control.repositories.character-repository"
 local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
 local Player_Repository = require("control.repositories.player-repository")
+local Research_Utils = require("control.utils.research-utils")
 local Rocket_Silo_Data = require("control.data.rocket-silo-data")
 local Rocket_Silo_Repository = require("control.repositories.rocket-silo-repository")
 local Satellite_Meta_Data = require("control.data.satellite.satellite-meta-data")
@@ -93,8 +94,6 @@ function initialize(from_scratch)
         Log.error("Invalid player data detected")
         Log.warn(player_data)
         goto continue
-      elseif (player and player.valid and player.controller_type == defines.controllers.character) then
-        Player_Repository.save_player_data(player.index)
       end
 
       if (not player_data.character_data or not player_data.character_data.valid) then
@@ -103,6 +102,15 @@ function initialize(from_scratch)
           Log.error("Invalid character data detected")
           Log.warn(character_data)
           Player_Repository.update_player_data({ player_index = player_data.player_index, valid = false, })
+          goto continue
+        end
+      end
+
+      if (Research_Utils.has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name)) then
+        if (player_data.editor_mode_toggled or String_Utils.find_invalid_substrings(player.surface.name)) then
+          Player_Repository.update_player_data({ player_index = player.index, satellite_mode_stashed = true, })
+        else
+          Player_Repository.update_player_data({ player_index = player.index, satellite_mode_allowed = true, })
         end
       end
       ::continue::

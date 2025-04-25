@@ -30,39 +30,40 @@ function player_controller.toggle_satellite_mode(event)
   if (not surface or not surface.valid) then return end
 
   local player_data = Player_Repository.get_player_data(event.player_index)
-  if (not player_data or not player_data.valid) then return end
+  if (not player_data or not player_data.valid) then
+    player.print("Satellite mode is currently not allowed")
+    return
+  end
 
   local allow_satellite_mode = false
   if (player.controller_type == defines.controllers.god) then
     allow_satellite_mode = true
   end
 
+  if (not allow_satellite_mode and not Research_Utils.has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name)) then
+    player.print("Rocket Silo/Satellite not researched yet")
+    return
+  end
+
   if (not allow_satellite_mode and not Planet_Utils.allow_satellite_mode(surface.name)) then
-    if (not Research_Utils.has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name)) then
-      player.print("Rocket Silo/Satellite not researched yet")
-      return
-    elseif (not player_data.satellite_mode_allowed) then
-      player.print("Satellite mode is currently not allowed")
-      return
-    else
-      local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(surface.name)
-      if (not satellite_meta_data.valid) then return end
-      player.print("Insufficient satellite(s) orbiting "
-        .. surface.name
-        .. " : "
-        .. satellite_meta_data.satellites_in_orbit
-        .. " orbiting, "
-        .. Planet_Utils.planet_launch_threshold(surface.name)
-        .. " minimum"
-      )
-      return
-    end
-
-    if (not player_data.satellite_mode_allowed) then
+    local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(surface.name)
+    if (not satellite_meta_data.valid) then
       player.print("Satellite mode is currently not allowed")
       return
     end
+    player.print("Insufficient satellite(s) orbiting "
+      .. surface.name
+      .. " : "
+      .. satellite_meta_data.satellites_in_orbit
+      .. " orbiting, "
+      .. Planet_Utils.planet_launch_threshold(surface.name)
+      .. " minimum"
+    )
+    return
+  end
 
+  if (not allow_satellite_mode and not player_data.satellite_mode_allowed) then
+    player.print("Satellite mode is currently not allowed")
     return
   end
 
@@ -297,12 +298,6 @@ function player_controller.player_toggled_map_editor(event)
         player_data.satellite_mode_allowed = player_data.satellite_mode_stashed
       end
     else
-      local player = game.get_player(event.player_index)
-      if (not player or not player.valid) then return end
-
-      local surface = player.surface
-      if (not surface or not surface.valid) then return end
-
       player_data.satellite_mode_allowed = player_data.satellite_mode_stashed
     end
   end

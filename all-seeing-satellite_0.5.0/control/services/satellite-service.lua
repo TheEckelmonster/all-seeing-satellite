@@ -48,40 +48,38 @@ end
 function satellite_service.check_for_expired_satellites(event)
   Log.debug("satellite_service.check_for_expired_satellites")
   Log.info(event)
+  Log.info(event.planet_name)
+
+  if (not event) then return end
+  if (not event.tick) then return end
+  if (not event.planet_name) then return end
 
   local tick = event.tick
   local offset = Constants.TICKS_PER_SECOND / 2
   local tick_modulo = tick % offset
 
-  local planets = Constants.get_planets()
-  if (not planets) then return end
+  local planet_name = event.planet_name
+  if (not planet_name) then return end
 
-  local all_satellite_meta_data = Satellite_Meta_Repository.get_all_satellite_meta_data()
+  local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(planet_name)
+  if (not satellite_meta_data.valid) then return end
 
-  for planet, satellite_meta_data in pairs(all_satellite_meta_data) do
-    for i, satellite_data in pairs(satellite_meta_data.satellites) do
-      if (not satellite_data or not satellite_data.entity) then
-        return
-      end
+  for i, satellite_data in pairs(satellite_meta_data.satellites) do
+    if (not satellite_data.valid) then
+      goto continue
+    end
 
-      if (satellite_data.created % offset ~= tick_modulo and satellite_data.tick_to_die % offset ~= tick_modulo) then
-        return
-      end
-
-      -- In theory:
-      --   -> valid satellite
-      --   -> unit_id and tick modulos match
-      if (tick >= satellite_data.tick_to_die) then
-          if (satellite_meta_data.satellites_launched and #satellite_meta_data.satellites > 0) then
-            Satellite_Repository.delete_satellite_data_by_index({ planet_name = satellite_data.planet_name, index = i, })
-            if (satellite_meta_data.satellites_in_orbit) then
-              Satellite_Utils.get_num_satellites_in_orbit(satellite_meta_data)
-            end
-            -- TODO: Change this to force.print
-            game.print("Satellite ran out of fuel orbiting " .. serpent.block(satellite_data.planet_name))
-          end
+    if (tick >= satellite_data.tick_to_die) then
+      if (satellite_meta_data.satellites_launched and #satellite_meta_data.satellites > 0) then
+        Satellite_Repository.delete_satellite_data_by_index({ planet_name = satellite_data.planet_name, index = i, })
+        if (satellite_meta_data.satellites_in_orbit) then
+          Satellite_Utils.get_num_satellites_in_orbit(satellite_meta_data)
+        end
+        -- TODO: Change this to force.print
+        game.print("Satellite ran out of fuel orbiting " .. serpent.line(satellite_data.planet_name))
       end
     end
+    ::continue::
   end
 end
 

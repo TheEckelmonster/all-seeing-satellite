@@ -100,6 +100,17 @@ function settings_service.get_restrict_satellite_mode()
   return setting
 end
 
+-- DO_LAUNCH_ROCKETS
+function settings_service.get_do_launch_rockets()
+  local setting = Settings_Constants.settings.DO_LAUNCH_ROCKETS.default_value
+
+  if (settings and settings.global and settings.global[Settings_Constants.settings.DO_LAUNCH_ROCKETS.name]) then
+    setting = settings.global[Settings_Constants.settings.DO_LAUNCH_ROCKETS.name].value
+  end
+
+  return setting
+end
+
 -- SATELLITE_SCAN_COOLDOWN_DURATION
 function settings_service.get_satellite_scan_cooldown_duration()
   local setting = Settings_Constants.settings.SATELLITE_SCAN_COOLDOWN_DURATION.default_value
