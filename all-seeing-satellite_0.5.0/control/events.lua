@@ -34,8 +34,6 @@ end
 
 Log.info("Registering events")
 
--- script.on_init(init)
-
 script.on_event(defines.events.on_tick, All_Seeing_Satellite_Controller.do_tick)
 
 script.on_event(Custom_Input_Constants.FOG_OF_WAR_TOGGLE.name, Fog_Of_War_Controller.toggle)
