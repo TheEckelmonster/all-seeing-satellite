@@ -54,7 +54,7 @@ settings_constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD_MODIFIER = {
 }
 
 settings_constants.settings.NTH_TICK = {}
-settings_constants.settings.NTH_TICK.value = 20
+settings_constants.settings.NTH_TICK.value = 10
 settings_constants.settings.NTH_TICK.setting = {
   type = "int-setting",
   name = "all-seeing-satellite-nth-tick",
