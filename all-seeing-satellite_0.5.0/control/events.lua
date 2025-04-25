@@ -60,7 +60,7 @@ end)
 script.on_event(defines.events.on_cargo_pod_finished_descending, Player_Controller.cargo_pod_finished_descending)
 script.on_event(defines.events.on_player_toggled_map_editor, Player_Controller.player_toggled_map_editor)
 script.on_event(defines.events.on_pre_player_toggled_map_editor, Player_Controller.pre_player_toggled_map_editor)
-script.on_event(defines.events.on_cutscene_cancelled, Player_Controller.cutscene_canelled)
+script.on_event(defines.events.on_cutscene_cancelled, Player_Controller.cutscene_cancelled)
 script.on_event(defines.events.on_cutscene_finished, Player_Controller.cutscene_finished)
 
 script.on_event(defines.events.on_surface_created, Planet_Controller.on_surface_created)

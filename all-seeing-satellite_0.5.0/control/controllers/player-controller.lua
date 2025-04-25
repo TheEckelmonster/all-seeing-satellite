@@ -321,8 +321,8 @@ function player_controller.pre_player_toggled_map_editor(event)
   end
 end
 
-function player_controller.cutscene_canelled(event)
-  Log.debug("player_controller.cutscene_canelled")
+function player_controller.cutscene_cancelled(event)
+  Log.debug("player_controller.cutscene_cancelled")
   Log.info(event)
 
   if (not event) then return end
