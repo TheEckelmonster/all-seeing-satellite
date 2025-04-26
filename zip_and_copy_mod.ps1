@@ -1,5 +1,5 @@
 $mod = "all-seeing-satellite"
-$version = "0.4.2"
+$version = "0.5.0"
 
 $mod_directory = $mod + "_"
 $full = $mod_directory + $version
