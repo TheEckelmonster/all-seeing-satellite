@@ -59,6 +59,13 @@ function scan_chunk_controller.stage_selected_chunks(event)
     return
   end
 
+  if (not all_seeing_satellite_data.do_scan) then
+    player.print("Scanning is not currently enabled")
+    player.print({ "message.all-seeing-toggle-scanning" })
+    player.print({ "message.all-seeing-cancel-scanning" })
+    return
+  end
+
   Scan_Chunk_Service.stage_selected_area(event)
 end
 
