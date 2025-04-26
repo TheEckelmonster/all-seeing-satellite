@@ -74,7 +74,7 @@ function is_string_valid(string)
   Log.debug("string_utils, is_string_valid")
   Log.info(string)
 
-  return string and #string > 0
+  return string and type(string) == "string" and #string > 0
 end
 
 string_utils.all_seeing_satellite = true

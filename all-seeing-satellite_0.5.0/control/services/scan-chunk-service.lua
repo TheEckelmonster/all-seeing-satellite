@@ -147,8 +147,7 @@ function scan_chunk_service.stage_selected_chunk(chunk_to_chart, optionals)
     a = j
   end
 
-  -- TODO: Parameterize this
-  local distance_modifier = 16
+  local distance_modifier = Constants.CHUNK_SIZE
 
   if (i == 0 and j == 0 and optionals.mode == Constants.optionals.mode.queue) then
     Chunk_To_Chart_Repository.save_chunk_to_chart_data({
@@ -270,8 +269,7 @@ function scan_chunk_service.scan_selected_chunk(chunk_to_chart, optionals)
 
   Log.info(chunk_to_chart)
 
-  -- TODO: Parameterize this
-  local distance_modifier = 16
+  local distance_modifier = Constants.CHUNK_SIZE / 2
 
   game.forces[chunk_to_chart.player_index].chart(
     chunk_to_chart.surface, {

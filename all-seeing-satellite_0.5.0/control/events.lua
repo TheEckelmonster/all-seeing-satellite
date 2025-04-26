@@ -1,5 +1,4 @@
 local All_Seeing_Satellite_Controller = require("control.controllers.all-seeing-satellite-controller")
-local Constants = require("libs.constants.constants")
 local Custom_Input_Constants = require("libs.constants.custom-input-constants")
 local Fog_Of_War_Controller = require("control.controllers.fog-of-war-controller")
 local Log = require("libs.log.log")
@@ -54,7 +53,7 @@ script.on_event(defines.events.on_player_changed_surface, Player_Controller.chan
 script.on_event(defines.events.on_cargo_pod_finished_ascending, function (event)
   Player_Controller.cargo_pod_finished_ascending(event)
   Satellite_Controller.track_satellite_launches_ordered(event)
-end)
+end) -- script.on_event(defines.events.on_cargo_pod_finished_ascending
 script.on_event(defines.events.on_cargo_pod_finished_descending, Player_Controller.cargo_pod_finished_descending)
 script.on_event(defines.events.on_player_toggled_map_editor, Player_Controller.player_toggled_map_editor)
 script.on_event(defines.events.on_pre_player_toggled_map_editor, Player_Controller.pre_player_toggled_map_editor)

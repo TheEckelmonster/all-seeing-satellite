@@ -125,25 +125,27 @@ function all_seeing_satellite_service.do_scan(surface_name)
     -- Log.error("k: " .. serpent.block(k))
     -- Log.error("chunk_to_chart: " .. serpent.block(chunk_to_chart))
 
-    if (game and game.players and game.players[chunk_to_chart.player_index] and game.players[chunk_to_chart.player_index].force) then
-      local force = game.players[chunk_to_chart.player_index].force
-      if ( chunk_to_chart.surface.is_chunk_generated(chunk_to_chart.pos)
-        or force.is_chunk_charted(chunk_to_chart.surface, chunk_to_chart.pos)
-        or force.is_chunk_visible(chunk_to_chart.surface, chunk_to_chart.pos)
-        or force.is_chunk_requested_for_charting(chunk_to_chart.surface, chunk_to_chart.pos)
-      ) then
-        chunks_to_chart[k] = nil
+    -- if (game and game.players and game.players[chunk_to_chart.player_index] and game.players[chunk_to_chart.player_index].force) then
+    --   local force = game.players[chunk_to_chart.player_index].force
+    --   if ( chunk_to_chart.surface.is_chunk_generated(chunk_to_chart.pos)
+    --     or force.is_chunk_charted(chunk_to_chart.surface, chunk_to_chart.pos)
+    --     or force.is_chunk_visible(chunk_to_chart.surface, chunk_to_chart.pos)
+    --     or force.is_chunk_requested_for_charting(chunk_to_chart.surface, chunk_to_chart.pos)
+    --   ) then
+    --     Log.warn("k: " .. k)
 
-        if (chunks_to_chart and #chunks_to_chart == 0) then
-          local result = Chunk_To_Chart_Repository.delete_chunk_to_chart_data(optionals)
-          if (result and table_size(result) == 0) then
-            Satellite_Meta_Repository.update_satellite_meta_data({ planet_name = chunk_to_chart.surface.name, scanned = true, })
-          end
-        end
+    --     chunks_to_chart[k] = nil
 
-        goto continue_outer
-      end
-    end
+    --     if (chunks_to_chart and #chunks_to_chart == 0) then
+    --       local result = Chunk_To_Chart_Repository.delete_chunk_to_chart_data(optionals)
+    --       if (result and table_size(result) == 0) then
+    --         Satellite_Meta_Repository.update_satellite_meta_data({ planet_name = chunk_to_chart.surface.name, scanned = true, })
+    --       end
+    --     end
+
+    --     goto continue_outer
+    --   end
+    -- end
 
     if (not Settings_Service.get_restrict_satellite_scanning()) then
       if (Scan_Chunk_Service.scan_selected_chunk(chunk_to_chart, optionals)) then

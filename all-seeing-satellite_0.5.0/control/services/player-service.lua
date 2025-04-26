@@ -130,6 +130,11 @@ function player_service.disable_satellite_mode_and_die(data)
   player.create_character(character)
   player.game_view_settings.show_surface_list = true
 
+  local player_data = Player_Repository.get_player_data(player_index)
+  if (not player_data.valid) then return end
+
+  player.force = player_data.force_index_stashed or 1
+
   Player_Repository.update_player_data({
     player_index = player_index,
     satellite_mode_toggled = false,

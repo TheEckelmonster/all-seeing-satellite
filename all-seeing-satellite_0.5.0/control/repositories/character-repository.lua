@@ -25,19 +25,16 @@ function character_repository.save_character_data(player_index, optionals)
 
   local player = optionals.player or game.get_player(player_index)
   if (not player or not player.valid) then return return_val end
-  local force = player.force
-  if (not force or not force.valid) then return return_val end
 
   local character = player.character
   if (not character) then return return_val end
 
   if (not storage) then return return_val end
   if (not storage.player_data) then storage.player_data = {} end
-  if (not storage.player_data[force.index]) then storage.player_data[force.index] = {} end
-  if (not storage.player_data[force.index][player_index]) then storage.player_data[force.index][player_index] = Player_Data:new() end
-  if (not storage.player_data[force.index][player_index].character_data) then storage.player_data[force.index][player_index].character_data = return_val end
+  if (not storage.player_data[player_index]) then storage.player_data[player_index] = Player_Data:new() end
+  if (not storage.player_data[player_index].character_data) then storage.player_data[player_index].character_data = return_val end
 
-  return_val = storage.player_data[force.index][player_index].character_data
+  return_val = storage.player_data[player_index].character_data
   return_val.valid = true
   return_val.player_index = player_index
   return_val.unit_number = character.unit_number
@@ -67,19 +64,16 @@ function character_repository.update_character_data(update_data, optionals)
 
   local player = optionals.player or game.get_player(player_index)
   if (not player or not player.valid) then return return_val end
-  local force = player.force
-  if (not force or not force.valid) then return return_val end
 
   if (not storage) then return return_val end
   if (not storage.player_data) then storage.player_data = {} end
-  if (not storage.player_data[force.index]) then storage.player_data[force.index] = {} end
-  if (not storage.player_data[force.index][player_index]) then storage.player_data[force.index][player_index] = Player_Data:new() end
-  if (not storage.player_data[force.index][player_index].character_data) then
+  if (not storage.player_data[player_index]) then storage.player_data[player_index] = Player_Data:new() end
+  if (not storage.player_data[player_index].character_data) then
     -- If it doesn't exist, generate it
     character_repository.save_character_data(player_index)
   end
 
-  local character_data = storage.player_data[force.index][player_index].character_data
+  local character_data = storage.player_data[player_index].character_data
 
   for k,v in pairs(update_data) do
     character_data[k] = v
@@ -106,14 +100,11 @@ function character_repository.delete_character_data(player_index, optionals)
 
   local player = optionals.player or game.get_player(player_index)
   if (not player or not player.valid) then return return_val end
-  local force = player.force
-  if (not force or not force.valid) then return return_val end
 
   if (not storage) then return return_val end
   if (not storage.player_data) then storage.player_data = {} end
-  if (not storage.player_data[force.index]) then storage.player_data[force.index] = {} end
-  if (storage.player_data[force.index][player_index] ~= nil) then
-    storage.player_data[force.index][player_index] = nil
+  if (storage.player_data[player_index] ~= nil) then
+    storage.player_data[player_index] = nil
   end
   return_val = true
 
@@ -136,15 +127,12 @@ function character_repository.get_character_data(player_index, optionals)
 
   local player = optionals.player or game.get_player(player_index)
   if (not player or not player.valid) then return return_val end
-  local force = player.force
-  if (not force or not force.valid) then return return_val end
 
   if (not storage) then return return_val end
   if (not storage.player_data) then storage.player_data = {} end
-  if (not storage.player_data[force.index]) then storage.player_data[force.index] = {} end
-  if (not storage.player_data[force.index][player_index]) then storage.player_data[force.index][player_index] = Player_Data:new() end
+  if (not storage.player_data[player_index]) then storage.player_data[player_index] = Player_Data:new() end
 
-  return storage.player_data[force.index][player_index].character_data
+  return storage.player_data[player_index].character_data
 end
 
 function character_repository.get_all_character_data(optionals)
@@ -162,10 +150,8 @@ function character_repository.get_all_character_data(optionals)
 
   local all_player_data = {}
 
-  for force, f_player_data in pairs(storage.player_data) do
-    for player_index, player_data in pairs(f_player_data) do
-      table.insert(all_player_data, player_data)
-    end
+  for player_index, player_data in pairs(storage.player_data) do
+    table.insert(all_player_data, player_data)
   end
 
   for player_index, player_data in pairs(all_player_data) do

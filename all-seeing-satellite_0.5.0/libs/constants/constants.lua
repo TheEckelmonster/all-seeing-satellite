@@ -18,6 +18,8 @@ constants.TICKS_PER_MINUTE = constants.TICKS_PER_SECOND * constants.SECONDS_PER_
 constants.DEFAULT_RESEARCH = {}
 constants.DEFAULT_RESEARCH.name = "rocket-silo"
 
+constants.CHUNK_SIZE = 32
+
 constants.optionals= {}
 constants.optionals.DEFAULT = {}
 constants.optionals.DEFAULT.mode = "queue"

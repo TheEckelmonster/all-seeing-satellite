@@ -42,7 +42,7 @@ function area_to_chart_repository.save_area_to_chart_data(data, optionals)
     y = (data.area.left_top.y + data.area.right_bottom.y) / 2
   }
 
-  local radius = math.floor(math.sqrt((center.x - data.area.right_bottom.x)^2 + (center.y - data.area.right_bottom.y)^2) / 16)
+  local radius = math.floor(math.sqrt((center.x - data.area.right_bottom.x)^2 + (center.y - data.area.right_bottom.y)^2) / Constants.CHUNK_SIZE)
 
   return_val.area = data.area
   return_val.center = center

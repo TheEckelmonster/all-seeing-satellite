@@ -45,6 +45,9 @@ function planet_utils.allow_satellite_mode(surface_name)
 end
 
 function planet_utils.planet_launch_threshold(surface_name)
+  Log.debug("planet_utils.planet_launch_threshold")
+  Log.info(surface_name)
+
   if (not surface_name) then
     -- Intentionally calling with nil parameter to each, so as to get the default_value for each setting
     return Settings_Service.get_global_launch_satellite_threshold() * Settings_Service.get_global_launch_satellite_threshold_modifier()
@@ -67,16 +70,22 @@ function planet_utils.planet_launch_threshold(surface_name)
 end
 
 function planet_utils.allow_scan(surface_name)
+  Log.debug("planet_utils.allow_scan")
+  Log.info(surface_name)
+
+  if (not surface_name) then return false end
+
   if (not Settings_Service.get_restrict_satellite_scanning()) then return true end
 
-  if (surface_name) then
-    local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(surface_name)
-    return satellite_meta_data and satellite_meta_data.valid and satellite_meta_data.satellites_in_orbit > 0
-  end
-  return false
+  local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(surface_name)
+
+  return satellite_meta_data and satellite_meta_data.valid and (satellite_meta_data.satellites_in_orbit > 0 or #satellite_meta_data.satellites > 0)
 end
 
 function get_planet_magnitude(surface_name)
+  Log.debug("planet_utils.get_planet_magnitude")
+  Log.info(surface_name)
+
   local planets = Constants.get_planets()
   local planet_magnitude = 1
 

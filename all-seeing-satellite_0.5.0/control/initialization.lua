@@ -90,19 +90,27 @@ function initialize(from_scratch)
   if (game) then
     for k, player in pairs(game.players) do
       local player_data = Player_Repository.get_player_data(player.index)
-      if (not player_data or not player_data.valid) then
-        Log.error("Invalid player data detected")
-        Log.warn(player_data)
-        goto continue
+      if (not player_data.valid) then
+        player_data = Player_Repository.save_player_data(player_data.player_index)
+        if (not player_data.valid) then
+          Log.warn("Invalid player data detected")
+          Log.debug(player_data)
+          goto continue
+          return
+        end
       end
 
       if (not player_data.character_data or not player_data.character_data.valid) then
-        local character_data = Character_Repository.get_character_data(player.index)
-        if (not character_data or not character_data.valid) then
-          Log.error("Invalid character data detected")
-          Log.warn(character_data)
-          Player_Repository.update_player_data({ player_index = player_data.player_index, valid = false, })
-          goto continue
+        local character_data = Character_Repository.get_character_data(player_data.index)
+        if (not character_data.valid) then
+          character_data = Character_Repository.save_character_data(player_data.index)
+
+          if (not character_data.valid) then
+            Log.warn("Invalid character data detected")
+            Log.debug(character_data)
+            Player_Repository.update_player_data({ player_index = player_data.player_index, valid = false, })
+            goto continue
+          end
         end
       end
 
@@ -112,7 +120,14 @@ function initialize(from_scratch)
         else
           Player_Repository.update_player_data({ player_index = player.index, satellite_mode_allowed = true, })
         end
+      else
+        Player_Repository.update_player_data({ player_index = player.index, satellite_mode_allowed = false, })
       end
+
+      if (player_data.in_space) then
+        player_data.in_space = String_Utils.find_invalid_substrings(player.surface.name)
+      end
+
       ::continue::
     end
   end
@@ -210,6 +225,11 @@ function migrate()
       Satellite_Meta_Repository.update_satellite_meta_data({
         planet_name = planet_name,
         satellites_launched = satellite_meta_data.satellites_launched + value
+      })
+
+      Satellite_Meta_Repository.update_satellite_meta_data({
+        planet_name = planet_name,
+        satellites_in_orbit = #satellite_meta_data.satellites
       })
     end
 
