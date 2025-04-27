@@ -10,15 +10,15 @@ Date: 26. 04. 2025
       Clear all current and staged scans via hotkey, "ctrl + shift + space" by default
     - Added "Satellite Mode"
       Effectively "Remote View" but it also will reveal new areas of the map
-     - Allowed if the number of satellites in orbit of a given planet is >= the satellite launch threshold for the given planet
-     - Not allowed when the player/character is in space
+      - Allowed if the number of satellites in orbit of a given planet is >= the satellite launch threshold for the given planet
+      - Not allowed when the player/character is in space
     - Major refactoring of almost every file
       - Restructured and standardized directory format
       - Added version system for storage data
       -> Will attempt to migrate storage data from previous versions on update
       - Created schema for storage objects to be based from
       -> Allows for simpler logic and greater maintainability
-    - Satellites are now "in orbit" when the actually leave the planet, rather than immediately after launch
+    - Satellites are now "in orbit" when they actually leave the planet, rather than immediately after launch
     - Updated/added additional console commands, namely:
       /all_seeing.satellites_launched -> Prints the number of satellites currently launched into orbit for each visited planet
   Bug fixes:
