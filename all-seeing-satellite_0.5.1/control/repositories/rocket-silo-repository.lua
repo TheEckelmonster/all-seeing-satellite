@@ -30,8 +30,7 @@ function rocket_silo_repository.save_rocket_silo_data(rocket_silo, optionals)
   if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
   if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
     -- If it doesn't exist, generate it
-    storage.all_seeing_satellite.satellite_meta_data[planet_name] = Satellite_Meta_Data:new()
-    Satellite_Meta_Data.save_satellite_meta_data(planet_name)
+    if (not Satellite_Meta_Data.save_satellite_meta_data(planet_name).valid) then return return_val end
   end
   if (not storage.all_seeing_satellite.satellite_meta_data[planet_name].rocket_silos) then storage.all_seeing_satellite.satellite_meta_data[planet_name].rocket_silos = {} end
 
@@ -67,8 +66,7 @@ function rocket_silo_repository.update_rocket_silo_data(update_data, optionals)
   if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
   if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
     -- If it doesn't exist, generate it
-    storage.all_seeing_satellite.satellite_meta_data[planet_name] = Satellite_Meta_Data:new()
-    Satellite_Meta_Data.save_satellite_meta_data(planet_name)
+    if (not Satellite_Meta_Data.save_satellite_meta_data(planet_name).valid) then return return_val end
   end
   if (not storage.all_seeing_satellite.satellite_meta_data[planet_name].rocket_silos) then storage.all_seeing_satellite.satellite_meta_data[planet_name].rocket_silos = {} end
 
@@ -104,8 +102,7 @@ function rocket_silo_repository.delete_rocket_silo_data_by_unit_number(planet_na
   if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
   if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
     -- If it doesn't exist, generate it
-    storage.all_seeing_satellite.satellite_meta_data[planet_name] = Satellite_Meta_Data:new()
-    Satellite_Meta_Data.save_satellite_meta_data(planet_name)
+    if (not Satellite_Meta_Data.save_satellite_meta_data(planet_name).valid) then return return_val end
   end
   if (not storage.all_seeing_satellite.satellite_meta_data[planet_name].rocket_silos) then storage.all_seeing_satellite.satellite_meta_data[planet_name].rocket_silos = {} end
 
@@ -137,8 +134,7 @@ function rocket_silo_repository.get_rocket_silo_data(planet_name, unit_number, o
   if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
   if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
     -- If it doesn't exist, generate it
-    storage.all_seeing_satellite.satellite_meta_data[planet_name] = Satellite_Meta_Data:new()
-    Satellite_Meta_Data.save_satellite_meta_data(planet_name)
+    if (not Satellite_Meta_Data.save_satellite_meta_data(planet_name).valid) then return return_val end
   end
   if (not storage.all_seeing_satellite.satellite_meta_data[planet_name].rocket_silos) then storage.all_seeing_satellite.satellite_meta_data[planet_name].rocket_silos = {} end
 

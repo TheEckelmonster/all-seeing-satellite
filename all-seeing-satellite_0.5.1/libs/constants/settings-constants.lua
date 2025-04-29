@@ -106,6 +106,16 @@ settings_constants.settings.SATELLITE_SCAN_MODE = {
   allowed_values = { "queue", "stack" }
 }
 
+settings_constants.settings.SATELLITE_BASE_QUALITY_FACTOR = {
+  type = "double-setting",
+  name = "all-seeing-satellite-satellite-base-quality-factor",
+  setting_type = "runtime-global",
+  order = "bbb",
+  default_value = 1.3,
+  -- maximum_value = 11,
+  minimum_value = 1,
+}
+
 settings_constants.all_seeing_satellite = true
 
 local _settings_constants = settings_constants

@@ -1,0 +1,12 @@
+{
+	"name": "all-seeing-satellite",
+	"version": "0.5.1",
+	"factorio_version": "2.0",
+	"title": "All Seeing Satellite",
+	"author": "TheEckelmonster",
+	"description": "Once again launch satellites into space! Let them be your eyes in the sky. After launching sufficient satellites, unlock the ability to toggle on and off the fog of war, scan new territory, or enter 'Satellite Mode'",
+	"dependencies": [
+		"base >= 2.0.43",
+		"space-age >= 2.0.43"
+	]
+}

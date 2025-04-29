@@ -64,7 +64,7 @@ function satellite_meta_repository.update_satellite_meta_data(update_data, optio
   if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
   if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
     -- If it doesn't exist, generate it
-    satellite_meta_repository.save_satellite_meta_data(planet_name)
+    return satellite_meta_repository.save_satellite_meta_data(planet_name)
   end
 
   local satellite_meta_data = storage.all_seeing_satellite.satellite_meta_data[planet_name]

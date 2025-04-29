@@ -1,4 +1,18 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.1
+Date: 29. 04. 2025
+  Bug fixes:
+    - Satellite quality effects are no longer hard-coded and are now programmatically calculated
+      Should (hopefully) allow for support of mod added quality levels
+      The difference between "Epic" and "Legendary" should now match Vanilla more appropriately
+      - Formula now is as follows:
+      -> Settings_Service.get_satellite_base_quality_factor()^(prototypes.quality[quality].level)
+      - Where satellite_base_quality_factor default is 1.3
+      -> Is a configurable runtime setting
+      Thanks to sh4dow for the suggestion and pointers!
+    - Updated initialization/version validation logic
+      Should maintain satellite data on version updates
+---------------------------------------------------------------------------------------------------
 Version: 0.5.0
 Date: 26. 04. 2025
   Minor Features:

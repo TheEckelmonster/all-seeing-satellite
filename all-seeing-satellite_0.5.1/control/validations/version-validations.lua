@@ -29,7 +29,7 @@ function version_validations.validate_version()
       else
         game.print(Constants.mod_name .. ": Version is invalid relative to current installed version: (" .. Version_Data.string_val .. ")")
       end
-      game.print(Constants.mod_name .. ": If this error persists, recommend executing command /more_enemies.init")
+      game.print(Constants.mod_name .. ": If this error persists, recommend executing command /all_seeing.init")
     end
     return return_val
   end -- local validate_fun = function ()

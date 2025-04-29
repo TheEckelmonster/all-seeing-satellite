@@ -97,23 +97,13 @@ function satellite_utils.get_quality_multiplier(quality)
 
   local return_val = 1
 
-  -- TODO: Make these configurable
-  local exp = 0
-  local b = 1.3
+  if (not quality or not type(quality) == "string") then return return_val end
+  if (not prototypes) then return return_val end
+  if (not prototypes.quality) then return return_val end
+  if (not prototypes.quality[quality]) then return return_val end
+  if (not prototypes.quality[quality].level) then return return_val end
 
-  if (quality == "normal") then
-    return_val = b^(exp + 0) -- 1
-  elseif (quality == "uncommon") then
-    return_val = b^(exp + 1) -- 1.3
-  elseif (quality == "rare") then
-    return_val = b^(exp + 2) -- 1.69
-  elseif (quality == "epic") then
-    return_val = b^(exp + 3) -- 2.197
-  elseif (quality == "legendary") then
-    return_val = b^(exp + 4) -- 2.8561
-  end
-
-  return return_val
+  return Settings_Service.get_satellite_base_quality_factor()^(prototypes.quality[quality].level)
 end
 
 satellite_utils.all_seeing_satellite = true

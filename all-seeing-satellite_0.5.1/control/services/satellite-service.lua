@@ -91,7 +91,7 @@ function satellite_service.recalculate_satellite_time_to_die(tick)
   if (tick > 1) then
     local all_satellite_data = Satellite_Repository.get_all_satellite_data()
     for _, satellite_data in pairs(all_satellite_data) do
-      satellite_data.tick_to_die = Satellite_Utils.calculate_tick_to_die(satellite_data.created, satellite_data)
+      satellite_data.tick_to_die = Satellite_Utils.calculate_tick_to_die(satellite_data.created, satellite_data.entity)
     end
   end
 end
