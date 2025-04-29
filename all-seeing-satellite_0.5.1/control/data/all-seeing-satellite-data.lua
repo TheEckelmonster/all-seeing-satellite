@@ -20,9 +20,9 @@ function all_seeing_satellite_data:new(obj)
   obj = obj and Data:new(obj) or Data:new()
 
   local defaults = {
-    satellite_meta_data = self.satellite_meta_data,
-    staged_areas_to_chart = self.staged_areas_to_chart,
-    staged_chunks_to_chart = self.staged_chunks_to_chart,
+    satellite_meta_data = {},
+    staged_areas_to_chart = {},
+    staged_chunks_to_chart = {},
     version_data = self.version_data,
     warn_technology_not_available_yet = self.warn_technology_not_available_yet,
   }

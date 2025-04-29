@@ -228,9 +228,9 @@ function log_print_message(message, log_level, traceback)
   -- Always print the traceback for a nil message
   -- log("traceback: " .. serpent.block(traceback))
   -- log("message: " .. serpent.block(message))
-  if (message == nil and not traceback) then
-    traceback = true
-  end
+  -- if (message == nil and not traceback) then
+  --   traceback = true
+  -- end
 
   -- Always traceback messages that were broadcasted via logging
   -- or anything that used the .none(..) method
