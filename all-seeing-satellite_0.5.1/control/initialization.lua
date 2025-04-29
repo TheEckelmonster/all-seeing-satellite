@@ -3,8 +3,6 @@ if _initialization and _initialization.all_seeing_satellite then
   return _initialization
 end
 
-local initialization = {}
-
 local All_Seeing_Satellite_Data = require("control.data.all-seeing-satellite-data")
 local All_Seeing_Satellite_Repository = require("control.repositories.all-seeing-satellite-repository")
 local Character_Repository = require("control.repositories.character-repository")
@@ -22,6 +20,10 @@ local String_Utils = require("control.utils.string-utils")
 local Version_Data = require("control.data.version-data")
 local Version_Service = require("control.services.version-service")
 
+local initialization = {}
+
+initialization.last_version_result = nil
+
 function initialization.init()
   log("Initializing All Seeing Satellites")
   Log.debug("Initializing All Seeing Satellites")
@@ -36,21 +38,36 @@ function initialization.reinit()
   return initialize(false) -- as is
 end
 
-function initialize(from_scratch)
+function initialize(from_scratch, maintain_satellites)
+  Log.debug("initialize")
+  Log.info(from_scratch)
+  Log.info(maintain_satellites)
+
   local all_seeing_satellite_data = All_Seeing_Satellite_Repository.get_all_seeing_satellite_data()
   Log.info(all_seeing_satellite_data)
 
   all_seeing_satellite_data.do_nth_tick = false
 
   from_scratch = from_scratch or false
+  maintain_satellites = maintain_satellites or false
 
   if (not from_scratch) then
     -- Version check
     local version_data = all_seeing_satellite_data.version_data
     if (version_data and not version_data.valid) then
+      local version = initialization.last_version_result
+      if (not version) then goto initialize end
+      if (not version.major or not version.minor or not version.bug_fix) then goto initialize end
+      if (not version.major.valid) then goto initialize end
+      if (not version.minor.valid or not version.bug_fix.valid) then
+        return initialize(true, true)
+      end
+
+      ::initialize::
       return initialize(true)
     else
       local version = Version_Service.validate_version()
+      initialization.last_version_result = version
       if (not version or not version.valid) then
         version_data.valid = false
         return all_seeing_satellite_data
@@ -73,7 +90,7 @@ function initialize(from_scratch)
     storage.storage_old = _storage
 
     -- do migrations
-    migrate()
+    migrate(maintain_satellites)
 
     local version_data = all_seeing_satellite_data.version_data
     version_data.valid = true
@@ -96,7 +113,6 @@ function initialize(from_scratch)
           Log.warn("Invalid player data detected")
           Log.debug(player_data)
           goto continue
-          return
         end
       end
 
@@ -137,9 +153,12 @@ function initialize(from_scratch)
   for k, planet in pairs(planets) do
     -- Search for planets
     if (planet and not String_Utils.find_invalid_substrings(planet.name)) then
-
       if (from_scratch or not all_seeing_satellite_data.satellite_meta_data[planet.name]) then
-        all_seeing_satellite_data.satellite_meta_data[planet.name] = Satellite_Meta_Repository.save_satellite_meta_data(planet.name)
+        if (not maintain_satellites) then
+          Satellite_Meta_Repository.save_satellite_meta_data(planet.name)
+        else
+          Satellite_Meta_Repository.get_satellite_meta_data(planet.name)
+        end
       end
 
       local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(planet.name)
@@ -201,20 +220,34 @@ function add_rocket_silo(satellite_meta_data, rocket_silo)
   Rocket_Silo_Repository.save_rocket_silo_data(rocket_silo)
 end
 
-function migrate()
+function migrate(maintain_satellites)
+  Log.debug("migrate")
+  Log.info(maintain_satellites)
+
   local storage_old = storage.storage_old
   if (not storage_old) then return end
   if (not type(storage_old) == "table") then return end
 
   -- Satellites
   if (storage_old.satellites_in_orbit ~= nil and type(storage_old.satellites_in_orbit) == "table") then
-    for planet_name, satellites in pairs(storage_old.satellites_in_orbit) do
-      for i, satellite in pairs(satellites) do
+  for planet_name, satellites in pairs(storage_old.satellites_in_orbit) do
+    for i, satellite in pairs(satellites) do
         Satellite_Repository.save_satellite_data(satellite)
       end
     end
 
     storage_old.satellites_in_orbit = nil
+  end
+
+  if (maintain_satellites) then
+    if (storage_old.all_seeing_satellite) then
+      local all_satellite_meta_data = storage_old.all_seeing_satellite.satellite_meta_data or {}
+      for planet_name, satellite_meta_data in pairs(all_satellite_meta_data) do
+        Satellite_Meta_Repository.get_satellite_meta_data(planet_name)
+        Satellite_Meta_Repository.update_satellite_meta_data(satellite_meta_data)
+      end
+      storage_old.all_seeing_satellite.satellite_meta_data = nil
+    end
   end
 
   -- Satellite launch count

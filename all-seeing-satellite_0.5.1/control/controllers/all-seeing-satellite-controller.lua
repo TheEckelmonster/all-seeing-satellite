@@ -6,6 +6,7 @@ end
 local All_Seeing_Satellite_Service = require("control.services.all-seeing-satellite-service")
 local All_Seeing_Satellite_Repository = require("control.repositories.all-seeing-satellite-repository")
 local Constants = require("libs.constants.constants")
+local Initialization = require("control.initialization")
 local Log = require("libs.log.log")
 local Fog_Of_War_Service = require("control.services.fog-of-war-service")
 local Planet_Utils = require("control.utils.planet-utils")
@@ -40,7 +41,10 @@ function all_seeing_satellite_controller.do_tick(event)
   if (tick_modulo ~= 0) then return end
 
   -- Check/validate the storage version
-  if (not Version_Validations.validate_version()) then return end
+  if (not Version_Validations.validate_version()) then
+    Initialization.reinit()
+    return
+  end
 
   if (not Constants.planets_dictionary) then Constants.get_planets(true) end
   all_seeing_satellite_controller.planet_index, all_seeing_satellite_controller.planet = next(Constants.planets_dictionary, all_seeing_satellite_controller.planet_index)
