@@ -230,8 +230,8 @@ function migrate(maintain_satellites)
 
   -- Satellites
   if (storage_old.satellites_in_orbit ~= nil and type(storage_old.satellites_in_orbit) == "table") then
-  for planet_name, satellites in pairs(storage_old.satellites_in_orbit) do
-    for i, satellite in pairs(satellites) do
+    for planet_name, satellites in pairs(storage_old.satellites_in_orbit) do
+      for i, satellite in pairs(satellites) do
         Satellite_Repository.save_satellite_data(satellite)
       end
     end

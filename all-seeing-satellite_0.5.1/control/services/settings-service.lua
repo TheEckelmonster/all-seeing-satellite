@@ -122,6 +122,17 @@ function settings_service.get_satellite_scan_cooldown_duration()
   return setting
 end
 
+-- SATELLITE_BASE_QUALITY_FACTOR
+function settings_service.get_satellite_base_quality_factor()
+  local setting = Settings_Constants.settings.SATELLITE_BASE_QUALITY_FACTOR.default_value
+
+  if (settings and settings.global and settings.global[Settings_Constants.settings.SATELLITE_BASE_QUALITY_FACTOR.name]) then
+    setting = settings.global[Settings_Constants.settings.SATELLITE_BASE_QUALITY_FACTOR.name].value
+  end
+
+  return setting
+end
+
 function settings_service.mod_setting_changed(event)
   Log.info(event)
   if (event and event.setting) then
