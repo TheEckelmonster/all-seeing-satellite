@@ -1,11 +1,12 @@
 $mod = "all-seeing-satellite"
-$version = "0.5.1"
+$version = "0.6.0"
 
 $mod_directory = $mod + "_"
 $full = $mod_directory + $version
 
 # Path to your mod
-$dev_path = "G:\Factorio\Mods\dev\" + $mod
+#$dev_path = "G:\Factorio\Mods\dev\" + $mod
+$dev_path = "D:\mods\_dev\Factorio\" + $mod
 # Default path to Factorio mods
 $destination = $env:APPDATA + "\Factorio\mods\"
 
