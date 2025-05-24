@@ -3,11 +3,11 @@ if _all_seeing_satellite_commands and _all_seeing_satellite_commands.all_seeing_
   return _all_seeing_satellite_commands
 end
 
-local All_Seeing_Satellite_Repository = require("control.repositories.all-seeing-satellite-repository")
-local Initialization = require("control.initialization")
+local All_Seeing_Satellite_Repository = require("scripts.repositories.all-seeing-satellite-repository")
+local Initialization = require("scripts.initialization")
 local Log = require("libs.log.log")
-local Player_Repository = require("control.repositories.player-repository")
-local Satellite_Meta_Repository = require("control.repositories.satellite-meta-repository")
+local Player_Repository = require("scripts.repositories.player-repository")
+local Satellite_Meta_Repository = require("scripts.repositories.satellite-meta-repository")
 
 local all_seeing_satellite_commands = {}
 

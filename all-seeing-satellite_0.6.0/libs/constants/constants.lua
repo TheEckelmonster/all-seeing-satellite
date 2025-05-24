@@ -4,8 +4,8 @@ if _constants and _constants.all_seeing_satellite then
 end
 
 local Log = require("libs.log.log")
-local Planet_Data = require("control.data.planet-data")
-local String_Utils = require("control.utils.string-utils")
+local Planet_Data = require("scripts.data.planet-data")
+local String_Utils = require("scripts.utils.string-utils")
 
 local constants = {}
 
