@@ -40,25 +40,40 @@ function player_service.toggle_satellite_mode(event)
   end
 
   if (player and player.valid and player_data.valid and physical_surface and physical_surface.valid) then
+
+    Player_Repository.update_player_data({
+      player_index = player_index,
+      physical_position = player.physical_position,
+      position = player.position,
+    })
+
     if (player.controller_type == defines.controllers.god) then
-      if (player_data.controller_type == defines.controllers.character) then
-        local character_position
-        if (not player_data.character_data.character or not player_data.character_data.character.valid) then
-          character_position = player_data.character_data.position
-        else
-          character_position = player_data.character_data.character.position
-        end
+      -- Log.error("1")
+      -- if (player_data.controller_type == defines.controllers.character) then
+      --   Log.error("2")
+      --   local character_position
+      --   if (not player_data.character_data.character or not player_data.character_data.character.valid) then
+      --     Log.error("3")
+      --     character_position = player_data.character_data.position
+      --   else
+      --     Log.error("4")
+      --     character_position = player_data.character_data.character.position
+      --   end
+      --   Log.error("5")
 
-        local no_character = false
-        if (character_position == nil) then
-          no_character = true
-          character_position = player_data.position
-        end
+      --   local no_character = false
+      --   if (character_position == nil) then
+      --     Log.error("6")
+      --     no_character = true
+      --     character_position = player_data.position
+      --   end
+      --   Log.error("7")
 
-        position_to_place =     physical_surface.can_place_entity({ name = "character", position = character_position })
-                            and character_position
-                            or physical_surface.find_non_colliding_position("character", character_position, 42, 0.01)
-      end
+      --   position_to_place = physical_surface.can_place_entity({ name = "character", position = character_position })
+      --                   and character_position
+      --                   or  physical_surface.find_non_colliding_position("character", character_position, 42, 0.01)
+      -- end
+      -- Log.error("8")
 
       -- raise_teleported = true
       player.teleport(position_to_place, physical_surface, true)
@@ -73,14 +88,25 @@ function player_service.toggle_satellite_mode(event)
     elseif (player.controller_type == defines.controllers.character) then
       player.set_controller({ type = defines.controllers.god })
       update_player_data_fun(player_index, true, player)
+
+      player.zoom_limits = {
+        furthest = { distance = 400, max_distance = 600 },
+        furthest_game_view = { distance = 400, max_distance = 600 }
+      }
     elseif (player.controller_type == defines.controllers.remote) then
       local toggled = false
 
-      if (player_data.controller_type == defines.controllers.remote or player_data.controller_type == defines.controllers.god) then
-        toggled = false
-      elseif (player_data.controller_type == defines.controllers.character) then
+      -- if (player_data.controller_type == defines.controllers.remote or player_data.controller_type == defines.controllers.god) then
+      --   toggled = false
+      -- elseif (player_data.controller_type == defines.controllers.character) then
+      if (player_data.controller_type == defines.controllers.character) then
         player.set_controller({ type = defines.controllers.god })
         toggled = true
+
+        player.zoom_limits = {
+          furthest = { distance = 400, max_distance = 600 },
+          furthest_game_view = { distance = 400, max_distance = 600 }
+        }
       end
 
       if (not toggled) then
@@ -96,15 +122,16 @@ end
 function player_service.disable_satellite_mode_and_die(data)
   if (not data or type(data) ~= "table") then return end
   if (not data.player_index) then return end
+
+  local player_index = data.player_index
+  if (player_index < 0) then return end
+
   if (not data.character) then
     local player = game.get_player(player_index)
     if (not player or not player.valid) then return end
     if (not player.character or not player.character.valid) then return end
     data.character = player.character
   end
-
-  local player_index = data.player_index
-  if (player_index < 0) then return end
 
   local character = data.character
   if (not character or not character.valid) then return end
@@ -120,18 +147,27 @@ function player_service.disable_satellite_mode_and_die(data)
 
   local character_position = character.position
 
-  position_to_place =     surface.can_place_entity({ name = "character", position = character_position })
-                      and character_position
-                      or surface.find_non_colliding_position("character", character_position, 84, 0.01)
+
+  local player_data = Player_Repository.get_player_data(player_index)
+  if (not player_data or not player_data.valid) then return end
+
+  -- -- local position_to_place = surface.can_place_entity({ name = "character", position = character_position })
+  -- --                       and character_position
+  -- --                       or  surface.find_non_colliding_position("character", character_position, 84, 0.01)
+  -- local position_to_place = surface.can_place_entity({ name = "character", position = character_position })
+  --                       and character_position
+  --                       or  player_data.physical_position
 
   -- raise_teleported = true
-  player.teleport(position_to_place, surface, true)
+  -- player.teleport(position_to_place, surface, true)
+  -- player.teleport(position_to_place, surface)
+  -- player.teleport(character_position, surface, true)
   player.set_controller({ type = defines.controllers.god })
   player.create_character(character)
   player.game_view_settings.show_surface_list = true
 
-  local player_data = Player_Repository.get_player_data(player_index)
-  if (not player_data.valid) then return end
+  -- local player_data = Player_Repository.get_player_data(player_index)
+  -- if (not player_data.valid) then return end
 
   player.force = player_data.force_index_stashed or 1
 
@@ -159,6 +195,8 @@ function player_service.disable_satellite_mode_and_die(data)
       entity = actual_corpse,
     })
   end
+
+  player.teleport(actual_corpse.position, surface, true)
 end
 
 player_service.all_seeing_satellite = true
