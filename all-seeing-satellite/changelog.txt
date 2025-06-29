@@ -1,7 +1,14 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.6.0
-Date: 2025-05-24
+Date: 2025-06-29
   Minor Features:
+    - Extended how far the player can zoom out in Satellite Mode thanks to player.zoom_limits added in 2.0.46
+  Bug Fixes:
+    - Fixed extreme lag/crashing when toggling Satellite Mode over non-placeable tiles
+      - i.e. When in Mech Armor over a large body of water, lava, etc..
+    - Similarly to the above, when the player dies and their character was over non-placeable tiles, their view should now be appropriately teleported to where the character actually died
+      - Was previously looking for the closest placeable position, and teleporting the player's view there
+      - Can't seem to find a solution for the ping being misplaced when the character dies though, apologies
   Misc:
     - Changed changelog date format
 ---------------------------------------------------------------------------------------------------
