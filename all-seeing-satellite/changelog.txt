@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.6.1
+Date: 2025-07-31
+  Bug Fixes:
+    - Fixed FoW not toggling properly after visiting a surface for the first time
+  Misc:
+    - Added Space Age mod portal flag
+---------------------------------------------------------------------------------------------------
 Version: 0.6.0
 Date: 2025-06-29
   Minor Features:

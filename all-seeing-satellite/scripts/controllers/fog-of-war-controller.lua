@@ -8,6 +8,7 @@ local Log = require("libs.log.log")
 local Constants = require("libs.constants.constants")
 local Custom_Input_Constants = require("libs.constants.custom-input-constants")
 local Fog_Of_War_Utils = require("scripts.utils.fog-of-war-utils")
+local Initialization = require("scripts.initialization")
 local Planet_Utils = require("scripts.utils.planet-utils")
 local Research_Utils = require("scripts.utils.research-utils")
 local Satellite_Meta_Repository = require("scripts.repositories.satellite-meta-repository")
@@ -78,6 +79,8 @@ function fog_of_war_controller.toggle(event)
   if (not satellite_meta_data.valid) then return end
 
   local satellites_toggled = satellite_meta_data.satellites_toggled
+
+  if (not satellites_toggled or not satellites_toggled.valid) then Initialization.reinit() end
 
   if (player and player.surface and player.surface.name) then
     local surface_name = player.surface.name
