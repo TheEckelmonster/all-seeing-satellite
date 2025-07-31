@@ -1,5 +1,7 @@
 $mod = "all-seeing-satellite"
-$version = "0.6.0"
+$version = "0.6.1"
+
+$7ZipPath = "D:/7-Zip/7z.exe"
 
 $versioned_mod = $mod + "_" + $version
 
@@ -21,7 +23,8 @@ del ($dev_full_versioned + $zip)
 
 # Zip the contents of the mod folder
 Write-Output ("Zipping " + ($dev_full + "/") + " to " + ($dev_full_versioned + $zip))
-Compress-Archive ($dev_full + "/") ($dev_full_versioned + $zip)
+# Compress-Archive ($dev_full + "/") ($dev_full_versioned + $zip)
+& $7ZipPath a -tzip ($dev_full_versioned + $zip) ($dev_full)
 
 # Delete the old .zip file from the Factorio/mods folder
 Write-Output ("Deleteing " + ($destination + $versioned_mod + $zip))

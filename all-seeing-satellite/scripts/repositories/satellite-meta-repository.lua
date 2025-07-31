@@ -6,6 +6,7 @@ end
 local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
 local Satellite_Meta_Data = require("scripts.data.satellite.satellite-meta-data")
+local Satellite_Toggle_Data = require("scripts.data.satellite.satellite-toggle-data")
 local String_Utils = require("scripts.utils.string-utils")
 
 local satellite_meta_repository = {}
@@ -39,6 +40,13 @@ function satellite_meta_repository.save_satellite_meta_data(planet_name, optiona
   return_val = storage.all_seeing_satellite.satellite_meta_data[planet_name]
   return_val.planet_name = planet_name
   return_val.surface_index = surface.index
+
+  return_val.satellites_toggled = Satellite_Toggle_Data:new({
+    planet_name = planet_name,
+    toggle = false,
+    valid = true
+  })
+
   return_val.valid = true
 
   return satellite_meta_repository.update_satellite_meta_data(return_val)
@@ -113,9 +121,9 @@ function satellite_meta_repository.get_satellite_meta_data(planet_name, optional
 
   if (not game) then return return_val end
   if (not planet_name or type(planet_name) ~= "string") then return return_val end
-  
+
   optionals = optionals or {}
-  
+
   if (not storage) then return return_val end
   if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
   if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
