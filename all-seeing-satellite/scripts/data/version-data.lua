@@ -13,7 +13,7 @@ version_data.minor = Minor_Data:new()
 version_data.minor.value = 6
 version_data.minor.valid = true
 version_data.bug_fix = Bug_Fix_Data:new()
-version_data.bug_fix.value = 0
+version_data.bug_fix.value = 1
 version_data.bug_fix.valid = true
 
 version_data.string_val = version_data.major.value .. "." .. version_data.minor.value .. "." .. version_data.bug_fix.value
