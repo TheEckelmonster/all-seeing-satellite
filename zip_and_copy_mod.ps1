@@ -1,5 +1,5 @@
 $mod = "all-seeing-satellite"
-$version = "0.6.1"
+$version = "0.6.2"
 
 $7ZipPath = "D:/7-Zip/7z.exe"
 

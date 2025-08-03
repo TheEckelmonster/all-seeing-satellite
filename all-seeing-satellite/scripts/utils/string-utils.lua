@@ -58,14 +58,22 @@ function string_utils.get_planet_magnitude(string)
     return
   end
 
-  local i, j = string.find(string, "all-seeing-satellite-", 1, true)
+  local i, j = string:find("all-seeing-satellite-", 1, true)
 
   if (j) then
     Log.debug("Found prefix")
-    local x, y = string.find(string, "_", j + 1, true)
+    local x, y = string:find("_", #string - 4, true)
+
     if (y) then
       Log.debug("Getting planet magnitude")
-      return string.sub(string, y + 1, -1) / String_Constants.PLANET_MAGNITUDE_DECIMAL_SHIFT.value
+
+      local unshifted_magnitude = string.sub(string, y + 1, -1)
+
+      if (not type(unshifted_magnitude) == "number") then return end
+
+      Log.debug(unshifted_magnitude)
+
+      return unshifted_magnitude / String_Constants.PLANET_MAGNITUDE_DECIMAL_SHIFT.value
     end
   end
 end
