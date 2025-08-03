@@ -62,7 +62,8 @@ function string_utils.get_planet_magnitude(string)
 
   if (j) then
     Log.debug("Found prefix")
-    local x, y = string.find(string, "_", -1, true)
+    local x, y = string:find("_", #string - 4, true)
+
     if (y) then
       Log.debug("Getting planet magnitude")
 
