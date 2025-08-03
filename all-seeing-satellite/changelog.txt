@@ -3,8 +3,8 @@ Version: 0.6.3
 Date: 2025-08-03
   Bug Fixes:
     - Stopped using ~hacky method of getting/passing a planet's magnitude from the Data stage to the Control stage
-     - Now using the custom defined 'mod-data' prototype added in version 2.0.60
-     -> Aids in compatibility going forward/should be more compatibile out of the box now
+      - Now using the custom defined 'mod-data' prototype added in version 2.0.60
+      -> Aids in compatibility going forward/should be more compatibile out of the box now
 ---------------------------------------------------------------------------------------------------
 Version: 0.6.2
 Date: 2025-08-02
