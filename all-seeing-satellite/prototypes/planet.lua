@@ -13,6 +13,8 @@ for k, planet in pairs(data.raw.planet) do
 
   temp.name = "all-seeing-satellite-" .. planet.name .. "_" .. (math.floor(magnitude * String_Constants.PLANET_MAGNITUDE_DECIMAL_SHIFT.value))
 
+  -- log(temp.name)
+
   -- TODO: Look into/clean up miscellaneous properties that aren't needed/necessary
   data:extend({ temp })
 end
