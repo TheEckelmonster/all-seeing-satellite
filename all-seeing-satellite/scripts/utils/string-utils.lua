@@ -6,13 +6,16 @@ end
 local Log = require("libs.log.log")
 local String_Constants = require("libs.constants.string-constants")
 
+local locals = {}
+
 local string_utils = {}
 
 function string_utils.find_invalid_substrings(string)
   Log.debug("string_utils.find_invalid_substrings")
   Log.info(string)
 
-  return type(string) ~= "string"
+  -- return type(string) ~= "string"
+  return not locals.is_string_valid(string)
       or string:find("EE_", 1, true)
       or string:find("TEST", 1, true)
       or string:find("test", 1, true)
@@ -23,7 +26,7 @@ function string_utils.is_all_seeing_satellite_added_planet(string)
   Log.debug("string_utils.is_all_seeing_satellite_added_planet")
   Log.info(string)
 
-  if (not is_string_valid(string)) then
+  if (not locals.is_string_valid(string)) then
     return
   end
 
@@ -34,7 +37,7 @@ function string_utils.get_planet_name(string)
   Log.debug("string_utils.get_planet_name")
   Log.info(string)
 
-  if (not is_string_valid(string)) then
+  if (not locals.is_string_valid(string)) then
     return
   end
 
@@ -54,7 +57,7 @@ function string_utils.get_planet_magnitude(string)
   Log.debug("string_utils.get_planet_magnitude")
   Log.info(string)
 
-  if (not is_string_valid(string)) then
+  if (not locals.is_string_valid(string)) then
     return
   end
 
@@ -78,7 +81,7 @@ function string_utils.get_planet_magnitude(string)
   end
 end
 
-function is_string_valid(string)
+locals.is_string_valid = function (string)
   Log.debug("string_utils, is_string_valid")
   Log.info(string)
 
