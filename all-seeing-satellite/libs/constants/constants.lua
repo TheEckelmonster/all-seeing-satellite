@@ -43,37 +43,25 @@ locals.get_planets = function ()
   constants.planets_dictionary = {}
 
   if (prototypes) then
-    -- local planet_prototypes = prototypes.get_entity_filtered({{ filter = "type", type = "constant-combinator"}})
     local planet_prototypes = prototypes.mod_data["all-seeing-satellite-mod-data"]
-    -- if (planet_prototypes and #planet_prototypes > 0) then
-    --   Log.debug("Found planet prototypes")
-    -- end
+
     if (planet_prototypes and type(planet_prototypes) == "table") then
       Log.debug("Found planet prototypes")
     end
     Log.info(planet_prototypes)
 
-    -- for key, planet in pairs(planet_prototypes) do
     for planet_name, planet_data in pairs(planet_prototypes.data) do
-      -- if (  String_Utils.is_all_seeing_satellite_added_planet(key)
-      --   and planet and planet.valid)
-      -- then
       if (  not String_Utils.find_invalid_substrings(planet_name)
         and planet_data and type(planet_data) == "table")
       then
         Log.debug("Found valid planet")
-        -- Log.info(planet)
         Log.info(planet_data)
-        -- local planet_name = String_Utils.get_planet_name(key)
         if (planet_name and game) then
-          -- TODO: Need to add functionality to change '-' to '_' within planet_name
-          -- Do I though?
           local planet_surface = game.get_surface(planet_name)
-          -- local planet_magnitude = String_Utils.get_planet_magnitude(key)
           local planet_magnitude = planet_data.magnitude
 
-          if (not planet_magnitude) then
-            Log.warn("No planet magnitude found, defaulting to 1")
+          if (not planet_magnitude or type(planet_magnitude) ~= "number" or planet_magnitude <= 0) then
+            Log.warn("Planet magnitude not found, or was invalid - defaulting to 1")
             planet_magnitude = 1
           end
 

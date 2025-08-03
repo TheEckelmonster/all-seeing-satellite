@@ -1,21 +1,10 @@
-local String_Constants = require("libs.constants.string-constants")
-
 local planet_magnitude_data = {
   type = "mod-data",
   name = "all-seeing-satellite-mod-data",
   data = {},
 }
 
--- Create a copy of the constant combinator
--- -> Why constant-combinator? Not really sure...something, something, I'm
---    hacking it to pass *constant* data from the data stage to the control stage
-for k, planet in pairs(data.raw.planet) do
-  -- local temp = util.table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
-
-  -- local temp = {}
-  -- temp.type = "mod-data"
-  -- temp.data = {}
-  -- temp.data.magnitude = 1
+for _, planet in pairs(data.raw.planet) do
 
   local magnitude = 1
 
@@ -28,16 +17,7 @@ for k, planet in pairs(data.raw.planet) do
       magnitude = magnitude,
     }
   end
-
-  -- temp.data.magnitude = magnitude
-
-  -- temp.name = "all-seeing-satellite-" .. planet.name .. "_" .. (math.floor(magnitude * String_Constants.PLANET_MAGNITUDE_DECIMAL_SHIFT.value))
-
-  -- log(temp.name)
-
-  -- TODO: Look into/clean up miscellaneous properties that aren't needed/necessary
-  -- data:extend({ temp })
 end
 
-log(serpent.block(planet_magnitude_data))
+-- log(serpent.block(planet_magnitude_data))
 data:extend({ planet_magnitude_data })

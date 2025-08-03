@@ -6,9 +6,10 @@ end
 local Constants = require("libs.constants.constants")
 local Log = require("libs.log.log")
 local Satellite_Meta_Repository = require("scripts.repositories.satellite-meta-repository")
--- local Settings_Constants = require("libs.constants.settings-constants")
 local Settings_Service = require("scripts.services.settings-service")
 local String_Utils = require("scripts.utils.string-utils")
+
+local locals = {}
 
 local planet_utils = {}
 
@@ -55,7 +56,7 @@ function planet_utils.planet_launch_threshold(surface_name)
 
   if (String_Utils.find_invalid_substrings(surface_name)) then return end
 
-  local planet_magnitude = get_planet_magnitude(surface_name)
+  local planet_magnitude = locals.get_planet_magnitude(surface_name)
   local return_val = Settings_Service.get_global_launch_satellite_threshold(surface_name) * Settings_Service.get_global_launch_satellite_threshold_modifier(surface_name) * planet_magnitude^2
 
   if (planet_magnitude < 1) then
@@ -82,7 +83,7 @@ function planet_utils.allow_scan(surface_name)
   return satellite_meta_data and satellite_meta_data.valid and (satellite_meta_data.satellites_in_orbit > 0 or #satellite_meta_data.satellites > 0)
 end
 
-function get_planet_magnitude(surface_name)
+locals.get_planet_magnitude = function (surface_name)
   Log.debug("planet_utils.get_planet_magnitude")
   Log.info(surface_name)
 
