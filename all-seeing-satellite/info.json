@@ -6,8 +6,9 @@
 	"author": "TheEckelmonster",
 	"description": "Once again launch satellites into space! Let them be your eyes in the sky. After launching sufficient satellites, unlock the ability to toggle on and off the fog of war, scan new territory, or enter 'Satellite Mode'",
 	"dependencies": [
-		"base >= 2.0.60",
-		"space-age >= 2.0.60"
-	],
-	"quality_required": true
+		"base >= 2.0.69",
+        "TheEckelmonster-core-library >= 0.1.0",
+		"space-age >= 2.0.69",
+        "? enable-all-feature-flags >= 1.0.2"
+	]
 }

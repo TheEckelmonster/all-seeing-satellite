@@ -3,6 +3,8 @@ if _initialization and _initialization.all_seeing_satellite then
     return _initialization
 end
 
+local TECL_Core_Utils = require("__TheEckelmonster-core-library__.libs.utils.core-utils")
+
 local All_Seeing_Satellite_Data = require("scripts.data.all-seeing-satellite-data")
 local All_Seeing_Satellite_Repository = require("scripts.repositories.all-seeing-satellite-repository")
 local Character_Repository = require("scripts.repositories.character-repository")
@@ -19,26 +21,28 @@ local Version_Service = require("scripts.services.version-service")
 
 local initialization = {}
 
+local locals = {}
+
 initialization.last_version_result = nil
 
 function initialization.init()
     log("Initializing All Seeing Satellites")
     Log.debug("Initializing All Seeing Satellites")
 
-    return initialize(true) -- from_scratch
+    return locals.initialize(true) -- from_scratch
 end
 
 function initialization.reinit()
     log("Reinitializing All Seeing Satellites")
     Log.debug("Reinitializing All Seeing Satellites")
 
-    return initialize(false) -- as is
+    return locals.initialize(false) -- as is
 end
 
-function initialize(from_scratch, maintain_satellites)
+function locals.initialize(from_scratch, maintain_data)
     Log.debug("initialize")
     Log.info(from_scratch)
-    Log.info(maintain_satellites)
+    Log.info(maintain_data)
 
     local all_seeing_satellite_data = All_Seeing_Satellite_Repository.get_all_seeing_satellite_data()
     Log.info(all_seeing_satellite_data)
@@ -46,7 +50,7 @@ function initialize(from_scratch, maintain_satellites)
     all_seeing_satellite_data.do_nth_tick = false
 
     from_scratch = from_scratch or false
-    maintain_satellites = maintain_satellites or false
+    maintain_data = maintain_data or false
 
     if (not from_scratch) then
         -- Version check
@@ -57,11 +61,11 @@ function initialize(from_scratch, maintain_satellites)
             if (not version.major or not version.minor or not version.bug_fix) then goto initialize end
             if (not version.major.valid) then goto initialize end
             if (not version.minor.valid or not version.bug_fix.valid) then
-                return initialize(true, true)
+                return locals.initialize(true, true)
             end
 
             ::initialize::
-            return initialize(true)
+            return ilocals.nitialize(true)
         else
             local version = Version_Service.validate_version()
             initialization.last_version_result = version
@@ -87,7 +91,7 @@ function initialize(from_scratch, maintain_satellites)
         storage.storage_old = _storage
 
         -- do migrations
-        migrate(maintain_satellites)
+        locals.migrate(maintain_data)
 
         local version_data = all_seeing_satellite_data.version_data
         version_data.valid = true
@@ -151,7 +155,7 @@ function initialize(from_scratch, maintain_satellites)
         -- Search for planets
         if (planet and not String_Utils.find_invalid_substrings(planet.name)) then
             if (from_scratch or not all_seeing_satellite_data.satellite_meta_data[planet.name]) then
-                if (not maintain_satellites) then
+                if (not maintain_data) then
                     Satellite_Meta_Repository.save_satellite_meta_data(planet.name)
                 else
                     Satellite_Meta_Repository.get_satellite_meta_data(planet.name)
@@ -183,7 +187,7 @@ function initialize(from_scratch, maintain_satellites)
                 for i = 1, #rocket_silos do
                     local rocket_silo = rocket_silos[i]
                     if (rocket_silo and rocket_silo.valid and rocket_silo.surface) then
-                        add_rocket_silo(satellite_meta_data, rocket_silo)
+                        locals.add_rocket_silo(satellite_meta_data, rocket_silo)
                     end
                 end
             end
@@ -203,7 +207,7 @@ function initialize(from_scratch, maintain_satellites)
     return all_seeing_satellite_data
 end
 
-function add_rocket_silo(satellite_meta_data, rocket_silo)
+function locals.add_rocket_silo(satellite_meta_data, rocket_silo)
     Log.debug("add_rocket_silo")
     Log.info(satellite_meta_data)
     Log.info(rocket_silo)
@@ -217,13 +221,15 @@ function add_rocket_silo(satellite_meta_data, rocket_silo)
     Rocket_Silo_Repository.save_rocket_silo_data(rocket_silo)
 end
 
-function migrate(maintain_satellites)
+function locals.migrate(maintain_data)
     Log.debug("migrate")
-    Log.info(maintain_satellites)
+    Log.info(maintain_data)
 
     local storage_old = storage.storage_old
     if (not storage_old) then return end
     if (not type(storage_old) == "table") then return end
+
+    TECL_Core_Utils.table.reassign(storage_old, storage, { field = "player_data" })
 
     -- Satellites
     if (storage_old.satellites_in_orbit ~= nil and type(storage_old.satellites_in_orbit) == "table") then
@@ -236,7 +242,7 @@ function migrate(maintain_satellites)
         storage_old.satellites_in_orbit = nil
     end
 
-    if (maintain_satellites) then
+    if (maintain_data) then
         if (storage_old.all_seeing_satellite) then
             local all_satellite_meta_data = storage_old.all_seeing_satellite.satellite_meta_data or {}
             for planet_name, satellite_meta_data in pairs(all_satellite_meta_data) do
