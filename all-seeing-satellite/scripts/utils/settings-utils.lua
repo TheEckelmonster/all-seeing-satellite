@@ -1,6 +1,6 @@
 -- If already defined, return
 if _settings_utils and _settings_utils.all_seeing_satellite then
-  return _settings_utils
+    return _settings_utils
 end
 
 local Log = require("libs.log.log")

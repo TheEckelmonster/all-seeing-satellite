@@ -24,31 +24,31 @@ chunk_to_chart_data.stack = { i = 0, j = 0, }
 chunk_to_chart_data.started = false
 
 function chunk_to_chart_data:new(obj)
-  Log.debug("chunk_to_chart_data:new")
-  Log.info(obj)
+    Log.debug("chunk_to_chart_data:new")
+    Log.info(obj)
 
-  obj = obj and Data:new(obj) or Data:new()
+    obj = obj and Data:new(obj) or Data:new()
 
-  local defaults = {
-    area = self.area,
-    center = { x = 0, y = 0, },
-    complete = self.complete,
-    id = self.id,
-    parent_id = self.parent_id,
-    player_index = self.player_index,
-    pos = { x = 0, y = 0, },
-    radius = self.radius,
-    surface = self.surface,
-    started = self.started,
-  }
+    local defaults = {
+        area = self.area,
+        center = { x = 0, y = 0, },
+        complete = self.complete,
+        id = self.id,
+        parent_id = self.parent_id,
+        player_index = self.player_index,
+        pos = { x = 0, y = 0, },
+        radius = self.radius,
+        surface = self.surface,
+        started = self.started,
+    }
 
-  for k, v in pairs(defaults) do
-    if (obj[k] == nil) then obj[k] = v end
-  end
+    for k, v in pairs(defaults) do
+        if (obj[k] == nil) then obj[k] = v end
+    end
 
-  setmetatable(obj, self)
-  self.__index = self
-  return obj
+    setmetatable(obj, self)
+    self.__index = self
+    return obj
 end
 
 return chunk_to_chart_data

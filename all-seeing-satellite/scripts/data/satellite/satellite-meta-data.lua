@@ -15,31 +15,31 @@ satellite_meta_data.scanned = false
 satellite_meta_data.surface_index = -1
 
 function satellite_meta_data:new(obj)
-  Log.debug("satellite_meta_data:new")
-  Log.info(obj)
+    Log.debug("satellite_meta_data:new")
+    Log.info(obj)
 
-  obj = obj and Data:new(obj) or Data:new()
+    obj = obj and Data:new(obj) or Data:new()
 
-  local defaults = {
-    planet_name = self.planet_name,
-    rocket_silos = {},
-    satellites = {},
-    satellites_cooldown = {},
-    satellites_in_orbit = self.satellites_in_orbit,
-    satellites_launched = self.satellites_launched,
-    satellites_toggled = {},
-    satellite_toggled_by_player = self.satellite_toggled_by_player,
-    scanned = self.scanned,
-    surface_index = self.surface_index,
-  }
+    local defaults = {
+        planet_name = self.planet_name,
+        rocket_silos = {},
+        satellites = {},
+        satellites_cooldown = {},
+        satellites_in_orbit = self.satellites_in_orbit,
+        satellites_launched = self.satellites_launched,
+        satellites_toggled = {},
+        satellite_toggled_by_player = self.satellite_toggled_by_player,
+        scanned = self.scanned,
+        surface_index = self.surface_index,
+    }
 
-  for k, v in pairs(defaults) do
-    if (obj[k] == nil) then obj[k] = v end
-  end
+    for k, v in pairs(defaults) do
+        if (obj[k] == nil) then obj[k] = v end
+    end
 
-  setmetatable(obj, self)
-  self.__index = self
-  return obj
+    setmetatable(obj, self)
+    self.__index = self
+    return obj
 end
 
 return satellite_meta_data

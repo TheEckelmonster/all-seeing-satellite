@@ -15,17 +15,17 @@ local Settings_Service = require("scripts.services.settings-service")
 local nth_tick = Settings_Service.get_nth_tick()
 
 if (not nth_tick or nth_tick <= 0) then
-  nth_tick = Settings_Constants.settings.NTH_TICK.value
+    nth_tick = Settings_Constants.settings.NTH_TICK.value
 end
 
 local on_entity_died_filter = {}
 
 for _, v in pairs(Rocket_Silo_Controller.filter) do
-  table.insert(on_entity_died_filter, v)
+    table.insert(on_entity_died_filter, v)
 end
 
 for _, v in pairs(Player_Controller.filter) do
-  table.insert(on_entity_died_filter, v)
+    table.insert(on_entity_died_filter, v)
 end
 
 --
@@ -50,9 +50,9 @@ script.on_event(defines.events.on_pre_player_removed, Player_Controller.pre_play
 script.on_event(defines.events.on_surface_cleared, Player_Controller.surface_cleared)
 script.on_event(defines.events.on_surface_deleted, Player_Controller.surface_deleted)
 script.on_event(defines.events.on_player_changed_surface, Player_Controller.changed_surface)
-script.on_event(defines.events.on_cargo_pod_finished_ascending, function (event)
-  Player_Controller.cargo_pod_finished_ascending(event)
-  Satellite_Controller.track_satellite_launches_ordered(event)
+script.on_event(defines.events.on_cargo_pod_finished_ascending, function(event)
+    Player_Controller.cargo_pod_finished_ascending(event)
+    Satellite_Controller.track_satellite_launches_ordered(event)
 end) -- script.on_event(defines.events.on_cargo_pod_finished_ascending
 script.on_event(defines.events.on_cargo_pod_finished_descending, Player_Controller.cargo_pod_finished_descending)
 script.on_event(defines.events.on_player_toggled_map_editor, Player_Controller.player_toggled_map_editor)
@@ -71,17 +71,17 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, Settings_Controll
 script.on_event(defines.events.on_player_selected_area, Scan_Chunk_Controller.stage_selected_chunks)
 script.on_event(defines.events.on_player_reverse_selected_area, Scan_Chunk_Controller.clear_selected_chunks)
 
-script.on_event(defines.events.on_entity_died, function (event)
-  if (not event) then return end
-  if (not event.entity or not event.entity.name) then return end
+script.on_event(defines.events.on_entity_died, function(event)
+        if (not event) then return end
+        if (not event.entity or not event.entity.name) then return end
 
-  if (event.entity.name == "character") then
-    Player_Controller.entity_died(event)
-  elseif (event.entity.name == "rocket-silo") then
-    Rocket_Silo_Controller.rocket_silo_mined(event)
-  end
-end,
-  on_entity_died_filter
+        if (event.entity.name == "character") then
+            Player_Controller.entity_died(event)
+        elseif (event.entity.name == "rocket-silo") then
+            Rocket_Silo_Controller.rocket_silo_mined(event)
+        end
+    end,
+    on_entity_died_filter
 ) -- script.on_event(defines.events.on_entity_died
 
 --

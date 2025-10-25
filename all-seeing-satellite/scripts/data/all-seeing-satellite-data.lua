@@ -14,26 +14,26 @@ all_seeing_satellite_data.staged_chunks_to_chart = {}
 all_seeing_satellite_data.version_data = Version_Data:new()
 
 function all_seeing_satellite_data:new(obj)
-  Log.debug("all_seeing_satellite_data:new")
-  Log.info(obj)
+    Log.debug("all_seeing_satellite_data:new")
+    Log.info(obj)
 
-  obj = obj and Data:new(obj) or Data:new()
+    obj = obj and Data:new(obj) or Data:new()
 
-  local defaults = {
-    satellite_meta_data = {},
-    staged_areas_to_chart = {},
-    staged_chunks_to_chart = {},
-    version_data = self.version_data,
-    warn_technology_not_available_yet = self.warn_technology_not_available_yet,
-  }
+    local defaults = {
+        satellite_meta_data = {},
+        staged_areas_to_chart = {},
+        staged_chunks_to_chart = {},
+        version_data = self.version_data,
+        warn_technology_not_available_yet = self.warn_technology_not_available_yet,
+    }
 
-  for k, v in pairs(defaults) do
-    if (obj[k] == nil) then obj[k] = v end
-  end
+    for k, v in pairs(defaults) do
+        if (obj[k] == nil) then obj[k] = v end
+    end
 
-  setmetatable(obj, self)
-  self.__index = self
-  return obj
+    setmetatable(obj, self)
+    self.__index = self
+    return obj
 end
 
 return all_seeing_satellite_data
