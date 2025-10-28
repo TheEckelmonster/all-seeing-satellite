@@ -1,6 +1,5 @@
 local Area_To_Chart_Repository = require("scripts.repositories.scanning.area-to-chart-repository")
 local Chunk_To_Chart_Repository = require("scripts.repositories.scanning.chunk-to-chart-repository")
-local Constants = require("scripts.constants.constants")
 local Planet_Utils = require("scripts.utils.planet-utils")
 local Satellite_Meta_Repository = require("scripts.repositories.satellite-meta-repository")
 local Satellite_Repository = require("scripts.repositories.satellite-repository")

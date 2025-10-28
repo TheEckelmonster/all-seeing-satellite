@@ -1,5 +1,4 @@
 local All_Seeing_Satellite_Repository = require("scripts.repositories.all-seeing-satellite-repository")
-local Constants = require("scripts.constants.constants")
 local Planet_Utils = require("scripts.utils.planet-utils")
 local Research_Utils = require("scripts.utils.research-utils")
 local Satellite_Meta_Repository = require("scripts.repositories.satellite-meta-repository")
@@ -63,6 +62,12 @@ function scan_chunk_controller.stage_selected_chunks(event)
 
     Scan_Chunk_Service.stage_selected_area(event)
 end
+Event_Handler:register_event({
+    event_name = "on_player_selected_area",
+    source_name = "scan_chunk_controller.stage_selected_chunks",
+    func_name = "scan_chunk_controller.stage_selected_chunks",
+    func = scan_chunk_controller.stage_selected_chunks,
+})
 
 function scan_chunk_controller.clear_selected_chunks(event)
     Log.debug("scan_chunk_controller.clear_selected_chunks")
@@ -81,5 +86,11 @@ function scan_chunk_controller.clear_selected_chunks(event)
 
     Scan_Chunk_Service.clear_selected_chunks(event)
 end
+-- Event_Handler:register_event({
+--     event_name = "on_player_reverse_selected_area",
+--     source_name = "scan_chunk_controller.clear_selected_chunks",
+--     func_name = "scan_chunk_controller.clear_selected_chunks",
+--     func = scan_chunk_controller.clear_selected_chunks,
+-- })
 
 return scan_chunk_controller

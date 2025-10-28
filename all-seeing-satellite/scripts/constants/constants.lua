@@ -43,7 +43,7 @@ function constants.get_planet_data(data)
         return
     end
 
-    if (not reindex and constants.mod_data and constants.mod_data.planets and #constants.mod_data.planets > 0) then
+    if (not data.reindex and constants.mod_data and constants.mod_data.planets and #constants.mod_data.planets > 0) then
         return constants.mod_data.planets
     end
 

@@ -1,6 +1,5 @@
 local All_Seeing_Satellite_Data = require("scripts.data.all-seeing-satellite-data")
 local Area_To_Chart_Data = require("scripts.data.scanning.area-to-chart-data")
-local Constants = require("scripts.constants.constants")
 
 local area_to_chart_repository = {}
 

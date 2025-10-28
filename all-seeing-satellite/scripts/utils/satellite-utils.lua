@@ -1,4 +1,3 @@
-local Constants = require("scripts.constants.constants")
 local Satellite_Repository = require("scripts.repositories.satellite-repository")
 
 local quality_active = scripts and scripts.active_mods and scripts.active_mods["quality"]

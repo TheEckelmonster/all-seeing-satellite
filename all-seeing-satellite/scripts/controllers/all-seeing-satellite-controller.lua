@@ -1,6 +1,5 @@
 local All_Seeing_Satellite_Service = require("scripts.services.all-seeing-satellite-service")
 local All_Seeing_Satellite_Repository = require("scripts.repositories.all-seeing-satellite-repository")
-local Constants = require("scripts.constants.constants")
 local Fog_Of_War_Service = require("scripts.services.fog-of-war-service")
 local Planet_Utils = require("scripts.utils.planet-utils")
 local Rocket_Silo_Service = require("scripts.services.rocket-silo-service")

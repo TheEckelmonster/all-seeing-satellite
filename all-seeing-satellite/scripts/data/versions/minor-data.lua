@@ -19,8 +19,11 @@ function minor_data:new(o)
 
     for k, v in pairs(defaults) do if (obj[k] == nil and type(v) ~= "function") then obj[k] = v end end
 
+    obj = Data:new(obj)
+
     setmetatable(obj, self)
     self.__index = self
+
     return obj
 end
 

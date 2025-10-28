@@ -1,6 +1,5 @@
 local Area_To_Chart_Repository = require("scripts.repositories.scanning.area-to-chart-repository")
 local Chunk_To_Chart_Repository = require("scripts.repositories.scanning.chunk-to-chart-repository")
-local Constants = require("scripts.constants.constants")
 
 local scan_chunk_service = {}
 

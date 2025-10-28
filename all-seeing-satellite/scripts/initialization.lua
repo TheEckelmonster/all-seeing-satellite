@@ -3,7 +3,6 @@ local TECL_Core_Utils = require("__TheEckelmonster-core-library__.libs.utils.cor
 local All_Seeing_Satellite_Data = require("scripts.data.all-seeing-satellite-data")
 local All_Seeing_Satellite_Repository = require("scripts.repositories.all-seeing-satellite-repository")
 local Character_Repository = require("scripts.repositories.character-repository")
-local Constants = require("scripts.constants.constants")
 local Player_Repository = require("scripts.repositories.player-repository")
 local Research_Utils = require("scripts.utils.research-utils")
 local Rocket_Silo_Repository = require("scripts.repositories.rocket-silo-repository")

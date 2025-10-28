@@ -1,4 +1,3 @@
-local Constants = require("scripts.constants.constants")
 local Satellite_Meta_Repository = require("scripts.repositories.satellite-meta-repository")
 local String_Utils = require("scripts.utils.string-utils")
 

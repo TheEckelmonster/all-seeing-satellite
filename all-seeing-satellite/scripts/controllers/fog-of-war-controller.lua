@@ -1,5 +1,4 @@
 local All_Seeing_Satellite_Repository = require("scripts.repositories.all-seeing-satellite-repository")
-local Constants = require("scripts.constants.constants")
 local Custom_Input_Constants = require("libs.constants.custom-input-constants")
 local Fog_Of_War_Utils = require("scripts.utils.fog-of-war-utils")
 local Initialization = require("scripts.initialization")
@@ -35,6 +34,12 @@ function fog_of_war_controller.toggle_scanning(event)
     end
     all_seeing_satellite_data.updated = game.tick
 end
+Event_Handler:register_event({
+    event_name = Custom_Input_Constants.TOGGLE_SCANNING.name,
+    source_name = "fog_of_war_controller.toggle_scanning",
+    func_name = "fog_of_war_controller.toggle_scanning",
+    func = fog_of_war_controller.toggle_scanning,
+})
 
 function fog_of_war_controller.cancel_scanning(event)
     Log.debug("fog_of_war_controller.cancel_scanning")
@@ -56,6 +61,12 @@ function fog_of_war_controller.cancel_scanning(event)
     all_seeing_satellite_data.staged_chunks_to_chart = {}
     all_seeing_satellite_data.updated = game.tick
 end
+Event_Handler:register_event({
+    event_name = Custom_Input_Constants.CANCEL_SCANNING.name,
+    source_name = "fog_of_war_controller.cancel_scanning",
+    func_name = "fog_of_war_controller.cancel_scanning",
+    func = fog_of_war_controller.cancel_scanning,
+})
 
 function fog_of_war_controller.toggle(event)
     Log.debug("fog_of_war_controller.toggle")
@@ -80,9 +91,9 @@ function fog_of_war_controller.toggle(event)
     if (player and player.surface and player.surface.name) then
         local surface_name = player.surface.name
 
-        if (not Planet_Utils.allow_toggle(surface_name)
-                and not Research_Utils.has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name))
-        then
+        if (    not Planet_Utils.allow_toggle(surface_name)
+            and not Research_Utils.has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name)
+        ) then
             player.print("Rocket Silo/Satellite not researched yet")
             return
         end
@@ -124,5 +135,11 @@ function fog_of_war_controller.toggle(event)
         end
     end
 end
+Event_Handler:register_event({
+    event_name = Custom_Input_Constants.FOG_OF_WAR_TOGGLE.name,
+    source_name = "fog_of_war_controller.toggle",
+    func_name = "fog_of_war_controller.toggle",
+    func = fog_of_war_controller.toggle,
+})
 
 return fog_of_war_controller

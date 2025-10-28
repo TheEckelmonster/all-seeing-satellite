@@ -1,4 +1,3 @@
-local Constants = require("scripts.constants.constants")
 local Satellite_Meta_Data = require("scripts.data.satellite.satellite-meta-data")
 local Satellite_Toggle_Data = require("scripts.data.satellite.satellite-toggle-data")
 local String_Utils = require("scripts.utils.string-utils")

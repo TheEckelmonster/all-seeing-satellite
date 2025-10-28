@@ -1,5 +1,5 @@
 local Character_Repository = require("scripts.repositories.character-repository")
-local Constants = require("scripts.constants.constants")
+local Custom_Input_Constants = require("libs.constants.custom-input-constants")
 local Planet_Utils = require("scripts.utils.planet-utils")
 local Player_Service = require("scripts.services.player-service")
 local Player_Repository = require("scripts.repositories.player-repository")
@@ -9,8 +9,6 @@ local String_Utils = require("scripts.utils.string-utils")
 
 local player_controller = {}
 player_controller.name = "player_controller"
-
-player_controller.filter = { { filter = "name", name = "character" } }
 
 function player_controller.toggle_satellite_mode(event)
     Log.debug("player_controller.toggle_satellite_mode")
@@ -82,9 +80,15 @@ function player_controller.toggle_satellite_mode(event)
 
     Player_Service.toggle_satellite_mode(event)
 end
+Event_Handler:register_event({
+    event_name = Custom_Input_Constants.TOGGLE_SATELLITE_MODE.name,
+    source_name = "player_controller.toggle_satellite_mode",
+    func_name = "player_controller.toggle_satellite_mode",
+    func = player_controller.toggle_satellite_mode,
+})
 
-function player_controller.player_created(event)
-    Log.debug("player_controller.player_created")
+function player_controller.on_player_created(event)
+    Log.debug("player_controller.on_player_created")
     Log.info(event)
 
     if (not event) then return end
@@ -92,9 +96,15 @@ function player_controller.player_created(event)
 
     Player_Repository.save_player_data(event.player_index)
 end
+Event_Handler:register_event({
+    event_name = "on_player_created",
+    source_name = "player_controller.on_player_created",
+    func_name = "player_controller.on_player_created",
+    func = player_controller.on_player_created,
+})
 
-function player_controller.pre_player_died(event)
-    Log.debug("player_controller.pre_player_died")
+function player_controller.on_pre_player_died(event)
+    Log.debug("player_controller.on_pre_player_died")
     Log.info(event)
 
     if (not event) then return end
@@ -102,8 +112,14 @@ function player_controller.pre_player_died(event)
 
     Player_Repository.save_player_data(event.player_index)
 end
+Event_Handler:register_event({
+    event_name = "on_pre_player_died",
+    source_name = "player_controller.on_pre_player_died",
+    func_name = "player_controller.on_pre_player_died",
+    func = player_controller.on_pre_player_died,
+})
 
-function player_controller.player_died(event)
+function player_controller.on_player_died(event)
     Log.debug("player_controller.player_died")
     Log.info(event)
 
@@ -112,9 +128,15 @@ function player_controller.player_died(event)
 
     Player_Repository.save_player_data(event.player_index)
 end
+Event_Handler:register_event({
+    event_name = "on_player_died",
+    source_name = "player_controller.on_player_died",
+    func_name = "player_controller.on_player_died",
+    func = player_controller.on_player_died,
+})
 
-function player_controller.entity_died(event)
-    Log.debug("player_controller.entity_died")
+function player_controller.on_entity_died(event)
+    Log.debug("player_controller.on_entity_died")
     Log.info(event)
 
     if (not event) then return end
@@ -142,14 +164,20 @@ function player_controller.entity_died(event)
         if (not player_data or not player_data.valid) then return end
 
         if (player_data.satellite_mode_toggled) then
-            Player_Service.disable_satellite_mode_and_die({ player_index = character_data.player_index, character = event
-            .entity })
+            Player_Service.disable_satellite_mode_and_die({ player_index = character_data.player_index, character = event.entity })
         end
     end
 end
+Event_Handler:register_event({
+    event_name = "on_entity_died",
+    filter = Filters.on_entity_died_filter,
+    source_name = "player_controller.on_entity_died",
+    func_name = "player_controller.on_entity_died",
+    func = player_controller.on_entity_died,
+})
 
-function player_controller.player_respawned(event)
-    Log.debug("player_controller.player_respawned")
+function player_controller.on_player_respawned(event)
+    Log.debug("player_controller.on_player_respawned")
     Log.info(event)
 
     if (not event) then return end
@@ -157,9 +185,15 @@ function player_controller.player_respawned(event)
 
     Player_Repository.save_player_data(event.player_index)
 end
+Event_Handler:register_event({
+    event_name = "on_player_respawned",
+    source_name = "player_controller.on_player_respawned",
+    func_name = "player_controller.on_player_respawned",
+    func = player_controller.on_player_respawned,
+})
 
-function player_controller.player_joined_game(event)
-    Log.debug("player_controller.player_joined_game")
+function player_controller.on_player_joined_game(event)
+    Log.debug("player_controller.on_player_joined_game")
     Log.info(event)
 
     if (not event) then return end
@@ -167,9 +201,15 @@ function player_controller.player_joined_game(event)
 
     Player_Repository.update_player_data({ player_index = event.player_index })
 end
+Event_Handler:register_event({
+    event_name = "on_player_joined_game",
+    source_name = "player_controller.on_player_joined_game",
+    func_name = "player_controller.on_player_joined_game",
+    func = player_controller.on_player_joined_game,
+})
 
-function player_controller.pre_player_left_game(event)
-    Log.debug("player_controller.pre_player_left_game")
+function player_controller.on_pre_player_left_game(event)
+    Log.debug("player_controller.on_pre_player_left_game")
     Log.info(event)
 
     if (not event) then return end
@@ -177,9 +217,15 @@ function player_controller.pre_player_left_game(event)
 
     Player_Repository.save_player_data(event.player_index)
 end
+Event_Handler:register_event({
+    event_name = "on_pre_player_left_game",
+    source_name = "player_controller.on_pre_player_left_game",
+    func_name = "player_controller.on_pre_player_left_game",
+    func = player_controller.on_pre_player_left_game,
+})
 
-function player_controller.pre_player_removed(event)
-    Log.debug("player_controller.pre_player_removed")
+function player_controller.on_pre_player_removed(event)
+    Log.debug("player_controller.on_pre_player_removed")
     Log.info(event)
 
     if (not event) then return end
@@ -187,9 +233,15 @@ function player_controller.pre_player_removed(event)
 
     Player_Repository.delete_player_data(event.player_index)
 end
+Event_Handler:register_event({
+    event_name = "on_pre_player_removed",
+    source_name = "player_controller.on_pre_player_removed",
+    func_name = "player_controller.on_pre_player_removed",
+    func = player_controller.on_pre_player_removed,
+})
 
-function player_controller.surface_cleared(event)
-    Log.debug("player_controller.surface_cleared")
+function player_controller.on_surface_cleared(event)
+    Log.debug("player_controller.on_surface_cleared")
     Log.info(event)
 
     if (not event) then return end
@@ -203,9 +255,15 @@ function player_controller.surface_cleared(event)
         end
     end
 end
+Event_Handler:register_event({
+    event_name = "on_surface_cleared",
+    source_name = "player_controller.on_surface_cleared",
+    func_name = "player_controller.on_surface_cleared",
+    func = player_controller.on_surface_cleared,
+})
 
-function player_controller.surface_deleted(event)
-    Log.debug("player_controller.surface_deleted")
+function player_controller.on_surface_deleted(event)
+    Log.debug("player_controller.on_surface_deleted")
     Log.info(event)
 
     if (not event) then return end
@@ -219,9 +277,15 @@ function player_controller.surface_deleted(event)
         end
     end
 end
+Event_Handler:register_event({
+    event_name = "on_surface_deleted",
+    source_name = "player_controller.on_surface_deleted",
+    func_name = "player_controller.on_surface_deleted",
+    func = player_controller.on_surface_deleted,
+})
 
-function player_controller.changed_surface(event)
-    Log.debug("player_controller.changed_surface")
+function player_controller.on_player_changed_surface(event)
+    Log.debug("player_controller.on_player_changed_surface")
     Log.info(event)
 
     if (not event) then return end
@@ -241,9 +305,15 @@ function player_controller.changed_surface(event)
         Log.debug("4")
     end
 end
+Event_Handler:register_event({
+    event_name = "on_player_changed_surface",
+    source_name = "player_controller.on_player_changed_surface",
+    func_name = "player_controller.on_player_changed_surface",
+    func = player_controller.on_player_changed_surface,
+})
 
-function player_controller.cargo_pod_finished_ascending(event)
-    Log.debug("player_controller.cargo_pod_finished_ascending")
+function player_controller.on_cargo_pod_finished_ascending(event)
+    Log.debug("player_controller.on_cargo_pod_finished_ascending")
     Log.info(event)
 
     if (not event) then return end
@@ -251,9 +321,15 @@ function player_controller.cargo_pod_finished_ascending(event)
 
     Player_Repository.save_player_data(event.player_index)
 end
+Event_Handler:register_event({
+    event_name = "on_cargo_pod_finished_ascending",
+    source_name = "player_controller.on_cargo_pod_finished_ascending",
+    func_name = "player_controller.on_cargo_pod_finished_ascending",
+    func = player_controller.on_cargo_pod_finished_ascending,
+})
 
-function player_controller.cargo_pod_finished_descending(event)
-    Log.debug("player_controller.cargo_pod_finished_descending")
+function player_controller.on_cargo_pod_finished_descending(event)
+    Log.debug("player_controller.on_cargo_pod_finished_descending")
     Log.info(event)
 
     if (not event) then return end
@@ -268,9 +344,15 @@ function player_controller.cargo_pod_finished_descending(event)
         Player_Repository.save_player_data(event.player_index)
     end
 end
+Event_Handler:register_event({
+    event_name = "on_cargo_pod_finished_descending",
+    source_name = "player_controller.on_cargo_pod_finished_descending",
+    func_name = "player_controller.on_cargo_pod_finished_descending",
+    func = player_controller.on_cargo_pod_finished_descending,
+})
 
-function player_controller.rocket_launch_ordered(event)
-    Log.debug("player_controller.rocket_launch_ordered")
+function player_controller.on_rocket_launch_ordered(event)
+    Log.debug("player_controller.on_rocket_launch_ordered")
     Log.info(event)
 
     if (not event) then return end
@@ -292,9 +374,15 @@ function player_controller.rocket_launch_ordered(event)
         Player_Repository.save_player_data(passenger.player.index)
     end
 end
+Event_Handler:register_event({
+    event_name = "on_rocket_launch_ordered",
+    source_name = "player_controller.on_rocket_launch_ordered",
+    func_name = "player_controller.on_rocket_launch_ordered",
+    func = player_controller.on_rocket_launch_ordered,
+})
 
-function player_controller.player_toggled_map_editor(event)
-    Log.debug("player_controller.player_toggled_map_editor")
+function player_controller.on_player_toggled_map_editor(event)
+    Log.debug("player_controller.on_player_toggled_map_editor")
     Log.info(event)
 
     if (not game) then return end
@@ -324,9 +412,15 @@ function player_controller.player_toggled_map_editor(event)
         end
     end
 end
+Event_Handler:register_event({
+    event_name = "on_player_toggled_map_editor",
+    source_name = "player_controller.on_player_toggled_map_editor",
+    func_name = "player_controller.on_player_toggled_map_editor",
+    func = player_controller.on_player_toggled_map_editor,
+})
 
-function player_controller.pre_player_toggled_map_editor(event)
-    Log.debug("player_controller.pre_player_toggled_map_editor")
+function player_controller.on_pre_player_toggled_map_editor(event)
+    Log.debug("player_controller.on_pre_player_toggled_map_editor")
     Log.info(event)
 
     if (not game) then return end
@@ -362,9 +456,15 @@ function player_controller.pre_player_toggled_map_editor(event)
         })
     end
 end
+Event_Handler:register_event({
+    event_name = "on_pre_player_toggled_map_editor",
+    source_name = "player_controller.on_pre_player_toggled_map_editor",
+    func_name = "player_controller.on_pre_player_toggled_map_editor",
+    func = player_controller.on_pre_player_toggled_map_editor,
+})
 
-function player_controller.cutscene_cancelled(event)
-    Log.debug("player_controller.cutscene_cancelled")
+function player_controller.on_cutscene_cancelled(event)
+    Log.debug("player_controller.on_cutscene_cancelled")
     Log.info(event)
 
     if (not event) then return end
@@ -372,9 +472,15 @@ function player_controller.cutscene_cancelled(event)
 
     Player_Repository.save_player_data(event.player_index)
 end
+Event_Handler:register_event({
+    event_name = "on_cutscene_cancelled",
+    source_name = "player_controller.on_cutscene_cancelled",
+    func_name = "player_controller.on_cutscene_cancelled",
+    func = player_controller.on_cutscene_cancelled,
+})
 
-function player_controller.cutscene_finished(event)
-    Log.debug("player_controller.cutscene_finished")
+function player_controller.on_cutscene_finished(event)
+    Log.debug("player_controller.on_cutscene_finished")
     Log.info(event)
 
     if (not event) then return end
@@ -382,5 +488,11 @@ function player_controller.cutscene_finished(event)
 
     Player_Repository.save_player_data(event.player_index)
 end
+Event_Handler:register_event({
+    event_name = "on_cutscene_finished",
+    source_name = "player_controller.on_cutscene_finished",
+    func_name = "player_controller.on_cutscene_finished",
+    func = player_controller.on_cutscene_finished,
+})
 
 return player_controller

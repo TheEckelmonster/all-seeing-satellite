@@ -3,6 +3,7 @@ local Satellite_Repository = require("scripts.repositories.satellite-repository"
 local Rocket_Silo_Repository = require("scripts.repositories.rocket-silo-repository")
 
 local rocket_silo_utils = {}
+rocket_silo_utils.name = "rocket_silo_utils"
 
 function rocket_silo_utils.mine_rocket_silo(event)
     Log.debug("rocket_silo_utils.mine_rocket_silo")

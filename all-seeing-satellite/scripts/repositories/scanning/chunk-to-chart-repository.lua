@@ -1,6 +1,5 @@
 local All_Seeing_Satellite_Data = require("scripts.data.all-seeing-satellite-data")
 local Chunk_To_Chart_Data = require("scripts.data.scanning.chunk-to-chart-data")
-local Constants = require("scripts.constants.constants")
 
 local chunk_to_chart_repository = {}
 

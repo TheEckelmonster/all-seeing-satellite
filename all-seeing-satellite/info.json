@@ -8,6 +8,7 @@
 	"dependencies": [
 		"base >= 2.0.69",
         "TheEckelmonster-core-library >= 0.1.0",
-		"? quality >= 2.0.69"
+		"? quality >= 2.0.69",
+        "(?) space-age >= 2.0.69"
 	]
 }

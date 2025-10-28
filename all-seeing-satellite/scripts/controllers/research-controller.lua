@@ -1,12 +1,11 @@
-local Constants = require("scripts.constants.constants")
 local Player_Repository = require("scripts.repositories.player-repository")
 local String_Utils = require("scripts.utils.string-utils")
 
 local research_controller = {}
 research_controller.name = "research_controller"
 
-function research_controller.research_finished(event)
-    Log.debug("research_controller.research_finished")
+function research_controller.on_research_finished(event)
+    Log.debug("research_controller.on_research_finished")
     Log.info(event)
 
     if (not event) then return end
@@ -32,5 +31,11 @@ function research_controller.research_finished(event)
         ::continue::
     end
 end
+Event_Handler:register_event({
+    event_name = "on_research_finished",
+    source_name = "research_controller.on_research_finished",
+    func_name = "research_controller.on_research_finished",
+    func = research_controller.on_research_finished,
+})
 
 return research_controller

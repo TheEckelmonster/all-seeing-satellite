@@ -11,8 +11,8 @@ function data:new(o)
 
     local defaults = {
         valid = self.valid,
-        created = self.created or game and game.tick,
-        updated = self.updated or game and game.tick,
+        created = game and game.tick or 0,
+        updated = game and game.tick or 0,
     }
 
     local obj = o or defaults
@@ -21,6 +21,7 @@ function data:new(o)
 
     setmetatable(obj, self)
     self.__index = self
+
     return obj
 end
 
