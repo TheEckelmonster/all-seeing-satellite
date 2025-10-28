@@ -1,11 +1,4 @@
--- If already defined, return
-if _satellite_repository and _satellite_repository.all_seeing_satellite then
-    return _satellite_repository
-end
-
-local Log = require("libs.log.log")
 local Satellite_Data = require("scripts.data.satellite.satellite-data")
-local Satellite_Meta_Data = require("scripts.data.satellite.satellite-meta-data")
 local Satellite_Meta_Repository = require("scripts.repositories.satellite-meta-repository")
 
 local satellite_repository = {}
@@ -21,6 +14,11 @@ function satellite_repository.save_satellite_data(data, optionals)
     if (not data or type(data) ~= "table") then return return_val end
     if (not data.entity or type(data.entity) ~= "table") then return return_val end
     if (not data.planet_name or type(data.planet_name) ~= "string") then return return_val end
+    if (not data.force or not data.force.valid) then
+        data.force = game.forces["player"]
+        if (not data.force or not data.force.valid) then data.force = { valid = false, index = -1 } end
+    end
+    if (not data.force.index or type(data.force.index) ~= "number") then data.force.index = -1 end
 
     optionals = optionals or {}
 
@@ -35,17 +33,21 @@ function satellite_repository.save_satellite_data(data, optionals)
     if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
     if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
         -- If it doesn't exist, generate it
-        Satellite_Meta_Repository.save_satellite_meta_data(planet_name)
+        if (not Satellite_Meta_Repository.save_satellite_meta_data(planet_name).valid) then return return_val end
     end
 
     local satellite_meta_data = storage.all_seeing_satellite.satellite_meta_data[planet_name]
 
+    return_val.cargo_pod = nil
+    return_val.cargo_pod_unit_number = data.cargo_pod_unit_number
     return_val.entity = data.entity
-    return_val.force = data.force -- Currently nil, TODO: Get a value for this somehow
+    return_val.force = data.force
+    return_val.force_index = data.force_index
     return_val.planet_name = surface.name
     return_val.tick_to_die = data.death_tick or data.tick_to_die or 1
     return_val.tick_off_cooldown = game.tick
     return_val.surface_index = surface.index
+
     return_val.valid = true
 
     table.insert(satellite_meta_data.satellites, return_val)
@@ -55,11 +57,70 @@ function satellite_repository.save_satellite_data(data, optionals)
         planet_name = planet_name,
     })
 
-    return satellite_repository.update_satellite_data(return_val)
+    if (type(return_val.cargo_pod_unit_number) == "number") then
+        satellite_meta_data.satellites_in_transit[return_val.cargo_pod_unit_number] = nil
+        satellite_meta_data.satellite_dictionary[return_val.cargo_pod_unit_number] = return_val
+    end
+
+    return satellite_repository.update_satellite_data(return_val, return_val.cargo_pod_unit_number)
+end
+
+function satellite_repository.save_in_transit_satellite_data(data, optionals)
+    Log.debug("satellite_repository.save_in_transit_satellite_data")
+    Log.info(data)
+    Log.info(optionals)
+
+    local return_val = Satellite_Data:new()
+
+    if (not game) then return return_val end
+    if (not data or type(data) ~= "table") then return return_val end
+    if (not data.entity or type(data.entity) ~= "table") then return return_val end
+    if (not data.planet_name or type(data.planet_name) ~= "string") then return return_val end
+    if (not data.force or not data.force.valid) then
+        data.force = game.forces["player"]
+        if (not data.force or not data.force.valid) then data.force = { valid = false, index = -1 } end
+    end
+    if (not data.force.index or type(data.force.index) ~= "number") then data.force.index = -1 end
+
+    optionals = optionals or {}
+
+    local planet_name = data.planet_name
+    if (not planet_name) then return return_val end
+
+    local surface = game.get_surface(planet_name)
+    if (not surface or not surface.valid) then return end
+
+    if (not storage) then return return_val end
+    if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
+    if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
+    if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
+        -- If it doesn't exist, generate it
+        if (not Satellite_Meta_Repository.save_satellite_meta_data(planet_name).valid) then return return_val end
+    end
+
+    local satellite_meta_data = storage.all_seeing_satellite.satellite_meta_data[planet_name]
+
+    return_val.cargo_pod = data.cargo_pod
+    return_val.cargo_pod_unit_number = data.cargo_pod_unit_number
+    return_val.entity = data.entity
+    return_val.force = data.force
+    return_val.force_index = data.force_index
+    return_val.planet_name = surface.name
+    return_val.tick_to_die = data.death_tick or data.tick_to_die or 1
+    return_val.tick_off_cooldown = game.tick
+    return_val.surface_index = surface.index
+
+    return_val.valid = true
+
+    satellite_meta_data.satellites_in_transit[return_val.cargo_pod_unit_number] = return_val
+    satellite_meta_data.satellite_dictionary[return_val.cargo_pod_unit_number] = return_val
+
+    return return_val
 end
 
 function satellite_repository.add_satellite_data_to_cooldown(data, optionals)
     Log.debug("satellite_repository.add_satellite_data_to_cooldown")
+    Log.info(data)
     Log.info(optionals)
 
     local return_val = false
@@ -85,15 +146,17 @@ function satellite_repository.add_satellite_data_to_cooldown(data, optionals)
     if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
     if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
         -- If it doesn't exist, generate it
-        Satellite_Meta_Repository.save_satellite_meta_data(planet_name)
+        if (not Satellite_Meta_Repository.save_satellite_meta_data(planet_name).valid) then return return_val end
     end
 
     local satellite_meta_data = storage.all_seeing_satellite.satellite_meta_data[planet_name]
 
     local tick = game.tick
-    while (satellite_meta_data.satellites_cooldown[tick] ~= nil) do
-        tick = tick + 1
+    local max = -1
+    for k, v in pairs(satellite_meta_data.satellites_cooldown) do
+        if (k > max) then max = k end
     end
+    tick = max + 1
 
     satellite_meta_data.satellites_cooldown[tick] = satellite
 
@@ -101,7 +164,7 @@ function satellite_repository.add_satellite_data_to_cooldown(data, optionals)
     return return_val
 end
 
-function satellite_repository.update_satellite_data(update_data, index, optionals)
+function satellite_repository.update_satellite_data(update_data, unit_number, optionals)
     Log.debug("satellite_repository.update_satellite_data")
     Log.info(update_data)
     Log.info(index)
@@ -123,16 +186,30 @@ function satellite_repository.update_satellite_data(update_data, index, optional
     if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
     if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
         -- If it doesn't exist, generate it
-        Satellite_Meta_Repository.save_satellite_meta_data(planet_name)
+        if (not Satellite_Meta_Repository.save_satellite_meta_data(planet_name).valid) then return return_val end
     end
 
     local satellite_meta_data = storage.all_seeing_satellite.satellite_meta_data[planet_name]
     -- Use the provided index if it exists; otherwise update the most recently added satellite
-    index = index or #satellite_meta_data.satellites
+    local index = #satellite_meta_data.satellites
 
+    if (type(unit_number) ~= "number") then unit_number = -1 end
+
+    local found = false
     for i, satellite in pairs(satellite_meta_data.satellites) do
-        if (i == index) then
-            return_val = satellite; break
+        if (satellite.cargo_pod_unit_number == unit_number) then
+            return_val = satellite
+            found = true
+            break
+        end
+    end
+
+    if (not found) then
+        for i, satellite in pairs(satellite_meta_data.satellites) do
+            if (i == index) then
+                return_val = satellite
+                break
+            end
         end
     end
 
@@ -263,9 +340,11 @@ function satellite_repository.get_satellite_data(data, optionals)
 
     local satellite_meta_data = storage.all_seeing_satellite.satellite_meta_data[planet_name]
 
-    for i, satellite_data in pairs(satellite_meta_data.satellites) do
-        if (i == index) then
-            return_val = satellite_data; break
+    if (type(satellite_meta_data.satellites) == "table") then
+        for i, satellite_data in pairs(satellite_meta_data.satellites) do
+            if (i == index) then
+                return_val = satellite_data; break
+            end
         end
     end
 
@@ -289,16 +368,13 @@ function satellite_repository.get_all_satellite_data(optionals)
     local all_satellite_meta_data = storage.all_seeing_satellite.satellite_meta_data
 
     for planet_name, satellite_meta_data in pairs(all_satellite_meta_data) do
+        return_val[planet_name] = {}
         for i, satellite_data in pairs(satellite_meta_data.satellites) do
-            table.insert(return_val, satellite_data)
+            table.insert(return_val[planet_name], satellite_data)
         end
     end
 
     return return_val
 end
-
-satellite_repository.all_seeing_satellite = true
-
-local _satellite_repository = satellite_repository
 
 return satellite_repository

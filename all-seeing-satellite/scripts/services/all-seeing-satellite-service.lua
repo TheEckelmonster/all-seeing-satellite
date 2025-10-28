@@ -1,18 +1,13 @@
--- If already defined, return
-if _all_seeing_satellite_service and _all_seeing_satellite_service.all_seeing_satellite then
-    return _all_seeing_satellite_service
-end
-
 local Area_To_Chart_Repository = require("scripts.repositories.scanning.area-to-chart-repository")
 local Chunk_To_Chart_Repository = require("scripts.repositories.scanning.chunk-to-chart-repository")
-local Constants = require("libs.constants.constants")
-local Log = require("libs.log.log")
+local Constants = require("scripts.constants.constants")
 local Planet_Utils = require("scripts.utils.planet-utils")
 local Satellite_Meta_Repository = require("scripts.repositories.satellite-meta-repository")
 local Satellite_Repository = require("scripts.repositories.satellite-repository")
 local Scan_Chunk_Service = require("scripts.services.scan-chunk-service")
-local Settings_Service = require("scripts.services.settings-service")
 local Satellite_Utils = require("scripts.utils.satellite-utils")
+
+local quality_active = scripts and scripts.active_mods and scripts.active_mods["quality"]
 
 local all_seeing_satellite_service = {}
 
@@ -20,7 +15,7 @@ function all_seeing_satellite_service.check_for_areas_to_stage()
     Log.debug("all_seeing_satellite_service.check_for_areas_to_stage")
 
     local optionals = {
-        mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode,
+        mode = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name }) or Constants.optionals.DEFAULT.mode,
     }
 
     local return_val = false
@@ -48,7 +43,7 @@ function all_seeing_satellite_service.check_for_areas_to_stage()
 
     local chunks_to_chart = Chunk_To_Chart_Repository.get_chunk_to_chart_data(optionals)
 
-    if (not Settings_Service.get_restrict_satellite_scanning()) then
+    if (not Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_SCANNING.name })) then
         Scan_Chunk_Service.stage_selected_chunk(area_to_chart, optionals)
     else
         local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(area_to_chart.surface.name)
@@ -92,7 +87,7 @@ end
 function all_seeing_satellite_service.do_scan(surface_name)
     Log.debug("all_seeing_satellite_service.do_scan")
     local optionals = {
-        mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode
+        mode = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name }) or Constants.optionals.DEFAULT.mode
     }
 
     local chunks_to_chart = Chunk_To_Chart_Repository.get_chunk_to_chart_data(optionals)
@@ -146,7 +141,7 @@ function all_seeing_satellite_service.do_scan(surface_name)
         --   end
         -- end
 
-        if (not Settings_Service.get_restrict_satellite_scanning()) then
+        if (not Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_SCANNING.name })) then
             if (Scan_Chunk_Service.scan_selected_chunk(chunk_to_chart, optionals)) then
                 chunks_to_chart[k] = nil
 
@@ -184,8 +179,8 @@ function all_seeing_satellite_service.do_scan(surface_name)
                     if (satellite.tick_off_cooldown < game.tick) then
                         if (Scan_Chunk_Service.scan_selected_chunk(chunk_to_chart, optionals)) then
                             Log.info("scanned")
-                            local quality_modifier = Satellite_Utils.get_quality_multiplier(satellite.quality)
-                            local cooldown_duration = Settings_Service.get_satellite_scan_cooldown_duration()
+                            local quality_modifier = quality_active and Satellite_Utils.get_quality_multiplier(satellite.quality) or 1
+                            local cooldown_duration = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_COOLDOWN_DURATION.name })
                             local use_cooldown = 0
                             if (cooldown_duration > 0) then use_cooldown = 1 end
 
@@ -207,8 +202,7 @@ function all_seeing_satellite_service.do_scan(surface_name)
                             if (chunks_to_chart and #chunks_to_chart == 0) then
                                 local result = Chunk_To_Chart_Repository.delete_chunk_to_chart_data(optionals)
                                 if (result and table_size(result) == 0) then
-                                    Satellite_Meta_Repository.update_satellite_meta_data({ planet_name = chunk_to_chart
-                                    .surface.name, scanned = true, })
+                                    Satellite_Meta_Repository.update_satellite_meta_data({ planet_name = chunk_to_chart.surface.name, scanned = true, })
                                 end
                             end
 
@@ -230,9 +224,5 @@ function all_seeing_satellite_service.do_scan(surface_name)
         i = i + 1
     end
 end
-
-all_seeing_satellite_service.all_seeing_satellite = true
-
-local _all_seeing_satellite_service = all_seeing_satellite_service
 
 return all_seeing_satellite_service

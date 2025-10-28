@@ -1,9 +1,3 @@
--- If already defined, return
-if _all_seeing_satellite_repository and _all_seeing_satellite_repository.all_seeing_satellite then
-    return _all_seeing_satellite_repository
-end
-
-local Log = require("libs.log.log")
 local All_Seeing_Satellite_Data = require("scripts.data.all-seeing-satellite-data")
 
 local all_seeing_satellite_repository = {}
@@ -99,9 +93,5 @@ function all_seeing_satellite_repository.get_all_seeing_satellite_data(optionals
 
     return return_val
 end
-
-all_seeing_satellite_repository.all_seeing_satellite = true
-
-local _all_seeing_satellite_repository = all_seeing_satellite_repository
 
 return all_seeing_satellite_repository

@@ -1,14 +1,5 @@
--- If already defined, return
-if _version_repository and _version_repository.all_seeing_satellite then
-    return _version_repository
-end
-
 local All_Seeing_Satellite_Data = require("scripts.data.all-seeing-satellite-data")
-local Log = require("libs.log.log")
 local Version_Data = require("scripts.data.version-data")
-local Bug_Fix_Data = require("scripts.data.versions.bug-fix-data")
-local Major_Data = require("scripts.data.versions.major-data")
-local Minor_Data = require("scripts.data.versions.minor-data")
 
 local version_repository = {}
 
@@ -85,9 +76,5 @@ function version_repository.get_version_data(optionals)
 
     return storage.all_seeing_satellite.version_data
 end
-
-version_repository.all_seeing_satellite = true
-
-local _version_repository = version_repository
 
 return version_repository

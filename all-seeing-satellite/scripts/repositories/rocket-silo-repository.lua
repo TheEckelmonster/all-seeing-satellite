@@ -1,9 +1,3 @@
--- If already defined, return
-if _rocket_silo_repository and _rocket_silo_repository.all_seeing_satellite then
-    return _rocket_silo_repository
-end
-
-local Log = require("libs.log.log")
 local Rocket_Silo_Data = require("scripts.data.rocket-silo-data")
 local Satellite_Meta_Data = require("scripts.data.satellite.satellite-meta-data")
 
@@ -19,6 +13,7 @@ function rocket_silo_repository.save_rocket_silo_data(rocket_silo, optionals)
     if (not game) then return return_val end
     if (not rocket_silo or not rocket_silo.valid) then return return_val end
     if (not rocket_silo.surface or not rocket_silo.surface.valid) then return return_val end
+    if (not rocket_silo.force or not rocket_silo.force.valid) then return return_val end
 
     optionals = optionals or {}
 
@@ -38,6 +33,11 @@ function rocket_silo_repository.save_rocket_silo_data(rocket_silo, optionals)
 
     return_val.unit_number = rocket_silo.unit_number
     return_val.entity = rocket_silo
+    return_val.surface = rocket_silo.surface
+    return_val.surface_index = rocket_silo.surface.index
+    return_val.force = rocket_silo.force
+    return_val.force_index = rocket_silo.force.index
+
     return_val.valid = true
 
     rocket_silos[return_val.unit_number] = return_val
@@ -142,9 +142,5 @@ function rocket_silo_repository.get_rocket_silo_data(planet_name, unit_number, o
 
     return rocket_silos[unit_number]
 end
-
-rocket_silo_repository.all_seeing_satellite = true
-
-local _rocket_silo_repository = rocket_silo_repository
 
 return rocket_silo_repository

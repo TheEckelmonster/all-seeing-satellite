@@ -1,11 +1,5 @@
--- If already defined, return
-if (_version_validations and _version_validations.all_seeing_satellite) then
-    return _version_validations
-end
-
-local Constants = require("libs.constants.constants")
+local Constants = require("scripts.constants.constants")
 local Initialization = require("scripts.initialization")
-local Log = require("libs.log.log")
 local Version_Data = require("scripts.data.version-data")
 local Version_Service = require("scripts.services.version-service")
 local Version_Repository = require("scripts.repositories.version-repository")
@@ -48,7 +42,4 @@ function version_validations.validate_version()
     return return_val
 end
 
-version_validations.all_seeing_satellite = true
-
-local _version_validations = version_validations
 return version_validations

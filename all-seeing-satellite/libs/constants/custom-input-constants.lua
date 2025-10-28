@@ -1,8 +1,3 @@
--- If already defined, return
-if _custom_input_constants and _custom_input_constants.all_seeing_satellite then
-    return _custom_input_constants
-end
-
 local custom_input_constants = {}
 
 custom_input_constants.FOG_OF_WAR_TOGGLE = {
@@ -46,9 +41,5 @@ custom_input_constants.TOGGLE_SATELLITE_MODE = {
     consuming = "none",
     localised_name = 'Toggle Satellite Mode'
 }
-
-custom_input_constants.all_seeing_satellite = true
-
-local _custom_input_constants = custom_input_constants
 
 return custom_input_constants

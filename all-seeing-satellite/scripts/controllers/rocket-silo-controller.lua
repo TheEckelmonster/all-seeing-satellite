@@ -1,13 +1,8 @@
--- If already defined, return
-if _rocket_silo_controller and _rocket_silo_controller.all_seeing_satellite then
-    return _rocket_silo_controller
-end
-
-local Log = require("libs.log.log")
 local Rocket_Silo_Service = require("scripts.services.rocket-silo-service")
 local String_Utils = require("scripts.utils.string-utils")
 
 local rocket_silo_controller = {}
+rocket_silo_controller.name = "rocket_silo_controller"
 
 rocket_silo_controller.filter = { { filter = "type", type = "rocket-silo" } }
 
@@ -70,9 +65,5 @@ function rocket_silo_controller.launch_rocket(event)
 
     Rocket_Silo_Service.launch_rocket(event)
 end
-
-rocket_silo_controller.all_seeing_satellite = true
-
-local _rocket_silo_controller = rocket_silo_controller
 
 return rocket_silo_controller

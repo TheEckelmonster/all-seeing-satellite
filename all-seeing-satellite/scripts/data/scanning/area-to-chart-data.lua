@@ -1,7 +1,6 @@
 local Data = require("scripts.data.data")
-local Log = require("libs.log.log")
 
-local area_to_chart_data = Data:new()
+local area_to_chart_data = {}
 
 area_to_chart_data.area = {}
 
@@ -23,11 +22,9 @@ area_to_chart_data.stack = { i = 0, j = 0, }
 area_to_chart_data.started = false
 
 
-function area_to_chart_data:new(obj)
+function area_to_chart_data:new(o)
     Log.debug("area_to_chart_data:new")
-    Log.info(obj)
-
-    obj = obj and Data:new(obj) or Data:new()
+    Log.info(o)
 
     local defaults = {
         area = self.area,
@@ -43,13 +40,15 @@ function area_to_chart_data:new(obj)
         started = self.started,
     }
 
-    for k, v in pairs(defaults) do
-        if (obj[k] == nil) then obj[k] = v end
-    end
+    local obj = o or defaults
+
+    for k, v in pairs(defaults) do if (obj[k] == nil and type(v) ~= "function") then obj[k] = v end end
 
     setmetatable(obj, self)
     self.__index = self
     return obj
 end
 
+setmetatable(area_to_chart_data, Data)
+area_to_chart_data.__index = area_to_chart_data
 return area_to_chart_data

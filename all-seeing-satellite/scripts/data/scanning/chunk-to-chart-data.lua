@@ -1,7 +1,6 @@
 local Data = require("scripts.data.data")
-local Log = require("libs.log.log")
 
-local chunk_to_chart_data = Data:new()
+local chunk_to_chart_data = {}
 
 chunk_to_chart_data.area = {}
 
@@ -23,11 +22,9 @@ chunk_to_chart_data.stack = { i = 0, j = 0, }
 
 chunk_to_chart_data.started = false
 
-function chunk_to_chart_data:new(obj)
+function chunk_to_chart_data:new(o)
     Log.debug("chunk_to_chart_data:new")
-    Log.info(obj)
-
-    obj = obj and Data:new(obj) or Data:new()
+    Log.info(o)
 
     local defaults = {
         area = self.area,
@@ -42,13 +39,15 @@ function chunk_to_chart_data:new(obj)
         started = self.started,
     }
 
-    for k, v in pairs(defaults) do
-        if (obj[k] == nil) then obj[k] = v end
-    end
+    local obj = o or defaults
+
+    for k, v in pairs(defaults) do if (obj[k] == nil and type(v) ~= "function") then obj[k] = v end end
 
     setmetatable(obj, self)
     self.__index = self
     return obj
 end
 
+setmetatable(chunk_to_chart_data, Data)
+chunk_to_chart_data.__index = chunk_to_chart_data
 return chunk_to_chart_data

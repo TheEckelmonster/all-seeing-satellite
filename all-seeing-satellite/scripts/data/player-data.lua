@@ -1,8 +1,7 @@
 local Character_Data = require("scripts.data.character-data")
 local Data = require("scripts.data.data")
-local Log = require("libs.log.log")
 
-local player_data = Data:new()
+local player_data = {}
 
 player_data.character_data = Character_Data:new()
 player_data.controller_type = {}
@@ -21,11 +20,9 @@ player_data.satellite_mode_toggled = false
 player_data.surface_index = -1
 player_data.vehicle = nil
 
-function player_data:new(obj)
+function player_data:new(o)
     Log.debug("player_data:new")
-    Log.info(obj)
-
-    obj = obj and Data:new(obj) or Data:new()
+    Log.info(o)
 
     local defaults = {
         character_data = Character_Data:new(),
@@ -46,13 +43,15 @@ function player_data:new(obj)
         vehicle = self.vehicle,
     }
 
-    for k, v in pairs(defaults) do
-        if (obj[k] == nil) then obj[k] = v end
-    end
+    local obj = o or defaults
+
+    for k, v in pairs(defaults) do if (obj[k] == nil and type(v) ~= "function") then obj[k] = v end end
 
     setmetatable(obj, self)
     self.__index = self
     return obj
 end
 
+setmetatable(player_data, Data)
+player_data.__index = player_data
 return player_data

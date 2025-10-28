@@ -1,9 +1,3 @@
--- If already defined, return
-if _character_repository and _character_repository.all_seeing_satellite then
-    return _character_repository
-end
-
-local Log = require("libs.log.log")
 local Character_Data = require("scripts.data.character-data")
 local Player_Data = require("scripts.data.player-data")
 
@@ -161,9 +155,5 @@ function character_repository.get_all_character_data(optionals)
 
     return return_val
 end
-
-character_repository.all_seeing_satellite = true
-
-local _character_repository = character_repository
 
 return character_repository

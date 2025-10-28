@@ -1,12 +1,5 @@
--- If already defined, return
-if _planet_utils and _planet_utils.all_seeing_satellite then
-    return _planet_utils
-end
-
-local Constants = require("libs.constants.constants")
-local Log = require("libs.log.log")
+local Constants = require("scripts.constants.constants")
 local Satellite_Meta_Repository = require("scripts.repositories.satellite-meta-repository")
-local Settings_Service = require("scripts.services.settings-service")
 local String_Utils = require("scripts.utils.string-utils")
 
 local locals = {}
@@ -19,7 +12,7 @@ function planet_utils.allow_toggle(surface_name)
 
     if (String_Utils.find_invalid_substrings(surface_name)) then return false end
 
-    if (not Settings_Service.get_require_satellites_in_orbit()) then return true end
+    if (not Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.REQUIRE_SATELLITES_IN_ORBIT.name })) then return true end
 
     if (surface_name) then
         local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(surface_name)
@@ -36,7 +29,7 @@ function planet_utils.allow_satellite_mode(surface_name)
 
     if (String_Utils.find_invalid_substrings(surface_name)) then return false end
 
-    if (not Settings_Service.get_restrict_satellite_mode()) then return true end
+    if (not Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_MODE.name })) then return true end
 
     if (surface_name) then
         local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(surface_name)
@@ -52,16 +45,16 @@ function planet_utils.planet_launch_threshold(surface_name)
     Log.info(surface_name)
 
     if (not surface_name) then
-        -- Intentionally calling with nil parameter to each, so as to get the default_value for each setting
-        return Settings_Service.get_global_launch_satellite_threshold() *
-        Settings_Service.get_global_launch_satellite_threshold_modifier()
+        return Runtime_Global_Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.default_value
+             * Runtime_Global_Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD_MODIFIER.default_value
     end
 
     if (String_Utils.find_invalid_substrings(surface_name)) then return end
 
     local planet_magnitude = locals.get_planet_magnitude(surface_name)
-    local return_val = Settings_Service.get_global_launch_satellite_threshold(surface_name) *
-    Settings_Service.get_global_launch_satellite_threshold_modifier(surface_name) * planet_magnitude ^ 2
+    local return_val = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.name })
+                     * Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD_MODIFIER.name })
+                     * planet_magnitude ^ 2
 
     if (planet_magnitude < 1) then
         Log.debug("floor")
@@ -80,7 +73,7 @@ function planet_utils.allow_scan(surface_name)
 
     if (not surface_name) then return false end
 
-    if (not Settings_Service.get_restrict_satellite_scanning()) then return true end
+    if (not Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_MODE.name })) then return true end
 
     local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(surface_name)
 
@@ -92,7 +85,7 @@ locals.get_planet_magnitude = function(surface_name)
     Log.debug("planet_utils.get_planet_magnitude")
     Log.info(surface_name)
 
-    local planets = Constants.get_planets()
+    local planets = Constants.get_planet_data()
     local planet_magnitude = 1
 
     if (planets) then
@@ -112,9 +105,5 @@ locals.get_planet_magnitude = function(surface_name)
 
     return planet_magnitude
 end
-
-planet_utils.all_seeing_satellite = true
-
-local _planet_utils = planet_utils
 
 return planet_utils

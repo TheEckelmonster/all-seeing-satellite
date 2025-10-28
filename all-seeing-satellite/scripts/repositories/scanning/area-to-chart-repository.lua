@@ -1,12 +1,6 @@
--- If already defined, return
-if _area_to_chart_repository and _area_to_chart_repository.all_seeing_satellite then
-    return _area_to_chart_repository
-end
-
 local All_Seeing_Satellite_Data = require("scripts.data.all-seeing-satellite-data")
 local Area_To_Chart_Data = require("scripts.data.scanning.area-to-chart-data")
-local Constants = require("libs.constants.constants")
-local Log = require("libs.log.log")
+local Constants = require("scripts.constants.constants")
 
 local area_to_chart_repository = {}
 
@@ -168,7 +162,7 @@ function area_to_chart_repository.get_area_to_chart_data(optionals)
     if (not game) then return return_val end
 
     optionals = optionals or {
-        mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode
+        mode = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name }) or Constants.optionals.DEFAULT.mode
     }
 
     if (not storage) then return return_val end
@@ -202,7 +196,7 @@ function area_to_chart_repository.get_area_to_chart_data_by_index(data, optional
     end
 
     optionals = optionals or {
-        mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode
+        mode = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name }) or Constants.optionals.DEFAULT.mode
     }
 
     if (not storage) then return return_val end
@@ -239,9 +233,5 @@ function area_to_chart_repository.get_all_area_to_chart_data(optionals)
 
     return storage.all_seeing_satellite.staged_areas_to_chart
 end
-
-area_to_chart_repository.all_seeing_satellite = true
-
-local _area_to_chart_repository = area_to_chart_repository
 
 return area_to_chart_repository

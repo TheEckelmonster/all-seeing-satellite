@@ -1,12 +1,6 @@
--- If already defined, return
-if _chunk_to_chart_repository and _chunk_to_chart_repository.all_seeing_satellite then
-    return _chunk_to_chart_repository
-end
-
 local All_Seeing_Satellite_Data = require("scripts.data.all-seeing-satellite-data")
 local Chunk_To_Chart_Data = require("scripts.data.scanning.chunk-to-chart-data")
-local Constants = require("libs.constants.constants")
-local Log = require("libs.log.log")
+local Constants = require("scripts.constants.constants")
 
 local chunk_to_chart_repository = {}
 
@@ -110,7 +104,7 @@ function chunk_to_chart_repository.delete_chunk_to_chart_data(optionals)
     if (not game) then return return_val end
 
     optionals = optionals or {
-        mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode
+        mode = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name }) or Constants.optionals.DEFAULT.mode
     }
 
     if (not storage) then return return_val end
@@ -180,7 +174,7 @@ function chunk_to_chart_repository.get_chunk_to_chart_data(optionals)
     if (not game) then return return_val end
 
     optionals = optionals or {
-        mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode
+        mode = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name }) or Constants.optionals.DEFAULT.mode
     }
 
     if (not storage) then return return_val end
@@ -249,9 +243,5 @@ function chunk_to_chart_repository.get_all_chunk_to_chart_data(optionals)
 
     return storage.all_seeing_satellite.staged_chunks_to_chart
 end
-
-chunk_to_chart_repository.all_seeing_satellite = true
-
-local _chunk_to_chart_repository = chunk_to_chart_repository
 
 return chunk_to_chart_repository

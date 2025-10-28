@@ -1,11 +1,5 @@
--- If already defined, return
-if _fog_of_war_controllerr and _fog_of_war_controllerr.all_seeing_satellite then
-    return _fog_of_war_controllerr
-end
-
 local All_Seeing_Satellite_Repository = require("scripts.repositories.all-seeing-satellite-repository")
-local Log = require("libs.log.log")
-local Constants = require("libs.constants.constants")
+local Constants = require("scripts.constants.constants")
 local Custom_Input_Constants = require("libs.constants.custom-input-constants")
 local Fog_Of_War_Utils = require("scripts.utils.fog-of-war-utils")
 local Initialization = require("scripts.initialization")
@@ -15,6 +9,7 @@ local Satellite_Meta_Repository = require("scripts.repositories.satellite-meta-r
 local String_Utils = require("scripts.utils.string-utils")
 
 local fog_of_war_controller = {}
+fog_of_war_controller.name = "fog_of_war_controller"
 
 function fog_of_war_controller.toggle_scanning(event)
     Log.debug("fog_of_war_controller.toggle_scanning")
@@ -129,9 +124,5 @@ function fog_of_war_controller.toggle(event)
         end
     end
 end
-
-fog_of_war_controller.all_seeing_satellite = true
-
-local _fog_of_war_controllerr = fog_of_war_controller
 
 return fog_of_war_controller

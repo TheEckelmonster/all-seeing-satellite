@@ -1,5 +1,3 @@
-local Log = require("libs.log.log")
-
 local data = {}
 
 -- Audit fields
@@ -7,11 +5,9 @@ data.valid = false
 data.created = nil
 data.updated = nil
 
-function data:new(obj)
+function data:new(o)
     Log.debug("data:new")
-    Log.info(obj)
-
-    obj = obj or {}
+    Log.info(o)
 
     local defaults = {
         valid = self.valid,
@@ -19,9 +15,9 @@ function data:new(obj)
         updated = self.updated or game and game.tick,
     }
 
-    for k, v in pairs(defaults) do
-        if (obj[k] == nil) then obj[k] = v end
-    end
+    local obj = o or defaults
+
+    for k, v in pairs(defaults) do if (obj[k] == nil and type(v) ~= "function") then obj[k] = v end end
 
     setmetatable(obj, self)
     self.__index = self
@@ -33,4 +29,5 @@ function data:is_valid()
     return self.created ~= nil and self.created >= 0 and self.updated ~= nil and self.updated >= self.created
 end
 
+data.__index = data
 return data

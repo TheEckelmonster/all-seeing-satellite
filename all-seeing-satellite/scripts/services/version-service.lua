@@ -1,9 +1,3 @@
--- If already defined, return
-if _version_service and _version_service.all_seeing_satellite then
-    return _version_service
-end
-
-local Log = require("libs.log.log")
 local Version_Data = require("scripts.data.version-data")
 local Version_Repository = require("scripts.repositories.version-repository")
 
@@ -63,9 +57,5 @@ function version_service.validate_version(optionals)
 
     return return_val
 end
-
-version_service.all_seeing_satellite = true
-
-local _version_service = version_service
 
 return version_service

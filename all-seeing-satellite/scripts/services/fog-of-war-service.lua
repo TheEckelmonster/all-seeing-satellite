@@ -1,16 +1,8 @@
--- If already defined, return
-if _fog_of_war_service and _fog_of_war_service.all_seeing_satellite then
-    return _fog_of_war_service
-end
-
-local All_Seeing_Satellite_Repository = require("scripts.repositories.all-seeing-satellite-repository")
-local Log = require("libs.log.log")
 local Planet_Utils = require("scripts.utils.planet-utils")
 local Satellite_Meta_Repository = require("scripts.repositories.satellite-meta-repository")
 
 local fog_of_war_service = {}
 
---- @param planet planet-data
 function fog_of_war_service.toggle_FoW(planet)
     Log.debug("fog_of_war_controller.toggle_FoW")
     Log.info(planet)
@@ -39,9 +31,5 @@ function fog_of_war_service.toggle_FoW(planet)
         end
     end
 end
-
-fog_of_war_service.all_seeing_satellite = true
-
-local _fog_of_war_service = fog_of_war_service
 
 return fog_of_war_service

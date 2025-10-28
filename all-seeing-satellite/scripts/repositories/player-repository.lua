@@ -1,9 +1,3 @@
--- If already defined, return
-if _player_repository and _player_repository.all_seeing_satellite then
-    return _player_repository
-end
-
-local Log = require("libs.log.log")
 local Character_Repository = require("scripts.repositories.character-repository")
 local Player_Data = require("scripts.data.player-data")
 local String_Utils = require("scripts.utils.string-utils")
@@ -179,9 +173,5 @@ function player_repository.get_all_player_data(optionals)
 
     return storage.player_data
 end
-
-player_repository.all_seeing_satellite = true
-
-local _player_repository = player_repository
 
 return player_repository

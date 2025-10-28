@@ -1,14 +1,6 @@
--- If already defined, return
-if _scan_chunk_service and _scan_chunk_service.all_seeing_satellite then
-    return _scan_chunk_service
-end
-
 local Area_To_Chart_Repository = require("scripts.repositories.scanning.area-to-chart-repository")
 local Chunk_To_Chart_Repository = require("scripts.repositories.scanning.chunk-to-chart-repository")
-local Constants = require("libs.constants.constants")
-local Log = require("libs.log.log")
-local Planet_Utils = require("scripts.utils.planet-utils")
-local Settings_Service = require("scripts.services.settings-service")
+local Constants = require("scripts.constants.constants")
 
 local scan_chunk_service = {}
 
@@ -18,7 +10,7 @@ function scan_chunk_service.stage_selected_area(event)
 
     if (not event) then return end
 
-    local optionals = { mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode }
+    local optionals = { mode = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name }) or Constants.optionals.DEFAULT.mode }
 
     Log.debug("staging area")
     Area_To_Chart_Repository.save_area_to_chart_data(event, optionals)
@@ -77,7 +69,7 @@ function scan_chunk_service.stage_selected_chunk(chunk_to_chart, optionals)
     Log.debug("scan_chunk_service.stage_selected_chunk")
     Log.info(chunk_to_chart)
 
-    optionals = optionals or { mode = Settings_Service.get_satellite_scan_mode() }
+    optionals = optionals or { mode = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name }) }
 
     if (not chunk_to_chart) then return end
     Log.debug("1")
@@ -253,7 +245,7 @@ function scan_chunk_service.scan_selected_chunk(chunk_to_chart, optionals)
     Log.info(chunk_to_chart)
 
     optionals = optionals or {
-        mode = Settings_Service.get_satellite_scan_mode() or Constants.optionals.DEFAULT.mode
+        mode = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name }) or Constants.optionals.DEFAULT.mode
     }
 
     local return_val = false
@@ -282,9 +274,5 @@ function scan_chunk_service.scan_selected_chunk(chunk_to_chart, optionals)
     return_val = true
     return return_val
 end
-
-scan_chunk_service.all_seeing_satellite = true
-
-local _scan_chunk_service = scan_chunk_service
 
 return scan_chunk_service

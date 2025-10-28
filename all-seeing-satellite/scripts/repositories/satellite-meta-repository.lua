@@ -1,10 +1,4 @@
--- If already defined, return
-if _satellite_meta_repository and _satellite_meta_repository.all_seeing_satellite then
-    return _satellite_meta_repository
-end
-
-local Constants = require("libs.constants.constants")
-local Log = require("libs.log.log")
+local Constants = require("scripts.constants.constants")
 local Satellite_Meta_Data = require("scripts.data.satellite.satellite-meta-data")
 local Satellite_Toggle_Data = require("scripts.data.satellite.satellite-toggle-data")
 local String_Utils = require("scripts.utils.string-utils")
@@ -21,12 +15,10 @@ function satellite_meta_repository.save_satellite_meta_data(planet_name, optiona
     if (not game) then return return_val end
     if (not planet_name or type(planet_name) ~= "string") then return return_val end
     if (String_Utils.find_invalid_substrings(planet_name)) then return return_val end
-    if (not Constants.planets_dictionary) then Constants.get_planets(true) end
-    if (not Constants.planets_dictionary[planet_name]) then return return_val end
+    if (not Constants.mod_data.planets_dictionary) then Constants.get_planet_data({ reindex = true }) end
+    if (not Constants.mod_data.planets_dictionary[planet_name]) then return return_val end
 
-    optionals = optionals or {
-        surface = game.get_surface(planet_name)
-    }
+    optionals = optionals or {}
 
     local surface = optionals.surface or game.get_surface(planet_name)
     if (not surface or not surface.valid) then return return_val end
@@ -35,8 +27,7 @@ function satellite_meta_repository.save_satellite_meta_data(planet_name, optiona
     if (not storage) then return return_val end
     if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
     if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
-    if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then storage.all_seeing_satellite.satellite_meta_data[planet_name] =
-        return_val end
+    if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then storage.all_seeing_satellite.satellite_meta_data[planet_name] = return_val end
 
     return_val = storage.all_seeing_satellite.satellite_meta_data[planet_name]
     return_val.planet_name = planet_name
@@ -73,7 +64,7 @@ function satellite_meta_repository.update_satellite_meta_data(update_data, optio
     if (not storage.all_seeing_satellite.satellite_meta_data) then storage.all_seeing_satellite.satellite_meta_data = {} end
     if (not storage.all_seeing_satellite.satellite_meta_data[planet_name]) then
         -- If it doesn't exist, generate it
-        return satellite_meta_repository.save_satellite_meta_data(planet_name)
+        if (not satellite_meta_repository.save_satellite_meta_data(planet_name).valid) then return return_val end
     end
 
     local satellite_meta_data = storage.all_seeing_satellite.satellite_meta_data[planet_name]
@@ -152,9 +143,5 @@ function satellite_meta_repository.get_all_satellite_meta_data(optionals)
 
     return storage.all_seeing_satellite.satellite_meta_data
 end
-
-satellite_meta_repository.all_seeing_satellite = true
-
-local _satellite_meta_repository = satellite_meta_repository
 
 return satellite_meta_repository

@@ -1,12 +1,5 @@
--- If already defined, return
-if _player_service and _player_service.all_seeing_satellite then
-    return _player_service
-end
-
 local Character_Repository = require("scripts.repositories.character-repository")
-local Log = require("libs.log.log")
 local Player_Repository = require("scripts.repositories.player-repository")
-local Settings_Service = require("scripts.services.settings-service")
 
 local player_service = {}
 
@@ -33,7 +26,7 @@ function player_service.toggle_satellite_mode(event)
             -- If satellite mode is toggled on, don't show the surface list
             player.game_view_settings.show_surface_list = not toggled
             -- But show the surface list if satellites aren't required
-            if (not Settings_Service.get_restrict_satellite_mode()) then
+            if (not Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_MODE.name })) then
                 player.game_view_settings.show_surface_list = true
             end
         end
@@ -155,9 +148,5 @@ function player_service.disable_satellite_mode_and_die(data)
 
     player.teleport(actual_corpse.position, surface, true)
 end
-
-player_service.all_seeing_satellite = true
-
-local _player_service = player_service
 
 return player_service

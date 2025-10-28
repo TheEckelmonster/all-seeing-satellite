@@ -1,11 +1,5 @@
--- If already defined, return
-if _scan_chunk_controller and _scan_chunk_controller.all_seeing_satellite then
-    return _scan_chunk_controller
-end
-
 local All_Seeing_Satellite_Repository = require("scripts.repositories.all-seeing-satellite-repository")
-local Constants = require("libs.constants.constants")
-local Log = require("libs.log.log")
+local Constants = require("scripts.constants.constants")
 local Planet_Utils = require("scripts.utils.planet-utils")
 local Research_Utils = require("scripts.utils.research-utils")
 local Satellite_Meta_Repository = require("scripts.repositories.satellite-meta-repository")
@@ -13,6 +7,7 @@ local Scan_Chunk_Service = require("scripts.services.scan-chunk-service")
 local String_Utils = require("scripts.utils.string-utils")
 
 local scan_chunk_controller = {}
+scan_chunk_controller.name = "scan_chunk_controller"
 
 function scan_chunk_controller.stage_selected_chunks(event)
     Log.debug("scan_chunk_controller.stage_selected_chunk")
@@ -86,9 +81,5 @@ function scan_chunk_controller.clear_selected_chunks(event)
 
     Scan_Chunk_Service.clear_selected_chunks(event)
 end
-
-scan_chunk_controller.all_seeing_satellite = true
-
-local _scan_chunk_controller = scan_chunk_controller
 
 return scan_chunk_controller

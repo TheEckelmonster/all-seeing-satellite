@@ -1,8 +1,7 @@
 local Data = require("scripts.data.data")
-local Log = require("libs.log.log")
 local Version_Data = require("scripts.data.version-data")
 
-local all_seeing_satellite_data = Data:new()
+local all_seeing_satellite_data = {}
 
 all_seeing_satellite_data.do_nth_tick = true
 
@@ -13,11 +12,9 @@ all_seeing_satellite_data.staged_chunks_to_chart = {}
 
 all_seeing_satellite_data.version_data = Version_Data:new()
 
-function all_seeing_satellite_data:new(obj)
+function all_seeing_satellite_data:new(o)
     Log.debug("all_seeing_satellite_data:new")
-    Log.info(obj)
-
-    obj = obj and Data:new(obj) or Data:new()
+    Log.info(o)
 
     local defaults = {
         satellite_meta_data = {},
@@ -27,13 +24,15 @@ function all_seeing_satellite_data:new(obj)
         warn_technology_not_available_yet = self.warn_technology_not_available_yet,
     }
 
-    for k, v in pairs(defaults) do
-        if (obj[k] == nil) then obj[k] = v end
-    end
+    local obj = o or defaults
+
+    for k, v in pairs(defaults) do if (obj[k] == nil and type(v) ~= "function") then obj[k] = v end end
 
     setmetatable(obj, self)
     self.__index = self
     return obj
 end
 
+setmetatable(all_seeing_satellite_data, Data)
+all_seeing_satellite_data.__index = all_seeing_satellite_data
 return all_seeing_satellite_data

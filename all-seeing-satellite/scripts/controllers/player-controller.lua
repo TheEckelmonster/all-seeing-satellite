@@ -1,20 +1,14 @@
--- If already defined, return
-if _player_controller and _player_controller.all_seeing_satellite then
-    return _player_controller
-end
-
 local Character_Repository = require("scripts.repositories.character-repository")
-local Constants = require("libs.constants.constants")
-local Log = require("libs.log.log")
+local Constants = require("scripts.constants.constants")
 local Planet_Utils = require("scripts.utils.planet-utils")
 local Player_Service = require("scripts.services.player-service")
 local Player_Repository = require("scripts.repositories.player-repository")
 local Research_Utils = require("scripts.utils.research-utils")
 local Satellite_Meta_Repository = require("scripts.repositories.satellite-meta-repository")
-local Settings_Service = require("scripts.services.settings-service")
 local String_Utils = require("scripts.utils.string-utils")
 
 local player_controller = {}
+player_controller.name = "player_controller"
 
 player_controller.filter = { { filter = "name", name = "character" } }
 
@@ -56,7 +50,7 @@ function player_controller.toggle_satellite_mode(event)
     end
 
     if (not allow_satellite_mode and not Research_Utils.has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name)) then
-        if (Settings_Service.get_restrict_satellite_mode()) then
+        if (Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_MODE.name })) then
             player.print("Rocket Silo/Satellite not researched yet")
             return
         end
@@ -80,7 +74,7 @@ function player_controller.toggle_satellite_mode(event)
     end
 
     if (not allow_satellite_mode and not player_data.satellite_mode_allowed) then
-        if (player_data.in_space or Settings_Service.get_restrict_satellite_mode()) then
+        if (player_data.in_space or Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_MODE.name })) then
             player.print("Satellite mode is currently not allowed")
             return
         end
@@ -388,9 +382,5 @@ function player_controller.cutscene_finished(event)
 
     Player_Repository.save_player_data(event.player_index)
 end
-
-player_controller.all_seeing_satellite = true
-
-local _player_controller = player_controller
 
 return player_controller

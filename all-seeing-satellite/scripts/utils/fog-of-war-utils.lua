@@ -1,9 +1,3 @@
--- If already defined, return
-if _fog_of_war_utils and _fog_of_war_utils.all_seeing_satellite then
-    return _fog_of_war_utils
-end
-
-local Log = require("libs.log.log")
 local Planet_Utils = require("scripts.utils.planet-utils")
 local Satellite_Meta_Repository = require("scripts.repositories.satellite-meta-repository")
 
@@ -16,6 +10,7 @@ function fog_of_war_utils.print_toggle_message(message, surface_name, add_count)
     Log.info(add_count)
 
     local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(surface_name)
+    --[[ TODO: Make this print by force ]]
     if (satellite_meta_data.valid) then
         if (add_count) then
             game.print(message
@@ -33,9 +28,5 @@ function fog_of_war_utils.print_toggle_message(message, surface_name, add_count)
         game.print(message .. surface_name)
     end
 end
-
-fog_of_war_utils.all_seeing_satellite = true
-
-local _fog_of_war_utils = fog_of_war_utils
 
 return fog_of_war_utils

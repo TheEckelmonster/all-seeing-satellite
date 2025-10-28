@@ -1,5 +1,6 @@
 local Item_Sounds = require("__base__.prototypes.item_sounds")
-local Settings_Constants = require("libs.constants.settings-constants")
+
+local sa_active = mods and mods["space-age"] and true
 
 data:extend({
     {
@@ -13,7 +14,7 @@ data:extend({
         drop_sound = Item_Sounds.mechanical_inventory_move,
         stack_size = 1,
         weight = 1 * tons,
-        -- rocket_launch_products = {{type = "item", name = "space-science-pack", amount = 1000}},
+        rocket_launch_products = not sa_active and {{type = "item", name = "space-science-pack", amount = 1000}} or nil,
         send_to_orbit_mode = "automated"
     },
     {
