@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.7.1
+Date: 2025-10-29
+  Bug Fixes:
+    - Added missing nil and '.valid' checks to the character-corpse entity when the player dies while in satellite mode
+      - Only encountered this error once while testing another mod, and have not been able to reproduce since
+      - The newly added checks should prevent it from occurring again though
+---------------------------------------------------------------------------------------------------
 Version: 0.7.0
 Date: 2025-10-28
   Minor Features:
