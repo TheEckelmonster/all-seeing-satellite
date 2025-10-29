@@ -80,6 +80,7 @@ function fog_of_war_controller.toggle(event)
     local player = game.get_player(event.player_index)
     if (not player or not player.valid) then return end
     if (not player.surface or not player.surface.valid) then return end
+    if (not player.force or not player.force.valid) then return end
 
     local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(player.surface.name)
     if (not satellite_meta_data.valid) then return end
@@ -115,18 +116,18 @@ function fog_of_war_controller.toggle(event)
 
         if (satellites_toggled.toggle) then
             if (Planet_Utils.allow_toggle(surface_name)) then
-                Fog_Of_War_Utils.print_toggle_message("Disabled satellite(s) orbiting ", surface_name, true)
+                Fog_Of_War_Utils.print_toggle_message({ message = { "toggle.disabled" }, surface_name = surface_name, add_count = true, force = player.force })
                 player.force.cancel_charting(surface_name)
             else
-                Fog_Of_War_Utils.print_toggle_message("Insufficient satellite(s) orbiting ", surface_name, true)
+                Fog_Of_War_Utils.print_toggle_message({ message = { "toggle.insufficient" }, surface_name = surface_name, add_count = true, force = player.force })
             end
             satellites_toggled.toggle = false
         elseif (not satellites_toggled.toggle) then
             if (Planet_Utils.allow_toggle(surface_name)) then
-                Fog_Of_War_Utils.print_toggle_message("Enabled satellite(s) orbiting ", surface_name, true)
+                Fog_Of_War_Utils.print_toggle_message({ message = { "toggle.enabled" }, surface_name = surface_name, add_count = true, force = player.force })
                 satellites_toggled.toggle = true
             else
-                Fog_Of_War_Utils.print_toggle_message("Insufficient satellite(s) orbiting ", surface_name, true)
+                Fog_Of_War_Utils.print_toggle_message({ message = { "toggle.insufficient" }, surface_name = surface_name, add_count = true, force = player.force })
                 -- This shouldn't be necessary, but oh well
                 satellites_toggled.toggle = false
             end

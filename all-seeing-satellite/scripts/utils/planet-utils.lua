@@ -43,17 +43,19 @@ function planet_utils.planet_launch_threshold(surface_name)
     Log.debug("planet_utils.planet_launch_threshold")
     Log.info(surface_name)
 
+    local return_val = Runtime_Global_Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.default_value
+                     * Runtime_Global_Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD_MODIFIER.default_value
+
     if (not surface_name) then
-        return Runtime_Global_Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.default_value
-             * Runtime_Global_Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD_MODIFIER.default_value
+        return return_val
     end
 
     if (String_Utils.find_invalid_substrings(surface_name)) then return end
 
     local planet_magnitude = locals.get_planet_magnitude(surface_name)
-    local return_val = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.name })
-                     * Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD_MODIFIER.name })
-                     * planet_magnitude ^ 2
+    return_val = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.name })
+                * Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD_MODIFIER.name })
+                * planet_magnitude ^ 2
 
     if (planet_magnitude < 1) then
         Log.debug("floor")
