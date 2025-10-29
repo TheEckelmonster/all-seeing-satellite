@@ -39,6 +39,15 @@ function player_service.toggle_satellite_mode(event)
             position = player.position,
         })
 
+        local distance     = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_MODE_VIEW_DISTANCE.name })
+        local max_distance = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_MODE_MAX_VIEW_DISTANCE.name })
+
+        if (type(distance) ~= "number") then distance = Runtime_Global_Settings_Constants.settings.SATELLITE_MODE_VIEW_DISTANCE.default_value end
+        if (type(max_distance) ~= "number") then max_distance = Runtime_Global_Settings_Constants.settings.SATELLITE_MODE_MAX_VIEW_DISTANCE.default_value end
+
+        local zoom_limit = { distance = distance, max_distance = max_distance }
+        local god_controller_zoom_limits = { furthest = zoom_limit, furthest_game_view = zoom_limit, }
+
         if (player.controller_type == defines.controllers.god) then
             -- raise_teleported = true
             player.teleport(position_to_place, physical_surface, true)
@@ -55,10 +64,7 @@ function player_service.toggle_satellite_mode(event)
             player.set_controller({ type = defines.controllers.god })
             update_player_data_fun(player_index, true, player)
 
-            player.zoom_limits = {
-                furthest = { distance = 400, max_distance = 600 },
-                furthest_game_view = { distance = 400, max_distance = 600 }
-            }
+            player.zoom_limits = god_controller_zoom_limits
         elseif (player.controller_type == defines.controllers.remote) then
             local toggled = false
 
@@ -66,17 +72,13 @@ function player_service.toggle_satellite_mode(event)
                 player.set_controller({ type = defines.controllers.god })
                 toggled = true
 
-                player.zoom_limits = {
-                    furthest = { distance = 400, max_distance = 600 },
-                    furthest_game_view = { distance = 400, max_distance = 600 }
-                }
+                player.zoom_limits = god_controller_zoom_limits
             end
 
             if (not toggled) then
                 -- raise_teleported = true
                 player.teleport(position_to_place, physical_surface, true)
-                player.set_controller({ type = defines.controllers.character, character = player_data.character_data
-                .character })
+                player.set_controller({ type = defines.controllers.character, character = player_data.character_data.character })
             end
             update_player_data_fun(player_index, toggled, player)
         end
@@ -135,18 +137,20 @@ function player_service.disable_satellite_mode_and_die(data)
     local player_character_position = player.character.position
     player.character.die()
     local character_corpse = surface.find_entity("character-corpse", player_character_position)
-    character_corpse.destroy()
+    if (character_corpse and character_corpse.valid) then
+        character_corpse.destroy()
+    end
 
     local actual_corpse = surface.find_entity("character-corpse", character_position)
 
-    if (actual_corpse) then
+    if (actual_corpse and actual_corpse.valid) then
         player.add_pin({
             always_visible = true,
             entity = actual_corpse,
         })
-    end
 
-    player.teleport(actual_corpse.position, surface, true)
+        player.teleport(actual_corpse.position, surface, true)
+    end
 end
 
 return player_service
