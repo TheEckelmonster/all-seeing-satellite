@@ -3,8 +3,13 @@ Version: 0.7.1
 Date: 2025-10-29
   Bug Fixes:
     - Added missing nil and '.valid' checks to the character-corpse entity when the player dies while in satellite mode
-      - Only encountered this error once while testing another mod, and have not been able to reproduce since
+      - Only encountered this error once while testing another mod, and have not been able to recreate it since
       - The newly added checks should prevent it from occurring again though
+  Misc:
+    - Added configurable runtime settings for satellite mode view distance
+      - Allows for changing how far out a player can zoom while in satellite mode (if settings are changed, disable and reenable satellite mode to apply to new limits)
+        - Satellite mode view distance (default 400)
+        - Satellite mode max view distance (defualt 400)
 ---------------------------------------------------------------------------------------------------
 Version: 0.7.0
 Date: 2025-10-28

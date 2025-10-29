@@ -115,6 +115,24 @@ local runtime_global_settings_constants = {
             maximum_value = 11111,
             minimum_value = 1,
         },
+        SATELLITE_MODE_VIEW_DISTANCE = {
+            type = "int-setting",
+            name = prefix .. "-satellite-mode-view-distance",
+            setting_type = "runtime-global",
+            order = "",
+            default_value = 400,
+            maximum_value = 2 ^ 11,
+            minimum_value = 1,
+        },
+        SATELLITE_MODE_MAX_VIEW_DISTANCE = {
+            type = "int-setting",
+            name = prefix .. "-satellite-mode-max-view-distance",
+            setting_type = "runtime-global",
+            order = "",
+            default_value = 400,
+            maximum_value = 2 ^ 11,
+            minimum_value = 1,
+        },
     },
 }
 
