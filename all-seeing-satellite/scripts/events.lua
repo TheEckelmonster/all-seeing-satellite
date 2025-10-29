@@ -17,6 +17,7 @@ for _, v in pairs(rocket_silo_controller_filter) do table.insert(on_entity_died_
 for _, v in pairs(player_controller_filter) do table.insert(on_entity_died_filter, v) end
 
 Filters.on_entity_died_filter = on_entity_died_filter
+Filters.rocket_silo_filter = rocket_silo_controller_filter
 
 ---
 
