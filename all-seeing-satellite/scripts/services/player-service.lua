@@ -135,18 +135,20 @@ function player_service.disable_satellite_mode_and_die(data)
     local player_character_position = player.character.position
     player.character.die()
     local character_corpse = surface.find_entity("character-corpse", player_character_position)
-    character_corpse.destroy()
+    if (character_corpse and character_corpse.valid) then
+        character_corpse.destroy()
+    end
 
     local actual_corpse = surface.find_entity("character-corpse", character_position)
 
-    if (actual_corpse) then
+    if (actual_corpse and actual_corpse.valid) then
         player.add_pin({
             always_visible = true,
             entity = actual_corpse,
         })
-    end
 
-    player.teleport(actual_corpse.position, surface, true)
+        player.teleport(actual_corpse.position, surface, true)
+    end
 end
 
 return player_service
