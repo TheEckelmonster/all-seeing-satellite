@@ -1,7 +1,6 @@
 local Data = require("scripts.data.data")
-local Log = require("libs.log.log")
 
-local area_to_chart_data = Data:new()
+local area_to_chart_data = {}
 
 area_to_chart_data.area = {}
 
@@ -23,33 +22,36 @@ area_to_chart_data.stack = { i = 0, j = 0, }
 area_to_chart_data.started = false
 
 
-function area_to_chart_data:new(obj)
-  Log.debug("area_to_chart_data:new")
-  Log.info(obj)
+function area_to_chart_data:new(o)
+    Log.debug("area_to_chart_data:new")
+    Log.info(o)
 
-  obj = obj and Data:new(obj) or Data:new()
+    local defaults = {
+        area = self.area,
+        center = { x = 0, y = 0, },
+        complete = self.complete,
+        id = self.id,
+        parent_id = self.parent_id,
+        pos = { x = 0, y = 0, },
+        queue = { i = 0, j = 0, },
+        radius = self.radius,
+        surface = self.surface,
+        stack = { i = 0, j = 0, },
+        started = self.started,
+    }
 
-  local defaults = {
-    area = self.area,
-    center = { x = 0, y = 0, },
-    complete = self.complete,
-    id = self.id,
-    parent_id = self.parent_id,
-    pos = { x = 0, y = 0, },
-    queue = { i = 0, j = 0, },
-    radius = self.radius,
-    surface = self.surface,
-    stack = { i = 0, j = 0, },
-    started = self.started,
-  }
+    local obj = o or defaults
 
-  for k, v in pairs(defaults) do
-    if (obj[k] == nil) then obj[k] = v end
-  end
+    for k, v in pairs(defaults) do if (obj[k] == nil and type(v) ~= "function") then obj[k] = v end end
 
-  setmetatable(obj, self)
-  self.__index = self
-  return obj
+    obj = Data:new(obj)
+
+    setmetatable(obj, self)
+    self.__index = self
+
+    return obj
 end
 
+setmetatable(area_to_chart_data, Data)
+area_to_chart_data.__index = area_to_chart_data
 return area_to_chart_data

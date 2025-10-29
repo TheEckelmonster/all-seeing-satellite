@@ -1,4 +1,33 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.7.0
+Date: 2025-10-28
+  Minor Features:
+    - Replaced space-age hard requirement with a hidden optional requirement, and an optional requirement for quality
+      - Should be compatible now with "Vanilla", i.e. no other mods than this and "base"
+    - Now when the "How long will a satellite remain in orbit" setting is set to 0, satellite expiration is disabled
+      - i.e. While this setting is 0, satellites will never expire
+    - Added default 30 tick or 0.5 seconds delay from a satellite being loaded into a rocket-silo, and the launch being initiated
+      - Only applies when the "Automatically launch rockets with satellites" setting is checked
+      - This is to allow the default automatic launching of satellites in Vanilla to function when the "Send to orbit automatically" checkbox is checked
+        - i.e. launch, but also return space-science packs
+      - Added configurable runtime setting for controlling the above delay
+    - Vanilla:
+      - Added "Track satellites launched for research" runtime setting
+        - Whether to track and count satellites launched via the normal means for space-science-packs as being in "orbit"
+          - i.e. if manually triggered by a player, or the "Send to orbit automatically" checkbox was checked and triggered the launch
+          - Defaults to true
+          - Set to false if you only want to consider satellites not launched for science-packs as being in "orbit"
+  Bug Fixes:
+    - Fixed potentially getting stuck in satellite mode on version update
+    - Fixed some mod setting descriptions not displaying
+  Misc:
+    - Changed the printing of satellite toggle message from global, to be per force
+    - Changed the printing of the 'out of fuel' message for satellites from global, to be per force
+      - For existing satellites in orbit, if its force can't be found, it will be defaulted to the "player" force on update
+    - Started migration of hard-coded print messages to localised strings
+    - Removed space-age mod portal flag in light of the requirement removal
+    - Added TheEckelmonster-core-library as a required dependency
+---------------------------------------------------------------------------------------------------
 Version: 0.6.3
 Date: 2025-08-03
   Bug Fixes:
@@ -16,7 +45,7 @@ Date: 2025-07-31
   Bug Fixes:
     - Fixed FoW not toggling properly after visiting a surface for the first time
   Misc:
-    - Added Space Age mod portal flag
+    - Added space-age mod portal flag
 ---------------------------------------------------------------------------------------------------
 Version: 0.6.0
 Date: 2025-06-29
