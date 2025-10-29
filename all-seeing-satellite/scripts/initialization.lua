@@ -25,7 +25,7 @@ function initialization.init(data)
 
     if (not data or type(data) ~= "table") then data = { maintain_data = false} end
 
-    if (data and data.maintain_data) then data.maintain_data = true -- Expllicitly set maintain_data to be a boolean value of true
+    if (data and data.maintain_data) then data.maintain_data = true -- Explicitly set maintain_data to be a boolean value of true
     else data.maintain_data = false
     end
 
@@ -39,7 +39,7 @@ function initialization.reinit(data)
 
     if (not data or type(data) ~= "table") then data = { maintain_data = false} end
 
-    if (data and data.maintain_data) then data.maintain_data = true -- Expllicitly set maintain_data to be a boolean value of true
+    if (data and data.maintain_data) then data.maintain_data = true -- Explicitly set maintain_data to be a boolean value of true
     else data.maintain_data = false
     end
 
@@ -303,31 +303,35 @@ function locals.migrate(data)
                             local player_force = game.forces["player"]
                             if (player_force and player_force.valid and type(all_satellite_meta_data) == "table") then
                                 for planet_name, satellite_meta_data in pairs(all_satellite_meta_data) do
-                                    satellite_meta_data.satellite_dictionary = {}
-                                    satellite_meta_data.satellites_in_transit = {}
-                                    if (type(satellite_meta_data.rocket_silos) == "table") then
-                                        for _, rocket_silo_data in pairs(satellite_meta_data.rocket_silos) do
-                                            rocket_silo_data.force =    rocket_silo_data.entity
-                                                                    and rocket_silo_data.entity.valid
-                                                                    and rocket_silo_data.entity.force
-                                                                    and rocket_silo_data.entity.force.valid
-                                                                    and rocket_silo_data.entity.force
-                                                                    or player_force
-                                            rocket_silo_data.force_index =  rocket_silo_data.entity
-                                                                        and rocket_silo_data.entity.valid
-                                                                        and rocket_silo_data.entity.force
-                                                                        and rocket_silo_data.entity.force.valid
-                                                                        and rocket_silo_data.entity.force.index
-                                                                        or player_force.index
+                                    if (type(satellite_meta_data) == "table" and satellite_meta_data.valid) then
+                                        satellite_meta_data.satellite_dictionary = {}
+                                        satellite_meta_data.satellites_in_transit = {}
+                                        if (type(satellite_meta_data.rocket_silos) == "table") then
+                                            for _, rocket_silo_data in pairs(satellite_meta_data.rocket_silos) do
+                                                if (type(rocket_silo_data) == "table" and rocket_silo_data.valid) then
+                                                    rocket_silo_data.force =    rocket_silo_data.entity
+                                                                            and rocket_silo_data.entity.valid
+                                                                            and rocket_silo_data.entity.force
+                                                                            and rocket_silo_data.entity.force.valid
+                                                                            and rocket_silo_data.entity.force
+                                                                            or player_force
+                                                    rocket_silo_data.force_index =  rocket_silo_data.entity
+                                                                                and rocket_silo_data.entity.valid
+                                                                                and rocket_silo_data.entity.force
+                                                                                and rocket_silo_data.entity.force.valid
+                                                                                and rocket_silo_data.entity.force.index
+                                                                                or player_force.index
+                                                end
+                                            end
                                         end
-                                    end
-                                    if (type(satellite_meta_data.satellites) == "table") then
-                                        for _, satellite_data in pairs(satellite_meta_data.satellites) do
-                                            if (type(satellite_data) == "table" and satellite_data.valid) then
-                                                satellite_data.force = player_force
-                                                satellite_data.force_index = player_force.index
-                                                if (type(satellite_data.cargo_pod_unit_number) == "number") then
-                                                    satellite_meta_data.satellite_dictionary[satellite_data.cargo_pod_unit_number] = satellite_data
+                                        if (type(satellite_meta_data.satellites) == "table") then
+                                            for _, satellite_data in pairs(satellite_meta_data.satellites) do
+                                                if (type(satellite_data) == "table" and satellite_data.valid) then
+                                                    satellite_data.force = player_force
+                                                    satellite_data.force_index = player_force.index
+                                                    if (type(satellite_data.cargo_pod_unit_number) == "number") then
+                                                        satellite_meta_data.satellite_dictionary[satellite_data.cargo_pod_unit_number] = satellite_data
+                                                    end
                                                 end
                                             end
                                         end

@@ -15,16 +15,16 @@ function fog_of_war_service.toggle_FoW(planet)
     local player = satellite_meta_data.satellite_toggled_by_player
     local satellite_toggle_data = satellite_meta_data.satellites_toggled
 
-    if (satellite_toggle_data
-            and satellite_toggle_data.toggle
-            and player
-            and player.valid
-            and player.force
-            and player.force.valid
-            and player.surface
-            and player.surface.valid
-            and player.surface.name == satellite_toggle_data.planet_name)
-    then
+    if (    satellite_toggle_data
+        and satellite_toggle_data.toggle
+        and player
+        and player.valid
+        and player.force
+        and player.force.valid
+        and player.surface
+        and player.surface.valid
+        and player.surface.name == satellite_toggle_data.planet_name
+    ) then
         if (Planet_Utils.allow_toggle(satellite_toggle_data.planet_name)) then
             game.forces[player.force.index].rechart(player.surface)
             return
