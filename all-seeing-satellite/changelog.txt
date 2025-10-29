@@ -23,7 +23,7 @@ Date: 2025-10-28
   Misc:
     - Changed the printing of satellite toggle message from global, to be per force
     - Changed the printing of the 'out of fuel' message for satellites from global, to be per force
-      - For Existing satellites in orbit, if its force can't be found, it will be defaulted to the "player" force on update
+      - For existing satellites in orbit, if its force can't be found, it will be defaulted to the "player" force on update
     - Started migration of hard-coded print messages to localised strings
     - Removed space-age mod portal flag in light of the requirement removal
     - Added TheEckelmonster-core-library as a required dependency
