@@ -68,7 +68,7 @@ end
 Event_Handler:register_events({
     {
         event_name = "on_entity_died",
-        filter = Filters.rocket_silo_filter,
+        filter = Filters.on_entity_died_filter,
         source_name = "rocket_silo_controller.rocket_silo_mined",
         func_name = "rocket_silo_controller.rocket_silo_mined",
         func = rocket_silo_controller.rocket_silo_mined,
