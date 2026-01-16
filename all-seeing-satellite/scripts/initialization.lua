@@ -247,9 +247,10 @@ function locals.migrate(data)
     if (not storage_old) then return end
     if (not type(storage_old) == "table") then return end
 
-    TECL_Core_Utils.table.reassign(storage_old, storage, { field = "handles" })
     TECL_Core_Utils.table.reassign(storage_old, storage, { field = "event_handlers" })
+    TECL_Core_Utils.table.reassign(storage_old, storage, { field = "handles" })
 
+    TECL_Core_Utils.table.reassign(storage_old, storage, { field = "constants" })
     TECL_Core_Utils.table.reassign(storage_old, storage, { field = "player_data" })
 
     if (not data or type(data) ~= "table") then return end

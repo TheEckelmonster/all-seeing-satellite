@@ -17,6 +17,11 @@ function player_service.toggle_satellite_mode(event)
     local physical_surface = game.get_surface(player_data.physical_surface_index)
 
     local update_player_data_fun = function(index, toggled, player)
+        if (player.character and player.character.valid) then
+            if (player.character ~= player_data.character_data.character) then
+                Character_Repository.save_character_data(player_index, { player = player })
+            end
+        end
         Player_Repository.update_player_data({
             player_index = index,
             satellite_mode_toggled = toggled,
@@ -48,17 +53,19 @@ function player_service.toggle_satellite_mode(event)
         local zoom_limit = { distance = distance, max_distance = max_distance }
         local god_controller_zoom_limits = { furthest = zoom_limit, furthest_game_view = zoom_limit, }
 
+        local character = nil
+
         if (player.controller_type == defines.controllers.god) then
-            -- raise_teleported = true
             player.teleport(position_to_place, physical_surface, true)
 
-            if (no_character) then
-                Log.error("No character found; creating a new one")
-                player.create_character()
+            if (player_data.character_data.character and player_data.character_data.character.valid) then
+                character = player_data.character_data.character
             else
-                player.set_controller({ type = defines.controllers.character, character = player_data.character_data
-                .character })
+                player.create_character()
+                character = player.character
             end
+
+            player.set_controller({ type = defines.controllers.character, character = character })
             update_player_data_fun(player_index, false, player)
         elseif (player.controller_type == defines.controllers.character) then
             player.set_controller({ type = defines.controllers.god })
@@ -76,9 +83,15 @@ function player_service.toggle_satellite_mode(event)
             end
 
             if (not toggled) then
-                -- raise_teleported = true
+                if (player_data.character_data.character and player_data.character_data.character.valid) then
+                    character = player_data.character_data.character
+                else
+                    player.create_character()
+                    character = player.character
+                end
+
                 player.teleport(position_to_place, physical_surface, true)
-                player.set_controller({ type = defines.controllers.character, character = player_data.character_data.character })
+                player.set_controller({ type = defines.controllers.character, character = character })
             end
             update_player_data_fun(player_index, toggled, player)
         end

@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.7.2
+Date: 2026-01-16
+  Bug Fixes:
+    - Fixed overwriting the on_entity_died filter with an incomplete one (was missing the character entity)
+    - Added missing '.valid' checks to the character entity being provided when setting the player controller to "character"
+      - A new character entity should now be properly created if the previous character entity is no longer valid
+---------------------------------------------------------------------------------------------------
 Version: 0.7.1
 Date: 2025-10-29
   Bug Fixes:
@@ -9,13 +16,13 @@ Date: 2025-10-29
     - Added configurable runtime settings for satellite mode view distance
       - Allows for changing how far out a player can zoom while in satellite mode (if settings are changed, disable and reenable satellite mode to apply to new limits)
         - Satellite mode view distance (default 400)
-        - Satellite mode max view distance (defualt 400)
+        - Satellite mode max view distance (default 400)
 ---------------------------------------------------------------------------------------------------
 Version: 0.7.0
 Date: 2025-10-28
   Minor Features:
     - Replaced space-age hard requirement with a hidden optional requirement, and an optional requirement for quality
-      - Should be compatible now with "Vanilla", i.e. no other mods than this and "base"
+      - Should be compatible now with "Vanilla", i.e. no other mods than this, "base", and "TheEckelmonster-core-library"
     - Now when the "How long will a satellite remain in orbit" setting is set to 0, satellite expiration is disabled
       - i.e. While this setting is 0, satellites will never expire
     - Added default 30 tick or 0.5 seconds delay from a satellite being loaded into a rocket-silo, and the launch being initiated

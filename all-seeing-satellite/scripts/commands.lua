@@ -135,7 +135,7 @@ end
 
 function locals.validate_command(event, fun)
     if (not _Log or not _Log.valid or not _Log._ready) then _Log = Log_Stub end
-    _Log.info(event)
+    _Log.debug(event)
     if (event) then
         local player = nil
 

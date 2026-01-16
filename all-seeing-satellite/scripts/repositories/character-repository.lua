@@ -30,12 +30,14 @@ function character_repository.save_character_data(player_index, optionals)
         return_val end
 
     return_val = storage.player_data[player_index].character_data
-    return_val.valid = true
     return_val.player_index = player_index
     return_val.unit_number = character.unit_number
     return_val.character = character
     return_val.surface_index = character.surface_index
     return_val.position = character.position
+
+    return_val.created = game and game.tick or 0
+    return_val.valid = true
 
     return character_repository.update_character_data(return_val)
 end

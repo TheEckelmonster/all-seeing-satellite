@@ -32,7 +32,6 @@ local Rocket_Silo_Utils = require("scripts.utils.rocket-silo-utils")
 local Satellite_Controller = require("scripts.controllers.satellite-controller")
 local Scan_Chunk_Controller = require("scripts.controllers.scan-chunk-controller")
 
-
 local Settings_Controller = require("__TheEckelmonster-core-library__.scripts.controllers.settings-controller")
 
 local events = {
@@ -48,20 +47,12 @@ local events = {
     [Settings_Controller.name] = Settings_Controller,
 }
 
-
 local Log_Settings = require("__TheEckelmonster-core-library__.libs.log.log-settings")
 
 local did_init = false
 
 function events.on_init()
-    if (    type(storage) ~= "table"
-        and type(storage) ~= "userdata"
-        and type(storage) ~= "boolean"
-        and type(storage) ~= "number"
-        and type(storage) ~= "string"
-    ) then
-        return
-    end
+    if (type(storage) ~= "table") then return end
 
     local return_val = 0
 
@@ -70,7 +61,7 @@ function events.on_init()
         setting_handle = {},
     }
 
-    return_val =  Settings_Service.init({ storage_ref = storage.handles.setting_handle })
+    return_val = Settings_Service.init({ storage_ref = storage.handles.setting_handle })
     return_val = Settings_Controller.init({ settings_service = Settings_Service })
 
     local log_settings = Log_Settings.create({ prefix = Constants.mod_name })
@@ -146,7 +137,7 @@ function events.on_configuration_changed(event)
                 game.print({ Constants.mod_name .. ".on-configuration-changed", Constants.mod_name })
             end
 
-            if (type(storage.handles) ~= "table") then
+            if (type(storage.handles) ~= "table" or not initialized_from_load) then
                 storage.handles = {
                     log_handle = {},
                     setting_handle = {},
@@ -160,30 +151,6 @@ function events.on_configuration_changed(event)
 
                 return_val = Log.init({
                     storage_ref = storage.handles.log_handle,
-                    settings_service = Settings_Service,
-                    debug_level_name = log_settings[1].name,
-                    traceback_setting_name = log_settings[2].name,
-                    do_not_print_setting_name = log_settings[3].name,
-                })
-
-                Log.ready()
-            end
-
-            if (not initialized_from_load) then
-                                storage.handles = {
-                    log_handle = {},
-                    setting_handle = {},
-                }
-
-                local return_val = 0
-                return_val =  Settings_Service.init({ storage_ref = storage.handles.setting_handle })
-                return_val = Settings_Controller.init({ settings_service = Settings_Service })
-
-                local log_settings = Log_Settings.create({ prefix = Constants.mod_name })
-
-                return_val = Log.init({
-                    storage_ref = storage.handles.log_handle,
-                    settings_service = Settings_Service,
                     debug_level_name = log_settings[1].name,
                     traceback_setting_name = log_settings[2].name,
                     do_not_print_setting_name = log_settings[3].name,
