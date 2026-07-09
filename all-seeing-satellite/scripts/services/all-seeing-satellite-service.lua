@@ -1,62 +1,110 @@
-local Area_To_Chart_Repository = require("scripts.repositories.scanning.area-to-chart-repository")
-local Chunk_To_Chart_Repository = require("scripts.repositories.scanning.chunk-to-chart-repository")
-local Planet_Utils = require("scripts.utils.planet-utils")
-local Satellite_Meta_Repository = require("scripts.repositories.satellite-meta-repository")
-local Satellite_Repository = require("scripts.repositories.satellite-repository")
-local Scan_Chunk_Service = require("scripts.services.scan-chunk-service")
-local Satellite_Utils = require("scripts.utils.satellite-utils")
+local storage
 
-local quality_active = scripts and scripts.active_mods and scripts.active_mods["quality"]
+local game
+local get_player
+
+local function set_game(event, __game, __storage)
+    storage = __storage or _ENV.storage
+
+    game = __game or _ENV.game
+    get_player = game.get_player
+
+    Set_Game_Funcs()
+
+    return game
+end
+
+local math_floor = math.floor
+local string_find = string.find
+
+local table_size = table_size
+local script = script
+local active_mods = script and script.active_mods
+
+local TICKS_PER_SECOND = Constants.TICKS_PER_SECOND
+
+local MSG_SCAN_COMPLETE_TBL = { "messages.scan-complete", }
+local MSG_START_SCAN_TBL = { "messages.start-scan", }
+
+local EMPTY = EMPTY
+
+local Data_Utils = Data_Utils
+local Settings_Registry = Settings_Registry
+
+local Area_To_Chart_Repository = require("scripts.repositories.scanning.area-to-chart-repository")
+local get_area_to_chart_data = Area_To_Chart_Repository.get_area_to_chart_data
+local update_area_to_chart_data = Area_To_Chart_Repository.update_area_to_chart_data
+local delete_area_to_chart_data_by_id = Area_To_Chart_Repository.delete_area_to_chart_data_by_id
+local Chunk_To_Chart_Repository = require("scripts.repositories.scanning.chunk-to-chart-repository")
+local get_chunk_to_chart_data = Chunk_To_Chart_Repository.get_chunk_to_chart_data
+local delete_chunk_to_chart_data = Chunk_To_Chart_Repository.delete_chunk_to_chart_data
+local Planet_Utils = require("scripts.utils.planet-utils")
+local allow_scan = Planet_Utils.allow_scan
+local Satellite_Meta_Repository = require("scripts.repositories.satellite-meta-repository")
+local update_satellite_meta_data = Satellite_Meta_Repository.update_satellite_meta_data
+local get_satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data
+local Satellite_Repository = require("scripts.repositories.satellite-repository")
+local add_satellite_data_to_cooldown = Satellite_Repository.add_satellite_data_to_cooldown
+local Scan_Chunk_Service = require("scripts.services.scan-chunk-service")
+local stage_selected_chunk = Scan_Chunk_Service.stage_selected_chunk
+local scan_selected_chunk = Scan_Chunk_Service.scan_selected_chunk
+local Satellite_Utils = require("scripts.utils.satellite-utils")
+local get_quality_multiplier = Satellite_Utils.get_quality_multiplier
+
+local quality_active = active_mods and active_mods["quality"]
+
+local satellite_scan_cooldown_duration = Data_Utils.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_COOLDOWN_DURATION.name, }) * TICKS_PER_SECOND
+local satellite_scan_mode = Data_Utils.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name, })
+local restrict_satellite_scanning = Data_Utils.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_SCANNING.name, })
 
 local all_seeing_satellite_service = {}
 
 function all_seeing_satellite_service.check_for_areas_to_stage()
-    Log.debug("all_seeing_satellite_service.check_for_areas_to_stage")
+    -- Log.debug("all_seeing_satellite_service.check_for_areas_to_stage")
 
-    local optionals = {
-        mode = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name }) or Constants.optionals.DEFAULT.mode,
-    }
+    local optionals = { mode = satellite_scan_mode, i = nil, j = nil, }
+    local mode = satellite_scan_mode
 
-    local return_val = false
-    local area_to_chart = Area_To_Chart_Repository.get_area_to_chart_data(optionals)
-    Log.debug(area_to_chart)
+    local area_to_chart = get_area_to_chart_data()
 
-    if (not area_to_chart.valid) then return return_val end
-    if (not Planet_Utils.allow_scan(area_to_chart.surface.name)) then return return_val end
+    if (not area_to_chart) then return end
+    if (not area_to_chart.surface or not allow_scan(area_to_chart.surface.name)) then return end
 
     if (not area_to_chart.started) then
-        if (area_to_chart.player_index and game and game.players and game.get_player(area_to_chart.player_index) and game.get_player(area_to_chart.player_index).force) then
-            Log.debug("starting scan")
-            game.get_player(area_to_chart.player_index).force.print("Starting scan")
+        local player = (game or set_game()) and get_player and get_player(area_to_chart.player_index)
+        if (player and player.valid) then
+            -- Log.debug("starting scan")
+            player.force.print(MSG_START_SCAN_TBL)
         end
 
-        Satellite_Meta_Repository.update_satellite_meta_data({ planet_name = area_to_chart.surface.name, scanned = false, })
-        Scan_Chunk_Service.stage_selected_chunk(area_to_chart, optionals)
-        Area_To_Chart_Repository.update_area_to_chart_data({ started = true, })
+        update_satellite_meta_data({ scanned = false, }, area_to_chart.surface.name)
+        stage_selected_chunk(area_to_chart, optionals)
+        update_area_to_chart_data({ started = true, })
     end
 
-    if (not area_to_chart[optionals.mode]) then area_to_chart[optionals.mode] = { i = 0, j = 0 } end
+    if (not area_to_chart[mode]) then area_to_chart[mode] = { i = 0, j = 0 } end
 
-    optionals.i = area_to_chart[optionals.mode].i
-    optionals.j = area_to_chart[optionals.mode].j
+    optionals.i = area_to_chart[mode].i
+    optionals.j = area_to_chart[mode].j
 
-    local chunks_to_chart = Chunk_To_Chart_Repository.get_chunk_to_chart_data(optionals)
+    local chunks_to_chart = get_chunk_to_chart_data()
 
-    if (not Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_SCANNING.name })) then
-        Scan_Chunk_Service.stage_selected_chunk(area_to_chart, optionals)
+    if (not restrict_satellite_scanning) then
+        stage_selected_chunk(area_to_chart, optionals)
     else
-        local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(area_to_chart.surface.name)
-        if (not satellite_meta_data.valid) then return return_val end
+        local satellite_meta_data = get_satellite_meta_data(area_to_chart.surface.name)
+        if (not satellite_meta_data) then return end
         local satellites = satellite_meta_data.satellites_cooldown
 
+        local tick = (game or set_game()).tick
+
         for k, satellite in pairs(satellites) do
-            if (satellite and satellite.tick_off_cooldown and game.tick > satellite.tick_off_cooldown) then
-                if (satellite_meta_data.scanned
-                        or (chunks_to_chart and #chunks_to_chart == 0 and not area_to_chart.complete)
-                    ) then
-                    Log.info("hello")
-                    Scan_Chunk_Service.stage_selected_chunk(area_to_chart, optionals)
-                    Satellite_Meta_Repository.update_satellite_meta_data({ planet_name = area_to_chart.surface.name, scanned = false, })
+            if (satellite and satellite.tick_off_cooldown and tick > satellite.tick_off_cooldown) then
+                if (    satellite_meta_data.scanned
+                    or  (chunks_to_chart and #chunks_to_chart == 0 and not area_to_chart.complete)
+                ) then
+                    stage_selected_chunk(area_to_chart, optionals)
+                    update_satellite_meta_data({ scanned = false, }, area_to_chart.surface.name)
                 end
             end
             break
@@ -64,144 +112,111 @@ function all_seeing_satellite_service.check_for_areas_to_stage()
     end
 
     if (area_to_chart.complete) then
-        Log.debug("removing area")
-        if (not Area_To_Chart_Repository.delete_area_to_chart_data_by_id(area_to_chart.id)) then return return_val end
+        if (not delete_area_to_chart_data_by_id(area_to_chart.id)) then return end
 
-        local _area_to_check = Area_To_Chart_Repository.get_area_to_chart_data(optionals)
-        Log.debug(area_to_chart)
-        if (not area_to_chart.valid) then return return_val end
+        local _area_to_check = get_area_to_chart_data()
+        if (not area_to_chart) then return end
 
         if (_area_to_check and #_area_to_check == 0 and chunks_to_chart and #chunks_to_chart == 0) then
-            Log.debug("scan complete")
-            if (area_to_chart and area_to_chart.player_index and game and game.players and game.get_player(area_to_chart.player_index) and game.get_player(area_to_chart.player_index).force) then
-                game.players[area_to_chart.player_index].force.print("Scan complete")
+            if (area_to_chart and area_to_chart.player_index) then
+                local player = (game or set_game()) and get_player and get_player(area_to_chart.player_index)
+                if (player and player.valid) then
+                    player.force.print(MSG_SCAN_COMPLETE_TBL)
+                end
             end
         end
     end
 
-    return_val = true
-    return return_val
+    return true
 end
 
 function all_seeing_satellite_service.do_scan(surface_name)
-    Log.debug("all_seeing_satellite_service.do_scan")
-    local optionals = {
-        mode = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name }) or Constants.optionals.DEFAULT.mode
-    }
+    -- Log.debug("all_seeing_satellite_service.do_scan")
 
-    local chunks_to_chart = Chunk_To_Chart_Repository.get_chunk_to_chart_data(optionals)
-    Log.debug(chunks_to_chart)
-
-    if (chunks_to_chart and #chunks_to_chart == 0) then
-        local result = Chunk_To_Chart_Repository.delete_chunk_to_chart_data(optionals)
+    local chunks_to_chart = get_chunk_to_chart_data()
+    if (not chunks_to_chart) then
+        return
+    elseif (chunks_to_chart and #chunks_to_chart == 0) then
+        local result = delete_chunk_to_chart_data()
 
         if (result and table_size(result) == 0) then
-            Satellite_Meta_Repository.update_satellite_meta_data({ planet_name = surface_name, scanned = true, })
+            update_satellite_meta_data({ scanned = true, }, surface_name)
         end
 
         return
     end
 
+    local tick = (game or set_game()).tick
+
     local i = 0
-    local did_break = false
     local do_break = false
+    local chunk_surface_name = EMPTY
     for k, chunk_to_chart in pairs(chunks_to_chart) do
-        Log.debug(k)
-        Log.debug(chunk_to_chart)
+        -- Log.debug(k)
+        -- Log.debug(chunk_to_chart)
 
-        -- TODO: Make this configurable
-        -- if (i > 150) then
-        --   did_break = true
-        --   Log.error("breaking outer")
-        --   break
-        -- end
-        -- Log.error("k: " .. serpent.block(k))
-        -- Log.error("chunk_to_chart: " .. serpent.block(chunk_to_chart))
+        chunk_surface_name = chunk_to_chart.surface.name or EMPTY
 
-        -- if (game and game.players and game.players[chunk_to_chart.player_index] and game.players[chunk_to_chart.player_index].force) then
-        --   local force = game.players[chunk_to_chart.player_index].force
-        --   if ( chunk_to_chart.surface.is_chunk_generated(chunk_to_chart.pos)
-        --     or force.is_chunk_charted(chunk_to_chart.surface, chunk_to_chart.pos)
-        --     or force.is_chunk_visible(chunk_to_chart.surface, chunk_to_chart.pos)
-        --     or force.is_chunk_requested_for_charting(chunk_to_chart.surface, chunk_to_chart.pos)
-        --   ) then
-        --     Log.warn("k: " .. k)
-
-        --     chunks_to_chart[k] = nil
-
-        --     if (chunks_to_chart and #chunks_to_chart == 0) then
-        --       local result = Chunk_To_Chart_Repository.delete_chunk_to_chart_data(optionals)
-        --       if (result and table_size(result) == 0) then
-        --         Satellite_Meta_Repository.update_satellite_meta_data({ planet_name = chunk_to_chart.surface.name, scanned = true, })
-        --       end
-        --     end
-
-        --     goto continue_outer
-        --   end
-        -- end
-
-        if (not Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_SCANNING.name })) then
-            if (Scan_Chunk_Service.scan_selected_chunk(chunk_to_chart, optionals)) then
+        if (not restrict_satellite_scanning) then
+            if (scan_selected_chunk(chunk_to_chart)) then
                 chunks_to_chart[k] = nil
 
                 if (chunks_to_chart and #chunks_to_chart == 0) then
-                    local result = Chunk_To_Chart_Repository.delete_chunk_to_chart_data(optionals)
+                    local result = delete_chunk_to_chart_data()
                     if (result and table_size(result) == 0) then
-                        Log.debug("scan complete")
+                        -- Log.debug("scan complete")
 
-                        local area_to_chart = Area_To_Chart_Repository.get_area_to_chart_data(optionals)
+                        local area_to_chart = get_area_to_chart_data()
 
                         if (area_to_chart and area_to_chart.complete) then
-                            game.get_player(chunk_to_chart.player_index).force.print("Scan complete")
+                            local player = (game or set_game()) and get_player and get_player(area_to_chart.player_index)
+                            if (player and player.valid) then
+                                player.force.print(MSG_SCAN_COMPLETE_TBL)
+                            end
                         end
-                        Satellite_Meta_Repository.update_satellite_meta_data({
-                            planet_name = chunk_to_chart.surface.name,
-                            scanned = true,
-                        })
+                        update_satellite_meta_data({ scanned = true, }, chunk_surface_name)
                     end
                 end
             end
         else
-            if (Planet_Utils.allow_scan(chunk_to_chart.surface.name)) then
-                local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(chunk_to_chart.surface
-                .name)
-                if (not satellite_meta_data.valid) then return end
-                local satellites = satellite_meta_data.satellites_cooldown
-                Log.info(satellites)
+            if (allow_scan(chunk_surface_name)) then
+                local satellite_meta_data = get_satellite_meta_data(chunk_surface_name)
+
+                if (not satellite_meta_data) then return end
+                -- Log.info(satellites)
 
                 if (not satellite_meta_data.satellites_cooldown) then break end
 
                 for id, satellite in pairs(satellite_meta_data.satellites_cooldown) do
-                    Log.info("game.tick: " .. serpent.block(game.tick))
-                    Log.info("id: " .. serpent.block(id))
-                    Log.info(satellite)
-                    if (satellite.tick_off_cooldown < game.tick) then
-                        if (Scan_Chunk_Service.scan_selected_chunk(chunk_to_chart, optionals)) then
-                            Log.info("scanned")
-                            local quality_modifier = quality_active and Satellite_Utils.get_quality_multiplier(satellite.quality) or 1
-                            local cooldown_duration = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_COOLDOWN_DURATION.name })
+                    -- Log.info("tick: " .. serpent.block(tick))
+                    -- Log.info("id: " .. serpent.block(id))
+                    -- Log.info(satellite)
+                    if (satellite.tick_off_cooldown < tick) then
+                        if (scan_selected_chunk(chunk_to_chart)) then
+                            -- Log.info("scanned")
+                            local quality_modifier = quality_active and get_quality_multiplier(satellite.quality) or 1
                             local use_cooldown = 0
-                            if (cooldown_duration > 0) then use_cooldown = 1 end
+                            if (satellite_scan_cooldown_duration > 0) then use_cooldown = 1 end
 
                             quality_modifier = ((quality_modifier - 1) * 2) + 1
 
-                            satellite.tick_off_cooldown = game.tick +
-                            math.floor(satellite.scan_count * 0.025 * use_cooldown) +
-                            math.floor(((Constants.TICKS_PER_SECOND * cooldown_duration) * (1 / quality_modifier)))
+                            satellite.tick_off_cooldown = tick
+                                + math_floor(satellite.scan_count * 0.025 * use_cooldown)
+                                + math_floor((satellite_scan_cooldown_duration) * (1 / quality_modifier))
                             satellite.scan_count = satellite.scan_count + 1
 
-                            Satellite_Repository.add_satellite_data_to_cooldown({
+                            add_satellite_data_to_cooldown({
                                 satellite = satellite,
-                                planet_name = chunk_to_chart.surface.name,
+                                planet_name = chunk_surface_name,
                             })
                             satellite_meta_data.satellites_cooldown[id] = nil
-                            satellite_meta_data.updated = game.tick
+                            satellite_meta_data.updated = tick
                             chunks_to_chart[k] = nil
 
                             if (chunks_to_chart and #chunks_to_chart == 0) then
-                                local result = Chunk_To_Chart_Repository.delete_chunk_to_chart_data(optionals)
+                                local result = delete_chunk_to_chart_data()
                                 if (result and table_size(result) == 0) then
-                                    Satellite_Meta_Repository.update_satellite_meta_data({ planet_name = chunk_to_chart.surface.name, scanned = true, })
+                                    update_satellite_meta_data({ scanned = true, }, chunk_surface_name)
                                 end
                             end
 
@@ -209,7 +224,7 @@ function all_seeing_satellite_service.do_scan(surface_name)
                             break
                         end
                     else
-                        Log.debug("breaking")
+                        -- Log.debug("breaking")
                         do_break = true
                     end
                     break
@@ -219,9 +234,33 @@ function all_seeing_satellite_service.do_scan(surface_name)
 
         if (do_break) then break end
 
-        ::continue_outer::
         i = i + 1
     end
 end
+
+local update_settings = {}
+
+update_settings[Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_COOLDOWN_DURATION.name] = function (event, params) satellite_scan_cooldown_duration = (params.setting_value or 1) * TICKS_PER_SECOND end
+update_settings[Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name] = function (event, params) satellite_scan_mode = params.setting_value end
+update_settings[Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_SCANNING.name] = function (event, params) restrict_satellite_scanning = params.setting_value end
+
+local STRING = Types.STRING
+local MOD_NAME_PREFIX = MOD_NAME_PREFIX
+function all_seeing_satellite_service.on_runtime_mod_setting_changed(event, params)
+    if (not event.setting or type(event.setting) ~= STRING) then return end
+    if (not event.setting_type or type(event.setting_type) ~= STRING) then return end
+
+    if (not (string_find(event.setting, MOD_NAME_PREFIX, 1, true) == 1)) then return end
+
+    if (update_settings[event.setting]) then
+        update_settings[event.setting](event, params)
+    end
+end
+Settings_Registry:register_setting({
+    func_name = "all_seeing_satellite_service",
+    func = all_seeing_satellite_service.on_runtime_mod_setting_changed
+})
+
+function all_seeing_satellite_service.init(__storage) storage = __storage end
 
 return all_seeing_satellite_service

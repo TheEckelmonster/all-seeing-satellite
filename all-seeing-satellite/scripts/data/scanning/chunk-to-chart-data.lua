@@ -1,3 +1,5 @@
+local setmetatable = setmetatable
+
 local Data = require("scripts.data.data")
 
 local chunk_to_chart_data = {}

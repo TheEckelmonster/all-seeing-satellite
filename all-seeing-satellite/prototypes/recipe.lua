@@ -4,7 +4,7 @@ data:extend({
         name = "satellite",
         energy_required = 5,
         enabled = false,
-        category = "crafting",
+        categories = { "crafting", },
         ingredients =
         {
             { type = "item", name = "low-density-structure", amount = 100 },

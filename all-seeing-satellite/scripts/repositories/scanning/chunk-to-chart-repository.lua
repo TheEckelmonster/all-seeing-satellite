@@ -1,80 +1,95 @@
-local All_Seeing_Satellite_Data = require("scripts.data.all-seeing-satellite-data")
+local storage
+
+local game
+
+local function set_game(event, __game, __storage)
+    storage = __storage or _ENV.storage
+
+    game = __game or _ENV.game
+
+    Set_Game_Funcs()
+
+    return game
+end
+
+local pairs = pairs
+local string_find = string.find
+local table_remove = table.remove
+local table_size = table_size
+local type = type
+
+local OPTIONAL_MODE_QUEUE = Constants.optionals.mode.queue
+
+local NUMBER = Types.NUMBER
+local TABLE = Types.TABLE
+
+local All_Seeing_Satellite_Repository = require("scripts.repositories.all-seeing-satellite-repository")
+local get_all_seeing_satellite_data = All_Seeing_Satellite_Repository.get_all_seeing_satellite_data
 local Chunk_To_Chart_Data = require("scripts.data.scanning.chunk-to-chart-data")
+local new_Chunk_To_Chart_Data = Chunk_To_Chart_Data.new
+
+local satellite_scan_mode = Data_Utils.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name, })
 
 local chunk_to_chart_repository = {}
+chunk_to_chart_repository.name = "chunk_to_chart_repository"
+chunk_to_chart_repository.set_game = set_game
 
-function chunk_to_chart_repository.save_chunk_to_chart_data(data, optionals)
-    Log.debug("chunk_to_chart_repository.save_chunk_to_chart_data")
-    Log.info(data)
-    Log.info(optionals)
+function chunk_to_chart_repository.save_chunk_to_chart_data(data)
+    -- Log.debug("chunk_to_chart_repository.save_chunk_to_chart_data")
+    -- Log.info(data)
 
-    local return_val = Chunk_To_Chart_Data:new()
+    local return_val = new_Chunk_To_Chart_Data(Chunk_To_Chart_Data)
 
-    if (not game) then return return_val end
-    local tick = game.tick
-    if (not data or type(data) ~= "table") then return return_val end
-    if (not data.chunk_to_chart) then return return_val end
+    local tick = (game or set_game()).tick
+    if (not data or type(data) ~= TABLE) then return end
+    if (not data.chunk_to_chart) then return end
     local chunk_to_chart = data.chunk_to_chart
-    if (not chunk_to_chart.valid) then return end
-    if (not data.pos) then return return_val end
-    if (not data.pos.x or not data.pos.y) then return return_val end
-    if (not data.i) then return return_val end
-    if (not data.j) then return return_val end
-
-    optionals = optionals or {}
+    if (not data.pos) then return end
+    if (not data.pos.x or not data.pos.y) then return end
+    if (not data.i) then return end
+    if (not data.j) then return end
 
     local surface = chunk_to_chart.surface
-    if (not surface or not surface.valid) then return return_val end
+    if (not surface or not surface.valid) then return end
 
-    if (not storage) then return return_val end
-    if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = All_Seeing_Satellite_Data:new() end
-    if (not storage.all_seeing_satellite.staged_chunks_to_chart) then storage.all_seeing_satellite.staged_chunks_to_chart = {} end
-    if (not storage.all_seeing_satellite.staged_chunks_to_chart[tick]) then storage.all_seeing_satellite.staged_chunks_to_chart[tick] = {} end
+    local all_seeing_satellite_data = get_all_seeing_satellite_data()
+    if (not all_seeing_satellite_data) then return end
+    all_seeing_satellite_data.staged_chunks_to_chart[tick] = all_seeing_satellite_data.staged_chunks_to_chart[tick] or {}
+    local staged_chunks_to_chart = all_seeing_satellite_data.staged_chunks_to_chart[tick]
 
-    local staged_chunks_to_chart = storage.all_seeing_satellite.staged_chunks_to_chart[tick]
-
-    return_val[optionals.mode] = { i = data.i, j = data.j, }
+    return_val[satellite_scan_mode] = { i = data.i, j = data.j, }
 
     return_val.area = chunk_to_chart.area
     return_val.center = chunk_to_chart.center
-    return_val.id = game.tick
+    return_val.id = tick
     return_val.parent_id = chunk_to_chart.id
     return_val.player_index = chunk_to_chart.player_index
     return_val.pos = data.pos
     return_val.radius = chunk_to_chart.radius
     return_val.surface = surface
     return_val.surface_index = surface.index
-    return_val.valid = true
 
-    table.insert(staged_chunks_to_chart, return_val)
+    staged_chunks_to_chart[#staged_chunks_to_chart+1] = return_val
 
-    return chunk_to_chart_repository.update_chunk_to_chart_data(return_val)
+    return return_val
 end
 
-function chunk_to_chart_repository.update_chunk_to_chart_data(update_data, index, optionals)
-    Log.debug("chunk_to_chart_repository.update_chunk_to_chart_data")
-    Log.info(update_data)
-    Log.info(index)
-    Log.info(optionals)
+function chunk_to_chart_repository.update_chunk_to_chart_data(update_data, index)
+    -- Log.debug("chunk_to_chart_repository.update_chunk_to_chart_data")
+    -- Log.info(update_data)
+    -- Log.info(index)
 
-    local return_val = Chunk_To_Chart_Data:new()
+    local return_val = new_Chunk_To_Chart_Data(Chunk_To_Chart_Data)
 
-    if (not game) then return return_val end
-    if (not update_data or type(update_data) ~= "table") then return return_val end
+    if (not update_data or type(update_data) ~= TABLE) then return return_val end
 
-    optionals = optionals or {}
+    local tick = (game or set_game()).tick
 
-    local tick = game.tick
-
-    if (not storage) then return return_val end
-    if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = All_Seeing_Satellite_Data:new() end
-    if (not storage.all_seeing_satellite.staged_chunks_to_chart) then storage.all_seeing_satellite.staged_chunks_to_chart = {} end
-
-    if (not storage.all_seeing_satellite.staged_chunks_to_chart[tick]) then storage.all_seeing_satellite.staged_chunks_to_chart[tick] = {} end
-
-    local staged_chunks_to_chart = storage.all_seeing_satellite.staged_chunks_to_chart[tick]
+    local all_seeing_satellite_data = get_all_seeing_satellite_data()
+    if (not all_seeing_satellite_data) then return end
+    all_seeing_satellite_data.staged_chunks_to_chart[tick] = all_seeing_satellite_data.staged_chunks_to_chart[tick] or {}
+    local staged_chunks_to_chart = all_seeing_satellite_data.staged_chunks_to_chart[tick]
     -- Use the provided index if it exists; otherwise update the most recently added chunk
-    -- index = index or table_size(staged_chunks_to_chart)
     index = index and index >= 1 and index <= #staged_chunks_to_chart and index or #staged_chunks_to_chart
 
     for i, chunk_to_chart in pairs(staged_chunks_to_chart) do
@@ -82,8 +97,6 @@ function chunk_to_chart_repository.update_chunk_to_chart_data(update_data, index
             return_val = chunk_to_chart; break
         end
     end
-
-    if (not return_val.valid) then return return_val end
 
     for k, v in pairs(update_data) do
         return_val[k] = v
@@ -94,29 +107,17 @@ function chunk_to_chart_repository.update_chunk_to_chart_data(update_data, index
     return return_val
 end
 
-function chunk_to_chart_repository.delete_chunk_to_chart_data(optionals)
-    Log.debug("chunk_to_chart_repository.delete_chunk_to_chart_data")
-    Log.info(optionals)
+function chunk_to_chart_repository.delete_chunk_to_chart_data()
+    -- Log.debug("chunk_to_chart_repository.delete_chunk_to_chart_data")
 
-    local return_val = false
-
-    if (not game) then return return_val end
-
-    optionals = optionals or {
-        mode = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name }) or Constants.optionals.DEFAULT.mode
-    }
-
-    if (not storage) then return return_val end
-    if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = All_Seeing_Satellite_Data:new() end
-    if (not storage.all_seeing_satellite.staged_chunks_to_chart) then storage.all_seeing_satellite.staged_chunks_to_chart = {} end
-
-    local staged_chunks_to_chart = storage.all_seeing_satellite.staged_chunks_to_chart
+    local all_seeing_satellite_data = get_all_seeing_satellite_data()
+    if (not all_seeing_satellite_data) then return end
+    local staged_chunks_to_chart = all_seeing_satellite_data.staged_chunks_to_chart
 
     if (table_size(staged_chunks_to_chart) > 0) then
-        if (optionals.mode == Constants.optionals.mode.queue) then
+        if (satellite_scan_mode == OPTIONAL_MODE_QUEUE) then
             for k, v in pairs(staged_chunks_to_chart) do
                 staged_chunks_to_chart[k] = nil
-                return_val = true
                 break
             end
         else
@@ -124,98 +125,73 @@ function chunk_to_chart_repository.delete_chunk_to_chart_data(optionals)
             for k, v in pairs(staged_chunks_to_chart) do
                 obj.k = k
                 obj.v = staged_chunks_to_chart[k]
-                -- break
             end
             staged_chunks_to_chart[obj.k] = nil
-            return_val = true
         end
     end
 
     return staged_chunks_to_chart
 end
 
-function chunk_to_chart_repository.delete_chunk_to_chart_data_by_index(data, optionals)
-    Log.debug("chunk_to_chart_repository.delete_chunk_to_chart_data_by_index")
-    Log.info(data)
-    Log.info(optionals)
+function chunk_to_chart_repository.delete_chunk_to_chart_data_by_index(data)
+    -- Log.debug("chunk_to_chart_repository.delete_chunk_to_chart_data_by_index")
+    -- Log.info(data)
+    -- Log.info(optionals)
 
     local return_val = false
 
-    if (not data or type(data) ~= "table") then return return_val end
-    if (not data.pos or type(data.pos) ~= "number") then return return_val end
-    if (not game) then return return_val end
+    if (not data or type(data) ~= TABLE) then return end
+    if (not data.pos or type(data.pos) ~= NUMBER) then return end
 
     local index_pos = data.pos
     if (index_pos < 1) then return return_val end
 
-    optionals = optionals or {}
+    local all_seeing_satellite_data = get_all_seeing_satellite_data()
+    if (not all_seeing_satellite_data) then return end
+    local staged_chunks_to_chart = all_seeing_satellite_data.staged_chunks_to_chart
 
-    if (not storage) then return return_val end
-    if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = All_Seeing_Satellite_Data:new() end
-    if (not storage.all_seeing_satellite.staged_chunks_to_chart) then storage.all_seeing_satellite.staged_chunks_to_chart = {} end
+    if (index_pos > table_size(staged_chunks_to_chart)) then return end
 
-    local staged_chunks_to_chart = storage.all_seeing_satellite.staged_chunks_to_chart
-
-    if (index_pos > table_size(staged_chunks_to_chart)) then return return_val end
-
-    table.remove(staged_chunks_to_chart, index_pos)
+    table_remove(staged_chunks_to_chart, index_pos)
     return_val = true
 
     return return_val
 end
 
-function chunk_to_chart_repository.get_chunk_to_chart_data(optionals)
-    Log.debug("chunk_to_chart_repository.get_chunk_to_chart_data")
-    Log.info(optionals)
+function chunk_to_chart_repository.get_chunk_to_chart_data()
+    -- Log.debug("chunk_to_chart_repository.get_chunk_to_chart_data")
 
-    local return_val = Chunk_To_Chart_Data:new()
+    local return_val = new_Chunk_To_Chart_Data(Chunk_To_Chart_Data)
 
-    if (not game) then return return_val end
-
-    optionals = optionals or {
-        mode = Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name }) or Constants.optionals.DEFAULT.mode
-    }
-
-    if (not storage) then return return_val end
-    if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = All_Seeing_Satellite_Data:new() end
-    if (not storage.all_seeing_satellite.staged_chunks_to_chart) then storage.all_seeing_satellite.staged_chunks_to_chart = {} end
-
-    local staged_chunks_to_chart = storage.all_seeing_satellite.staged_chunks_to_chart
+    local all_seeing_satellite_data = get_all_seeing_satellite_data()
+    if (not all_seeing_satellite_data) then return end
+    local staged_chunks_to_chart = all_seeing_satellite_data.staged_chunks_to_chart
 
     for _, v in pairs(staged_chunks_to_chart) do
         return_val = v
-        if (optionals.mode == Constants.optionals.mode.queue) then break end
+        if (satellite_scan_mode == OPTIONAL_MODE_QUEUE) then break end
     end
 
     return return_val
 end
 
-function chunk_to_chart_repository.get_chunk_to_chart_data_by_index(data, optionals)
-    Log.debug("chunk_to_chart_repository.get_chunk_to_chart_data")
-    Log.info(data)
-    Log.info(optionals)
+function chunk_to_chart_repository.get_chunk_to_chart_data_by_index(data)
+    -- Log.debug("chunk_to_chart_repository.get_chunk_to_chart_data")
+    -- Log.info(data)
 
-    local return_val = Chunk_To_Chart_Data:new()
+    local return_val = new_Chunk_To_Chart_Data(Chunk_To_Chart_Data)
 
-    if (not data or type(data) ~= "table") then return return_val end
-    if (not data.pos or type(data.pos) ~= "number") then return return_val end
-    if (not game) then return return_val end
+    if (not data or type(data) ~= TABLE) then return end
+    if (not data.pos or type(data.pos) ~= NUMBER) then return end
 
     local index_pos = data.pos
-    if (index_pos < 1) then
-        index_pos = 1
-    end
+    if (index_pos < 1) then index_pos = 1 end
 
-    optionals = optionals or {}
+    local all_seeing_satellite_data = get_all_seeing_satellite_data()
+    if (not all_seeing_satellite_data) then return end
+    local staged_chunks_to_chart = all_seeing_satellite_data.staged_chunks_to_chart
 
-    if (not storage) then return return_val end
-    if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = All_Seeing_Satellite_Data:new() end
-    if (not storage.all_seeing_satellite.staged_chunks_to_chart) then storage.all_seeing_satellite.staged_chunks_to_chart = {} end
-
-    local staged_chunks_to_chart = storage.all_seeing_satellite.staged_chunks_to_chart
-
-    -- if (index_pos > table_size(staged_chunks_to_chart)) then return return_val end
-    if (index_pos > #staged_chunks_to_chart) then return return_val end
+    if (index_pos > #staged_chunks_to_chart) then return end
 
     for i, chunks_to_chart in pairs(staged_chunks_to_chart) do
         if (i == index_pos) then
@@ -226,21 +202,35 @@ function chunk_to_chart_repository.get_chunk_to_chart_data_by_index(data, option
     return return_val
 end
 
-function chunk_to_chart_repository.get_all_chunk_to_chart_data(optionals)
-    Log.debug("chunk_to_chart_repository.get_all_chunk_to_chart_data")
-    Log.info(optionals)
+function chunk_to_chart_repository.get_all_chunk_to_chart_data()
+    -- Log.debug("chunk_to_chart_repository.get_all_chunk_to_chart_data")
 
-    local return_val = {}
-
-    if (not game) then return return_val end
-
-    optionals = optionals or {}
-
-    if (not storage) then return return_val end
-    if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = {} end
-    if (not storage.all_seeing_satellite.staged_chunks_to_chart) then storage.all_seeing_satellite.staged_chunks_to_chart = {} end
-
-    return storage.all_seeing_satellite.staged_chunks_to_chart
+    local all_seeing_satellite_data = get_all_seeing_satellite_data()
+    if (not all_seeing_satellite_data) then return end
+    return all_seeing_satellite_data.staged_chunks_to_chart
 end
+
+local update_settings = {}
+
+update_settings[Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name] = function (event, params) satellite_scan_mode = params.setting_value end
+
+local STRING = Types.STRING
+local MOD_NAME_PREFIX = MOD_NAME_PREFIX
+function chunk_to_chart_repository.on_runtime_mod_setting_changed(event, params)
+    if (not event.setting or type(event.setting) ~= STRING) then return end
+    if (not event.setting_type or type(event.setting_type) ~= STRING) then return end
+
+    if (not (string_find(event.setting, MOD_NAME_PREFIX, 1, true) == 1)) then return end
+
+    if (update_settings[event.setting]) then
+        update_settings[event.setting](event, params)
+    end
+end
+Settings_Registry:register_setting({
+    func_name = "chunk_to_chart_repository",
+    func = chunk_to_chart_repository.on_runtime_mod_setting_changed
+})
+
+function chunk_to_chart_repository.init(__storage) storage = __storage end
 
 return chunk_to_chart_repository
