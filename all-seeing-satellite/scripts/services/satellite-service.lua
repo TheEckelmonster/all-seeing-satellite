@@ -56,6 +56,7 @@ local calculate_tick_to_die = Satellite_Utils.calculate_tick_to_die
 local sa_active = active_mods and active_mods["space-age"]
 
 local track_satellites_launched_for_research = not sa_active and Data_Utils.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.TRACK_SATELLITES_LAUNCHED_FOR_RESEARCH.name, })
+local satellite_out_of_fuel_message = Data_Utils.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_OUT_OF_FUEL_MESSAGE.name, })
 
 local satellite_service = {}
 satellite_service.name = "satellite_service"
@@ -151,8 +152,11 @@ function satellite_service.check_for_expired_satellites(planet_name, tick)
                 if (satellite_meta_data.satellites_in_orbit) then
                     get_num_satellites_in_orbit(satellite_meta_data)
                 end
-                if (satellite_data.force and satellite_data.force.valid) then
-                    satellite_data.force.print({ MSG_SATELLITE_OUT_OF_FUEL, format_surface_name({ string_data = satellite_data.planet_name }) })
+                if (satellite_out_of_fuel_message) then
+                    local force = satellite_data.force
+                    if (force and force.valid) then
+                        force.print({ MSG_SATELLITE_OUT_OF_FUEL, format_surface_name({ string_data = satellite_data.planet_name }) })
+                    end
                 end
             end
         elseif (tick < satellite_data.tick_to_die) then
@@ -185,6 +189,7 @@ end
 
 local update_settings = {}
 
+update_settings[Runtime_Global_Settings_Constants.settings.SATELLITE_OUT_OF_FUEL_MESSAGE.name] = function (event, params) satellite_out_of_fuel_message = params.setting_value end
 update_settings[Runtime_Global_Settings_Constants.settings.TRACK_SATELLITES_LAUNCHED_FOR_RESEARCH.name] = function (event, params) track_satellites_launched_for_research = params.setting_value end
 
 local STRING = Types.STRING

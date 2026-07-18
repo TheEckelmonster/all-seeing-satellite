@@ -28,9 +28,6 @@ local String_Utils = require("scripts.utils.string-utils")
 local Version_Data = require("scripts.data.version-data")
 local Version_Service = require("scripts.services.version-service")
 
-local sa_active = script and script.active_mods and script.active_mods["space-age"]
-local se_active = script and script.active_mods and script.active_mods["space-exploration"]
-
 local initialization = {}
 
 local locals = {}
@@ -70,16 +67,12 @@ function locals.initialize(from_scratch, maintain_data)
     Log.info(from_scratch)
     Log.info(maintain_data)
 
-    local all_seeing_satellite_data = All_Seeing_Satellite_Repository.get_all_seeing_satellite_data()
-    Log.info(all_seeing_satellite_data)
-
-    all_seeing_satellite_data.do_nth_tick = false
-
     from_scratch = from_scratch or false
     maintain_data = maintain_data or false
 
     if (not from_scratch) then
         -- Version check
+        local all_seeing_satellite_data = All_Seeing_Satellite_Repository.get_all_seeing_satellite_data()
         local version_data = storage.version_data or all_seeing_satellite_data.version_data
         if (version_data and not version_data.valid) then
             local version = initialization.last_version_result
@@ -87,7 +80,7 @@ function locals.initialize(from_scratch, maintain_data)
             if (not version.major or not version.minor or not version.bug_fix) then goto initialize end
             if (not version.major.valid) then goto initialize end
             if (not version.minor.valid or not version.bug_fix.valid) then
-                return locals.initialize(true, true)
+                return
             end
 
             ::initialize::
@@ -97,7 +90,7 @@ function locals.initialize(from_scratch, maintain_data)
             initialization.last_version_result = version
             if (not version or not version.valid) then
                 (version_data or {}).valid = false
-                return all_seeing_satellite_data
+                return
             end
         end
     end
@@ -124,9 +117,6 @@ function locals.initialize(from_scratch, maintain_data)
         storage.storage_old = nil
     end
 
-    storage.sa_active = sa_active ~= nil and sa_active or storage.sa_active
-    storage.se_active = se_active ~= nil and se_active or storage.se_active
-
     Constants.get_planet_data({ reindex = true })
 
     -- Player data
@@ -150,7 +140,7 @@ function locals.initialize(from_scratch, maintain_data)
                     if (not character_data) then
                         Log.warn("Invalid character data detected")
                         Log.debug(character_data)
-                        Player_Repository.update_player_data({ player_index = player_data.player_index, valid = false, })
+                        Player_Repository.update_player_data({ player_index = player_data.player_index, })
                         goto continue
                     end
                 end
@@ -199,23 +189,16 @@ function locals.initialize(from_scratch, maintain_data)
                         satellite_meta_data.satellites_toggled = Satellite_Toggle_Data:new({
                             planet_name = planet_name,
                             toggle = false,
-                            valid = true
                         })
                     elseif (not satellite_meta_data.satellites_toggled) then
                         satellite_meta_data.satellites_toggled = Satellite_Toggle_Data:new({
                             planet_name = planet_name,
                             toggle = false,
-                            valid = true
                         })
                     end
                 end
             end
         end
-    end
-
-
-    if (storage and storage.all_seeing_satellite) then
-        storage.all_seeing_satellite.do_nth_tick = true
     end
 
     if (raise_event) then
@@ -227,25 +210,7 @@ function locals.initialize(from_scratch, maintain_data)
 
     if (from_scratch) then log("all-seeing-satellite: Initialization complete") end
     if (from_scratch and game) then game.print("all-seeing-satellite: Initialization complete") end
-    -- Log.info(storage)
-
-    return all_seeing_satellite_data
 end
-
-function locals.add_rocket_silo(satellite_meta_data, rocket_silo)
-    Log.debug("add_rocket_silo")
-    Log.info(satellite_meta_data)
-    Log.info(rocket_silo)
-
-    if (not rocket_silo or not rocket_silo.valid or not rocket_silo.surface or not rocket_silo.surface.valid) then
-        Log.warn("Call to add_rocket_silo with an invalid rocket-silo")
-        Log.debug(rocket_silo)
-        return
-    end
-
-    Log.debug("saving rocket silo")
-end
-
 
 function locals.migrate(params)
     -- Log.debug("migrate")

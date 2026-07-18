@@ -28,6 +28,8 @@ data:extend({
         drop_sound = Item_Sounds.mechanical_inventory_move,
         stack_size = 1,
         weight = 1 * tons,
+        hidden = true,
+        hidden_in_factoriopedia = true,
     },
     {
         type = "selection-tool",
@@ -52,7 +54,7 @@ data:extend({
         alt_select =
         {
             border_color = { 239, 153, 34 },
-            mode = { "any-tile" },
+            mode = { "nothing" },
             cursor_box_type = "copy",
         },
         open_sound = "__base__/sound/item-open.ogg",

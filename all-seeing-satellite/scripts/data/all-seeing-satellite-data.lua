@@ -1,6 +1,6 @@
 local setmetatable = setmetatable
 
-local Data = Data or require("__TheEckelmonster-core-library__.libs.data.data")
+local Data = Data or require("scripts.data.data")
 local new_Data = Data.new
 
 local all_seeing_satellite_data = {}

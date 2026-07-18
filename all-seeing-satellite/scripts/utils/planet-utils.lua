@@ -17,6 +17,7 @@ local find_invalid_substrings = String_Utils.find_invalid_substrings
 
 local require_satellites_in_orbit = Data_Utils.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.REQUIRE_SATELLITES_IN_ORBIT.name })
 local restrict_satellite_mode = Data_Utils.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_MODE.name })
+local restrict_satellite_scanning = Data_Utils.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_SCANNING.name })
 local global_launch_satellite_threshold = Data_Utils.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.name })
 local global_launch_satellite_threshold_modifier = Data_Utils.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD_MODIFIER.name })
 
@@ -91,11 +92,11 @@ function planet_utils.allow_scan(surface_name)
 
     if (not surface_name) then return false end
 
-    if (not restrict_satellite_mode) then return true end
+    if (not restrict_satellite_scanning) then return true end
 
     local satellite_meta_data = get_satellite_meta_data(surface_name)
 
-    return satellite_meta_data and (satellite_meta_data.satellites_in_orbit > 0 or #satellite_meta_data.satellites > 0)
+    return satellite_meta_data and (satellite_meta_data.satellites_in_orbit >= 0 or #satellite_meta_data.satellites >= 0)
 end
 
 locals.get_planet_magnitude = function(surface_name)
@@ -127,6 +128,7 @@ end
 local update_settings = {}
 
 update_settings[Runtime_Global_Settings_Constants.settings.REQUIRE_SATELLITES_IN_ORBIT.name] = function (event, params) require_satellites_in_orbit = params.setting_value end
+update_settings[Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_SCANNING.name] = function (event, params) restrict_satellite_scanning = params.setting_value end
 update_settings[Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_MODE.name] = function (event, params) restrict_satellite_mode = params.setting_value end
 update_settings[Runtime_Global_Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD.name] = function (event, params) global_launch_satellite_threshold = params.setting_value end
 update_settings[Runtime_Global_Settings_Constants.settings.GLOBAL_LAUNCH_SATELLITE_THRESHOLD_MODIFIER.name] = function (event, params) global_launch_satellite_threshold_modifier = params.setting_value end

@@ -31,8 +31,6 @@ local check_for_areas_to_stage = All_Seeing_Satellite_Service.check_for_areas_to
 local do_scan = All_Seeing_Satellite_Service.do_scan
 local Fog_Of_War_Service = require("scripts.services.fog-of-war-service")
 local toggle_FoW = Fog_Of_War_Service.toggle_FoW
-local Planet_Utils = require("scripts.utils.planet-utils")
-local allow_scan = Planet_Utils.allow_scan
 local Satellite_Service = require("scripts.services.satellite-service")
 local check_for_expired_satellites = Satellite_Service.check_for_expired_satellites
 
@@ -48,14 +46,9 @@ local nth_tick =   Data_Utils.get_runtime_global_setting({ setting = Runtime_Glo
 
 function all_seeing_satellite_controller.on_tick_pocess_scanning(event)
     all_seeing_satellite_data = all_seeing_satellite_data or set_game() and all_seeing_satellite_data
-    if (not all_seeing_satellite_data.do_nth_tick) then return end
 
     if (all_seeing_satellite_data.do_scan and all_seeing_satellite_controller.planet) then
-        if (allow_scan(all_seeing_satellite_controller.planet.name)) then
-            if (check_for_areas_to_stage()) then
-                do_scan(all_seeing_satellite_controller.planet.name)
-            end
-        end
+        if (check_for_areas_to_stage()) then do_scan(all_seeing_satellite_controller.planet.name) end
     end
 end
 Event_Handler:register_event({
@@ -67,7 +60,6 @@ Event_Handler:register_event({
 
 function all_seeing_satellite_controller.check_for_expired_satellites(event)
     all_seeing_satellite_data = all_seeing_satellite_data or set_game() and all_seeing_satellite_data
-    if (not all_seeing_satellite_data.do_nth_tick) then return end
 
     planets_dictionary = planets_dictionary or set_game() and planets_dictionary
     all_seeing_satellite_controller.planet_index, all_seeing_satellite_controller.planet = next(planets_dictionary, all_seeing_satellite_controller.planet_index)
@@ -88,7 +80,6 @@ Event_Handler:register_event({
 
 function all_seeing_satellite_controller.on_nth_tick(event)
     all_seeing_satellite_data = all_seeing_satellite_data or set_game() and all_seeing_satellite_data
-    if (not all_seeing_satellite_data.do_nth_tick and all_seeing_satellite_data.version_data) then return end
 
     planets_dictionary = planets_dictionary or set_game() and planets_dictionary
     all_seeing_satellite_controller.planet_index, all_seeing_satellite_controller.planet = next(planets_dictionary, all_seeing_satellite_controller.planet_index)

@@ -17,10 +17,13 @@ function Set_Game_Funcs()
     Force_Funcs = _ENV.Force_Funcs
     for name, force in pairs(game.forces) do
         if (force.valid) then
+            local index = force.index
             Forces[name] = force
-            Forces.list[force.index] = name
-            Force_Funcs[name] = Force_Funcs[name] or {}
+            Forces.list[index] = name
+            Force_Funcs[index] = Force_Funcs[index] or {}
+            Force_Funcs[name] = Force_Funcs[index] or {}
             Force_Funcs[name].print = Force_Funcs[name].print or force.print
+            Force_Funcs[name].chart = Force_Funcs[name].chart or force.chart
         else
             Forces[name] = nil
         end
@@ -71,6 +74,8 @@ function Set_game_all(event)
     local __game, __storage = _ENV.game, _ENV.storage
     __storage.settings_map = __storage.settings_map or {}
     __storage.settings_map.runtime_global = __storage.settings_map.runtime_global or {}
+
+    Set_Game_Funcs()
 
     for _, v in ipairs(To_Set_Game.to_set or {}) do
         if (type(v.set_game) == "function") then

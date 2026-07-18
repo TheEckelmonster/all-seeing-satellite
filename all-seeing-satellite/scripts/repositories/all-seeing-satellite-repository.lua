@@ -25,7 +25,7 @@ all_seeing_satellite_repository.set_game = set_game
 
 function all_seeing_satellite_repository.save_all_seeing_satellite_data()
     -- Log.debug("all_seeing_satellite_repository.save_all_seeing_satellite_data")
-    return all_seeing_satellite_data or set_game() and all_seeing_satellite_data
+    return set_game() and all_seeing_satellite_data
 end
 
 function all_seeing_satellite_repository.update_all_seeing_satellite_data(update_data)

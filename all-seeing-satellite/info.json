@@ -1,4 +1,11 @@
 {
+    "custom_output_directory": "D:/My_Documents/Games/Factorio/_Experimental/Factorio_2.1.8/mods/",
+    "use_custom_output_directory": false,
+    "default_exe_path": "D:/Steam/steamapps/common/Factorio/bin/x64/factorio.exe",
+    "custom_exe_path": "D:/My_Documents/Games/Factorio/_Experimental/Factorio_2.1.8/bin/x64/factorio.exe",
+    "use_custom_exe_path": false,
+    "launch_game_after_build": false,
+
 	"name": "all-seeing-satellite",
 	"version": "1.0.0",
 	"factorio_version": "2.1",

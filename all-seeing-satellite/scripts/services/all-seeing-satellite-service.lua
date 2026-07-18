@@ -14,7 +14,9 @@ local function set_game(event, __game, __storage)
     return game
 end
 
+local ipairs = ipairs
 local math_floor = math.floor
+local pairs = pairs
 local string_find = string.find
 
 local table_size = table_size
@@ -62,30 +64,23 @@ local all_seeing_satellite_service = {}
 function all_seeing_satellite_service.check_for_areas_to_stage()
     -- Log.debug("all_seeing_satellite_service.check_for_areas_to_stage")
 
-    local optionals = { mode = satellite_scan_mode, i = nil, j = nil, }
-    local mode = satellite_scan_mode
+    local optionals = { mode = satellite_scan_mode, }
 
     local area_to_chart = get_area_to_chart_data()
 
     if (not area_to_chart) then return end
-    if (not area_to_chart.surface or not allow_scan(area_to_chart.surface.name)) then return end
+    if (not allow_scan(area_to_chart.surface_name)) then return end
 
     if (not area_to_chart.started) then
         local player = (game or set_game()) and get_player and get_player(area_to_chart.player_index)
         if (player and player.valid) then
-            -- Log.debug("starting scan")
             player.force.print(MSG_START_SCAN_TBL)
         end
 
-        update_satellite_meta_data({ scanned = false, }, area_to_chart.surface.name)
+        update_satellite_meta_data({ scanned = false, }, area_to_chart.surface_name)
         stage_selected_chunk(area_to_chart, optionals)
         update_area_to_chart_data({ started = true, })
     end
-
-    if (not area_to_chart[mode]) then area_to_chart[mode] = { i = 0, j = 0 } end
-
-    optionals.i = area_to_chart[mode].i
-    optionals.j = area_to_chart[mode].j
 
     local chunks_to_chart = get_chunk_to_chart_data()
 
@@ -132,7 +127,6 @@ end
 
 function all_seeing_satellite_service.do_scan(surface_name)
     -- Log.debug("all_seeing_satellite_service.do_scan")
-
     local chunks_to_chart = get_chunk_to_chart_data()
     if (not chunks_to_chart) then
         return
@@ -151,10 +145,7 @@ function all_seeing_satellite_service.do_scan(surface_name)
     local i = 0
     local do_break = false
     local chunk_surface_name = EMPTY
-    for k, chunk_to_chart in pairs(chunks_to_chart) do
-        -- Log.debug(k)
-        -- Log.debug(chunk_to_chart)
-
+    for k, chunk_to_chart in ipairs(chunks_to_chart) do
         chunk_surface_name = chunk_to_chart.surface.name or EMPTY
 
         if (not restrict_satellite_scanning) then
@@ -164,8 +155,6 @@ function all_seeing_satellite_service.do_scan(surface_name)
                 if (chunks_to_chart and #chunks_to_chart == 0) then
                     local result = delete_chunk_to_chart_data()
                     if (result and table_size(result) == 0) then
-                        -- Log.debug("scan complete")
-
                         local area_to_chart = get_area_to_chart_data()
 
                         if (area_to_chart and area_to_chart.complete) then
@@ -181,19 +170,12 @@ function all_seeing_satellite_service.do_scan(surface_name)
         else
             if (allow_scan(chunk_surface_name)) then
                 local satellite_meta_data = get_satellite_meta_data(chunk_surface_name)
-
                 if (not satellite_meta_data) then return end
-                -- Log.info(satellites)
-
                 if (not satellite_meta_data.satellites_cooldown) then break end
 
                 for id, satellite in pairs(satellite_meta_data.satellites_cooldown) do
-                    -- Log.info("tick: " .. serpent.block(tick))
-                    -- Log.info("id: " .. serpent.block(id))
-                    -- Log.info(satellite)
                     if (satellite.tick_off_cooldown < tick) then
                         if (scan_selected_chunk(chunk_to_chart)) then
-                            -- Log.info("scanned")
                             local quality_modifier = quality_active and get_quality_multiplier(satellite.quality) or 1
                             local use_cooldown = 0
                             if (satellite_scan_cooldown_duration > 0) then use_cooldown = 1 end
@@ -224,7 +206,6 @@ function all_seeing_satellite_service.do_scan(surface_name)
                             break
                         end
                     else
-                        -- Log.debug("breaking")
                         do_break = true
                     end
                     break

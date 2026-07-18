@@ -1,11 +1,15 @@
 local storage
 
 local game
+local get_player
 
 local function set_game(event, __game, __storage)
     storage = __storage or _ENV.storage
 
     game = __game or _ENV.game
+    get_player = get_player or game.get_player
+
+    Set_Game_Funcs()
 
     return game
 end
@@ -33,46 +37,58 @@ local get_all_seeing_satellite_data = All_Seeing_Satellite_Repository.get_all_se
 local satellite_scan_mode = Data_Utils.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name, })
 
 local area_to_chart_repository = {}
-area_to_chart_repository.name = area_to_chart_repository
+area_to_chart_repository.name = "area_to_chart_repository"
 area_to_chart_repository.set_game = set_game
 
-function area_to_chart_repository.save_area_to_chart_data(data)
+function area_to_chart_repository.save_area_to_chart_data(params)
     -- Log.debug("area_to_chart_repository.save_area_to_chart_data")
-    -- Log.info(data)
+    -- Log.info(params)
 
     local return_val = new_Area_To_Chart_Data(Area_To_Chart_Data)
 
-    if (not data or type(data) ~= TABLE) then return end
-    if (not data.area) then return end
-    if (not data.area.left_top or not data.area.right_bottom) then return end
-    if (not data.area.left_top.x or not data.area.left_top.y) then return end
-    if (not data.area.right_bottom.x or not data.area.right_bottom.y) then return end
-    if (not data.player_index) then return end
-    if (not data.surface) then return end
+    if (not params or type(params) ~= TABLE) then return end
+    if (not params.area) then return end
+    local area = params.area
+    if (not area.left_top or not params.area.right_bottom) then return end
+    local left_top = area.left_top
+    if (not left_top.x or not left_top.y) then return end
+    local right_bottom = area.right_bottom
+    if (not right_bottom.x or not right_bottom.y) then return end
 
-    local surface = data.surface
+    if (not params.player_index or not ((game or set_game()) and get_player)) then return end
+    local player = get_player(params.player_index)
+    if (not player or not player.valid) then return end
+    local force = player.force
+    if (not force or not force.valid) then return end
+
+    local surface = params.surface
     if (not surface or not surface.valid) then return end
 
     local all_seeing_satellite_data = get_all_seeing_satellite_data()
     if (not all_seeing_satellite_data) then return end
+    all_seeing_satellite_data.staged_areas_to_chart = all_seeing_satellite_data.staged_areas_to_chart or {}
     local staged_areas_to_chart = all_seeing_satellite_data.staged_areas_to_chart
 
     local center = {
-        x = (data.area.left_top.x + data.area.right_bottom.x) / 2,
-        y = (data.area.left_top.y + data.area.right_bottom.y) / 2
+        x = (left_top.x + right_bottom.x) / 2,
+        y = (left_top.y + right_bottom.y) / 2
     }
 
-    local dx = center.x - data.area.right_bottom.x
-    local dy = center.y - data.area.right_bottom.y
+    local dx = center.x - right_bottom.x
+    local dy = center.y - right_bottom.y
     local radius = math_floor(math_sqrt((dx * dx) + (dy * dy)) / CHUNK_SIZE)
 
-    return_val.area = data.area
+    return_val.area = area
     return_val.center = center
     return_val.id = (game or set_game()).tick
-    return_val.player_index = data.player_index
-    return_val.pos = { x = center.x, y = center.y, }
+    return_val.player_index = params.player_index
+    return_val.force_index = force.index
+    return_val.pos = return_val.pos or {}
+    local pos = return_val.pos
+    pos.x, pos.y = center.x, center.y
     return_val.radius = radius
-    return_val.surface = data.surface
+    return_val.surface = surface
+    return_val.surface_name = surface.name
     return_val.surface_index = surface.index
 
     staged_areas_to_chart[#staged_areas_to_chart+1] = return_val
@@ -111,16 +127,16 @@ function area_to_chart_repository.update_area_to_chart_data(update_data, index)
     return return_val
 end
 
-function area_to_chart_repository.delete_area_to_chart_data(data)
+function area_to_chart_repository.delete_area_to_chart_data(params)
     -- Log.debug("area_to_chart_repository.delete_area_to_chart_data")
-    -- Log.info(data)
+    -- Log.info(params)
 
     local return_val = false
 
-    if (not data or type(data) ~= TABLE) then return end
-    if (not data.pos or type(data.pos) ~= NUMBER) then return end
+    if (not params or type(params) ~= TABLE) then return end
+    if (not params.pos or type(params.pos) ~= NUMBER) then return end
 
-    local index_pos = data.pos
+    local index_pos = params.pos
     if (index_pos < 1) then return end
 
     local all_seeing_satellite_data = get_all_seeing_satellite_data()
@@ -177,16 +193,16 @@ function area_to_chart_repository.get_area_to_chart_data()
     return return_val
 end
 
-function area_to_chart_repository.get_area_to_chart_data_by_index(data)
+function area_to_chart_repository.get_area_to_chart_data_by_index(params)
     -- Log.debug("area_to_chart_repository.get_area_to_chart_data_by_index")
-    -- Log.info(data)
+    -- Log.info(params)
 
     local return_val = new_Area_To_Chart_Data(Area_To_Chart_Data)
 
-    if (not data or type(data) ~= TABLE) then return end
-    if (not data.pos or type(data.pos) ~= NUMBER) then return end
+    if (not params or type(params) ~= TABLE) then return end
+    if (not params.pos or type(params.pos) ~= NUMBER) then return end
 
-    local index_pos = data.pos
+    local index_pos = params.pos
     if (index_pos < 1) then
         index_pos = 1
     end

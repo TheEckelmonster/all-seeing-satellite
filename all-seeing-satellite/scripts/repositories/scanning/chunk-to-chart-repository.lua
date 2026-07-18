@@ -1,11 +1,13 @@
 local storage
 
 local game
+local get_player
 
 local function set_game(event, __game, __storage)
     storage = __storage or _ENV.storage
 
     game = __game or _ENV.game
+    get_player = game.get_player
 
     Set_Game_Funcs()
 
@@ -34,37 +36,38 @@ local chunk_to_chart_repository = {}
 chunk_to_chart_repository.name = "chunk_to_chart_repository"
 chunk_to_chart_repository.set_game = set_game
 
-function chunk_to_chart_repository.save_chunk_to_chart_data(data)
+function chunk_to_chart_repository.save_chunk_to_chart_data(chunk_to_chart, pos)
     -- Log.debug("chunk_to_chart_repository.save_chunk_to_chart_data")
-    -- Log.info(data)
+    -- Log.info(params)
 
-    local return_val = new_Chunk_To_Chart_Data(Chunk_To_Chart_Data)
+    if (not chunk_to_chart) then return end
+    if (not pos) then return end
+    if (not pos.x or not pos.y) then return end
 
-    local tick = (game or set_game()).tick
-    if (not data or type(data) ~= TABLE) then return end
-    if (not data.chunk_to_chart) then return end
-    local chunk_to_chart = data.chunk_to_chart
-    if (not data.pos) then return end
-    if (not data.pos.x or not data.pos.y) then return end
-    if (not data.i) then return end
-    if (not data.j) then return end
+    if (not chunk_to_chart.player_index or not ((game or set_game()) and get_player)) then return end
+    local player = get_player(chunk_to_chart.player_index)
+    if (not player or not player.valid) then return end
+    local force = player.force
+    if (not force or not force.valid) then return end
 
     local surface = chunk_to_chart.surface
     if (not surface or not surface.valid) then return end
+
+    local tick = (game or set_game()).tick
 
     local all_seeing_satellite_data = get_all_seeing_satellite_data()
     if (not all_seeing_satellite_data) then return end
     all_seeing_satellite_data.staged_chunks_to_chart[tick] = all_seeing_satellite_data.staged_chunks_to_chart[tick] or {}
     local staged_chunks_to_chart = all_seeing_satellite_data.staged_chunks_to_chart[tick]
 
-    return_val[satellite_scan_mode] = { i = data.i, j = data.j, }
+    local return_val = new_Chunk_To_Chart_Data(Chunk_To_Chart_Data)
 
     return_val.area = chunk_to_chart.area
     return_val.center = chunk_to_chart.center
     return_val.id = tick
-    return_val.parent_id = chunk_to_chart.id
     return_val.player_index = chunk_to_chart.player_index
-    return_val.pos = data.pos
+    return_val.force_index = force.index
+    return_val.pos = pos
     return_val.radius = chunk_to_chart.radius
     return_val.surface = surface
     return_val.surface_index = surface.index
@@ -133,17 +136,17 @@ function chunk_to_chart_repository.delete_chunk_to_chart_data()
     return staged_chunks_to_chart
 end
 
-function chunk_to_chart_repository.delete_chunk_to_chart_data_by_index(data)
+function chunk_to_chart_repository.delete_chunk_to_chart_data_by_index(params)
     -- Log.debug("chunk_to_chart_repository.delete_chunk_to_chart_data_by_index")
-    -- Log.info(data)
+    -- Log.info(params)
     -- Log.info(optionals)
 
     local return_val = false
 
-    if (not data or type(data) ~= TABLE) then return end
-    if (not data.pos or type(data.pos) ~= NUMBER) then return end
+    if (not params or type(params) ~= TABLE) then return end
+    if (not params.pos or type(params.pos) ~= NUMBER) then return end
 
-    local index_pos = data.pos
+    local index_pos = params.pos
     if (index_pos < 1) then return return_val end
 
     local all_seeing_satellite_data = get_all_seeing_satellite_data()
@@ -175,16 +178,16 @@ function chunk_to_chart_repository.get_chunk_to_chart_data()
     return return_val
 end
 
-function chunk_to_chart_repository.get_chunk_to_chart_data_by_index(data)
+function chunk_to_chart_repository.get_chunk_to_chart_data_by_index(params)
     -- Log.debug("chunk_to_chart_repository.get_chunk_to_chart_data")
-    -- Log.info(data)
+    -- Log.info(params)
 
     local return_val = new_Chunk_To_Chart_Data(Chunk_To_Chart_Data)
 
-    if (not data or type(data) ~= TABLE) then return end
-    if (not data.pos or type(data.pos) ~= NUMBER) then return end
+    if (not params or type(params) ~= TABLE) then return end
+    if (not params.pos or type(params.pos) ~= NUMBER) then return end
 
-    local index_pos = data.pos
+    local index_pos = params.pos
     if (index_pos < 1) then index_pos = 1 end
 
     local all_seeing_satellite_data = get_all_seeing_satellite_data()

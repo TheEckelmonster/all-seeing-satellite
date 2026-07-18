@@ -3,6 +3,8 @@ local storage
 local game
 local get_player
 
+local force_funcs
+
 local function set_game(event, __game, __storage)
     storage = __storage or _ENV.storage
 
@@ -10,34 +12,28 @@ local function set_game(event, __game, __storage)
     get_player = get_player or game.get_player
 
     Set_Game_Funcs()
+    force_funcs = _ENV.Force_Funcs
 
     return game
 end
 
-local math_sqrt = math.sqrt
-
 local string_find = string.find
+local table_sort = table.sort
+local type = type
 
+local CHUNK_SIZE = Constants.CHUNK_SIZE
 local HALF_CHUNK = Constants.CHUNK_SIZE / 2
 local MODE_QUEUE = Constants.optionals.mode.queue
-local MODE_STACK = Constants.optionals.mode.stack
 
-local Area_To_Chart_Repository = require("scripts.repositories.scanning.area-to-chart-repository")
+local Simple_Queue = Simple_Queue or require("scripts.data.simple-queue")
+local new_Simple_Queue = Simple_Queue.new
+
 local Chunk_To_Chart_Repository = require("scripts.repositories.scanning.chunk-to-chart-repository")
 local save_chunk_to_chart_data = Chunk_To_Chart_Repository.save_chunk_to_chart_data
 
 local satellite_scan_mode = Data_Utils.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.SATELLITE_SCAN_MODE.name, })
 
 local scan_chunk_service = {}
-
-function scan_chunk_service.stage_selected_area(event)
-    -- Log.debug("scan_chunk_service.stage_selected_area")
-    -- Log.info(event)
-
-    if (not event) then return end
-
-    Area_To_Chart_Repository.save_area_to_chart_data(event)
-end
 
 function scan_chunk_service.clear_selected_chunks(event)
     Log.debug("scan_chunk_service.clear_selected_chunks")
@@ -88,224 +84,188 @@ function scan_chunk_service.clear_selected_chunks(event)
 end
 
 local fallback_optionals = {}
+local function sort(a, b) return a.dist_sq < b.dist_sq end
 function scan_chunk_service.stage_selected_chunk(chunk_to_chart, optionals)
-    -- Log.debug("scan_chunk_service.stage_selected_chunk")
-    -- Log.info(chunk_to_chart)
+    if (not chunk_to_chart) then return end
+
+    if (not chunk_to_chart.surface) then return end
+    if (not chunk_to_chart.center) then return end
+    local center = chunk_to_chart.center
+    if (not center.x or not center.y) then return end
 
     if (not optionals) then
-        fallback_optionals.mode, fallback_optionals.i, fallback_optionals.j = satellite_scan_mode, 0, 0
+        fallback_optionals.mode = satellite_scan_mode
         optionals = fallback_optionals
     end
+    optionals.mode = optionals.mode or satellite_scan_mode
+    local selected_mode = optionals.mode
+    chunk_to_chart[selected_mode] = chunk_to_chart[selected_mode] or {}
+    local mode = chunk_to_chart[selected_mode]
+    local radius = chunk_to_chart.radius or 0
 
-    if (not chunk_to_chart) then return end
-    -- Log.debug("1")
-    game = game or set_game()
-    if (not game or not game.forces) then return end
-    -- Log.debug("2")
-    if (not chunk_to_chart.player_index or not game.forces[chunk_to_chart.player_index]) then return end
-    -- Log.debug("3")
-    if (not chunk_to_chart.surface) then return end
-    -- Log.debug("4")
-    if (not chunk_to_chart.center or not chunk_to_chart.center.x or not chunk_to_chart.center.y) then return end
-    -- Log.debug("staging chunk(s)")
+    -- local chunk_list = chunk_to_chart.chunk_list
+    -- if (not chunk_list) then
+    --     chunk_to_chart.chunk_list = new_Simple_Queue(Simple_Queue)
+    --     chunk_list = chunk_to_chart.chunk_list
 
-    local radius = chunk_to_chart.radius
+    --     local chunk_count = 0
+    --     for x = -radius, radius do
+    --         for y = -radius, radius do
+    --             local dist_sq = (x * x) + (y * y)
+    --             if dist_sq <= (radius * radius) then
+    --                 chunk_count = chunk_count + 1
 
-    if (optionals and optionals.i == nil) then optionals.i = 0 end
-    if (optionals and optionals.j == nil) then optionals.j = 0 end
+    --                 chunk_list.q[chunk_count] = { x = x, y = y, dist_sq = dist_sq, }
+    --                 chunk_list.last = chunk_count + 1
+    --             end
+    --         end
+    --     end
 
-    -- Log.debug(chunk_to_chart)
+    --     table_sort(chunk_list.q, sort)
+    --     chunk_list.count = chunk_count
+    -- end
+    local chunk_list = chunk_to_chart.chunk_list
+    if (not chunk_list) then
+        chunk_to_chart.chunk_list = new_Simple_Queue(Simple_Queue)
+        chunk_list = chunk_to_chart.chunk_list
 
-    if (not chunk_to_chart[optionals.mode]) then chunk_to_chart[optionals.mode] = {} end
-    if (not chunk_to_chart[optionals.mode].i) then chunk_to_chart[optionals.mode].i = 0 end
-    if (not chunk_to_chart[optionals.mode].j) then chunk_to_chart[optionals.mode].j = 0 end
+        chunk_to_chart.gen_x = -radius
+        chunk_to_chart.gen_y = -radius
+        chunk_to_chart.gen_count = 0
+    end
 
-    if (chunk_to_chart[optionals.mode].i < 0 or optionals.i < 0) then return end
-    if (chunk_to_chart[optionals.mode].j < 0 or optionals.j < 0) then return end
+    if chunk_to_chart.gen_x and chunk_to_chart.gen_x <= radius then
+        local budget = 256
+        local evaluations = 0
+        local chunk_count = chunk_to_chart.gen_count
 
-    local i = chunk_to_chart[optionals.mode].i >= 0 and chunk_to_chart[optionals.mode].i <= radius and
-    chunk_to_chart[optionals.mode].i or optionals.i
-    local j = chunk_to_chart[optionals.mode].j >= 0 and chunk_to_chart[optionals.mode].j <= radius and
-    chunk_to_chart[optionals.mode].j or optionals.j
+        local x = chunk_to_chart.gen_x
+        local y = chunk_to_chart.gen_y
+        local radius_sq = radius * radius
 
-    if (chunk_to_chart[optionals.mode].i > radius or optionals.i > radius) then
+        while (x <= radius) and (evaluations < budget) do
+            while (y <= radius) and (evaluations < budget) do
+                evaluations = evaluations + 1
+                local dist_sq = (x * x) + (y * y)
+                if (dist_sq <= radius_sq) then
+                    chunk_count = chunk_count + 1
+                    chunk_list.q[chunk_count] = { x = x, y = y, dist_sq = dist_sq }
+                    chunk_list.last = chunk_count + 1
+                end
+                y = y + 1
+            end
+
+            if y > radius then
+                x = x + 1
+                y = -radius
+            end
+        end
+
+        chunk_to_chart.gen_x = x
+        chunk_to_chart.gen_y = y
+        chunk_to_chart.gen_count = chunk_count
+
+        if (x > radius) then
+            table_sort(chunk_list.q, sort)
+            chunk_list.count = chunk_count
+            chunk_to_chart.gen_x = nil
+            chunk_to_chart.gen_y = nil
+        else
+            return chunk_to_chart.complete
+        end
+    end
+
+    chunk_list = chunk_list or chunk_to_chart.chunk_list
+    local chunk_count = chunk_list.count
+    local step = chunk_list.first
+    if (selected_mode ~= MODE_QUEUE) then step = chunk_count end
+
+    if (step > chunk_count or chunk_count < 1) then
+        mode.step = step
         chunk_to_chart.complete = true
-        return
+        return true
     end
 
-    local c = 0
-    if (optionals.mode == MODE_STACK) then
-        c = radius - i
-    elseif (optionals.mode == MODE_QUEUE) then
-        c = i
+    local target_chunk = chunk_list.q[step]
+    if (not target_chunk) then
+        mode.step = step
+        chunk_to_chart.complete = true
+        return true
     end
 
-    if (optionals.mode == MODE_STACK) then
-        if (chunk_to_chart[optionals.mode].j > c or optionals.j > c) then
-            chunk_to_chart[optionals.mode].i = chunk_to_chart[optionals.mode].i + 1
-            chunk_to_chart[optionals.mode].j = 0
-            i = chunk_to_chart[optionals.mode].i
-            j = 0
-        end
-    elseif (optionals.mode == MODE_QUEUE) then
-        if (chunk_to_chart[optionals.mode].j > i or optionals.j > i) then
-            chunk_to_chart[optionals.mode].i = chunk_to_chart[optionals.mode].i + 1
-            chunk_to_chart[optionals.mode].j = 0
-            i = chunk_to_chart[optionals.mode].i
-            j = 0
-        end
-    end
+    local center_x = center.x
+    local center_y = center.y
 
-    local a = 0
-    if (optionals.mode == MODE_STACK) then
-        if (j > c) then
-            chunk_to_chart[optionals.mode].i = chunk_to_chart[optionals.mode].i + 1
-            chunk_to_chart[optionals.mode].j = 0
-            return
-        end
-        a = c - j
-    elseif (optionals.mode == MODE_QUEUE) then
-        a = j
-    end
+    local final_x = center_x + (target_chunk.x * CHUNK_SIZE)
+    local final_y = center_y + (target_chunk.y * CHUNK_SIZE)
 
-    local distance_modifier = Constants.CHUNK_SIZE
+    save_chunk_to_chart_data(chunk_to_chart, { x = final_x, y = final_y })
 
-    local center_x, center_y = chunk_to_chart.center.x, chunk_to_chart.center.y
-    if (i == 0 and j == 0 and optionals.mode == MODE_QUEUE) then
-        save_chunk_to_chart_data({
-            chunk_to_chart = chunk_to_chart,
-            pos = { x = center_x, y = center_y },
-            i = i,
-            j = j,
-        })
-    elseif (i == 0 and j == 0 and optionals.mode == MODE_STACK) then
-        local distance_modifier_a = distance_modifier * a
-        save_chunk_to_chart_data({
-            chunk_to_chart = chunk_to_chart,
-            pos = { x = (center_x + distance_modifier_a), y = center_y },
-            i = i,
-            j = j,
-        })
-        save_chunk_to_chart_data({
-            chunk_to_chart = chunk_to_chart,
-            pos = { x = (center_x - distance_modifier_a), y = center_y },
-            i = i,
-            j = j,
-        })
-        save_chunk_to_chart_data({
-            chunk_to_chart = chunk_to_chart,
-            pos = { x = center_x, y = (center_y + distance_modifier_a) },
-            i = i,
-            j = j,
-        })
-        save_chunk_to_chart_data({
-            chunk_to_chart = chunk_to_chart,
-            pos = { x = center_x, y = (center_y - distance_modifier_a) },
-            i = i,
-            j = j,
-        })
+    if (selected_mode == MODE_QUEUE) then
+        step = step + 1
     else
-        local distance_modifier_a = distance_modifier * a
-        local distance_modifier_sqrt = distance_modifier * math_sqrt((c * c) - (a * a))
-        save_chunk_to_chart_data({
-            chunk_to_chart = chunk_to_chart,
-            pos = { x = (center_x + distance_modifier_a), y = (center_y + distance_modifier_sqrt) },
-            i = i,
-            j = j,
-        })
-        save_chunk_to_chart_data({
-            chunk_to_chart = chunk_to_chart,
-            pos = { x = (center_x - distance_modifier_a), y = (center_y + distance_modifier_sqrt) },
-            i = i,
-            j = j,
-        })
-        save_chunk_to_chart_data({
-            chunk_to_chart = chunk_to_chart,
-            pos = { x = (center_x - distance_modifier_a), y = (center_y - distance_modifier_sqrt) },
-            i = i,
-            j = j,
-        })
-        save_chunk_to_chart_data({
-            chunk_to_chart = chunk_to_chart,
-            pos = { x = (center_x + distance_modifier_a), y = (center_y - distance_modifier_sqrt) },
-            i = i,
-            j = j,
-        })
-
-        -- Not sure why part of the circle is missing, but doing it again with x and y ~flipped fixes the issue;
-        -- seems like overkill/unoptimal, though
-        -- TODO: Improve this
-
-        save_chunk_to_chart_data({
-            chunk_to_chart = chunk_to_chart,
-            pos = { x = (center_x + distance_modifier_sqrt), y = (center_y + distance_modifier_a) },
-            i = i,
-            j = j,
-        })
-        save_chunk_to_chart_data({
-            chunk_to_chart = chunk_to_chart,
-            pos = { x = (center_x - distance_modifier_sqrt), y = (center_y + distance_modifier_a) },
-            i = i,
-            j = j,
-        })
-        save_chunk_to_chart_data({
-            chunk_to_chart = chunk_to_chart,
-            pos = { x = (center_x - distance_modifier_sqrt), y = (center_y - distance_modifier_a) },
-            i = i,
-            j = j,
-        })
-        save_chunk_to_chart_data({
-            chunk_to_chart = chunk_to_chart,
-            pos = { x = (center_x + distance_modifier_sqrt), y = (center_y - distance_modifier_a) },
-            i = i,
-            j = j,
-        })
+        step = step - 1
     end
 
-    j = j + 1
+    if (chunk_count > 0) then
+        if (satellite_scan_mode == MODE_QUEUE) then
+            chunk_list.q[chunk_list.first] = nil
+            chunk_list.first = chunk_list.first + 1
+        else
+            chunk_list.q[chunk_count] = nil
+            chunk_list.count = chunk_count - 1
+        end
+    end
 
-    chunk_to_chart[optionals.mode].j = j
-
-    -- Log.debug(storage.all_seeing_satellite)
+    mode.step = step
+    if (selected_mode == MODE_QUEUE) then
+        if (step > chunk_list.count) then
+            chunk_to_chart.complete = true
+            return true
+        end
+    else
+        if (step < chunk_list.first) then
+            chunk_to_chart.complete = true
+            return true
+        end
+    end
 
     return chunk_to_chart.complete
 end
 
--- function scan_chunk_service.scan_selected_chunk(chunk_to_chart, optionals)
 function scan_chunk_service.scan_selected_chunk(chunk_to_chart)
     -- Log.debug("scan_chunk_service.scan_selected_chunk")
     -- Log.info(chunk_to_chart)
+    if (not chunk_to_chart) then return end
 
-    local return_val = false
+    local force_index = chunk_to_chart.force_index
+    if (not force_index or force_index < 1) then
+        if (not chunk_to_chart.player_index or not ((game or set_game()) and get_player)) then return end
+        local player = get_player(chunk_to_chart.player_index)
+        if (not player or not player.valid) then return end
+        local force = player.force
+        if (not force or not force.valid) then return end
+        force_index = force.index
+    end
 
-    if (not chunk_to_chart) then return return_val end
-    -- Log.debug("1")
-    game = game or set_game()
-    if (not game or not game.forces) then return return_val end
-    -- Log.debug("2")
-    if (not chunk_to_chart.player_index or not game.forces[chunk_to_chart.player_index]) then return return_val end
-    -- Log.debug("3")
-    if (not chunk_to_chart.surface) then return return_val end
-    -- Log.debug("4")
-    if (not chunk_to_chart.pos or not chunk_to_chart.pos.x or not chunk_to_chart.pos.y) then return return_val end
-    -- Log.debug("scanning")
+    force_funcs = force_funcs or set_game() and force_funcs
+    if (not force_funcs[force_index]) then return end
+    if (not force_funcs[force_index].chart) then return end
+    if (not chunk_to_chart.surface) then return end
+    local pos = chunk_to_chart.pos
+    if (not pos or not pos.x or not pos.y) then return end
 
-    -- Log.info(chunk_to_chart)
+    local pos_x, pos_y = pos.x, pos.y
 
-    local distance_modifier = HALF_CHUNK
-
-    local position = chunk_to_chart.pos
-
-    game.forces[chunk_to_chart.player_index].chart(
+    force_funcs[force_index].chart(
         chunk_to_chart.surface,
         {
-            { (position.x) - distance_modifier, (position.y) - distance_modifier },
-            { (position.x) + distance_modifier, (position.y) + distance_modifier },
+            { (pos_x) - HALF_CHUNK, (pos_y) - HALF_CHUNK },
+            { (pos_x) + HALF_CHUNK, (pos_y) + HALF_CHUNK },
         }
     )
 
-    return_val = true
-    return return_val
+    return true
 end
 
 local update_settings = {}

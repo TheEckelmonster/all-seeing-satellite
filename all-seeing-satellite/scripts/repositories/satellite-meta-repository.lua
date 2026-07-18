@@ -4,10 +4,6 @@ local satellite_meta_data_repository
 local game
 local get_surface
 
-local planets_dictionary
-
-local Constants = Constants
-
 local function set_game(event, __game, __storage)
     storage = __storage or _ENV.storage
 
@@ -16,9 +12,6 @@ local function set_game(event, __game, __storage)
 
     game = __game or _ENV.game
     get_surface = game.get_surface
-
-    if (not Constants.mod_data or not Constants.mod_data.planets_dictionary) then Constants.get_planet_data({ reindex = true }) end
-    planets_dictionary = Constants.mod_data.planets_dictionary
 
     return game
 end
@@ -47,8 +40,6 @@ function satellite_meta_repository.save_satellite_meta_data(planet_name)
 
     if (not planet_name or type(planet_name) ~= STRING) then return end
     if (find_invalid_substrings(planet_name)) then return end
-
-    planets_dictionary = planets_dictionary or set_game() and planets_dictionary
 
     local surface = (game or set_game()) and get_surface and get_surface(planet_name) or nil
     if (not surface or not surface.valid) then return end
@@ -82,6 +73,7 @@ function satellite_meta_repository.update_satellite_meta_data(update_data, plane
     satellite_meta_data_repository[planet_name] = satellite_meta_data_repository[planet_name] or satellite_meta_repository.save_satellite_meta_data(planet_name)
 
     local satellite_meta_data = satellite_meta_data_repository[planet_name]
+    if (not satellite_meta_data) then return end
 
     for k, v in pairs(update_data) do satellite_meta_data[k] = v end
 

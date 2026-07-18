@@ -23,6 +23,7 @@ local Quality = prototypes.quality
 local script = script
 
 local Satellite_Repository = require("scripts.repositories.satellite-repository")
+local save_satellite_data = Satellite_Repository.save_satellite_data
 
 local quality_active = script and script.active_mods and script.active_mods["quality"]
 
@@ -53,15 +54,12 @@ function satellite_utils.start_satellite_countdown(satellite_in_transit_data, ti
         and satellite_in_transit_data
         and tick
     ) then
-        -- Log.debug("Calculating death tick")
         local death_tick = satellite_utils.calculate_tick_to_die(tick, satellite_in_transit_data.entity)
-        -- Log.debug("death tick = " .. tostring(death_tick))
 
         if (satellite_meta_data.satellites_in_orbit >= 0) then
-            -- Log.debug("Adding satellite to planet: " .. serpent.block(satellite_meta_data.planet_name))
 
             satellite_in_transit_data.tick_to_die = death_tick
-            Satellite_Repository.save_satellite_data(satellite_in_transit_data)
+            save_satellite_data(satellite_in_transit_data)
 
             satellite_meta_data.satellites_launched = satellite_meta_data.satellites_launched + 1
             satellite_utils.get_num_satellites_in_orbit(satellite_meta_data)
@@ -74,11 +72,10 @@ function satellite_utils.get_num_satellites_in_orbit(satellite_meta_data)
     -- Log.info(satellite_meta_data)
 
     if (satellite_meta_data) then
-        -- Log.debug("Setting num satellites launched for planet: " .. serpent.block(satellite_meta_data.planet_name))
         satellite_meta_data.satellites_in_orbit = #satellite_meta_data.satellites
         return satellite_meta_data.satellites_in_orbit
     end
-    -- Log.warn("Validations failed for satellite_meta_data: " .. serpent.line(satellite_meta_data))
+
     return 0
 end
 
@@ -88,23 +85,13 @@ function satellite_utils.calculate_tick_to_die(tick, satellite)
     -- Log.info(satellite)
 
     local death_tick = 0
-    local quality_multiplier = 1
-
-    -- Log.debug(tick)
 
     if (tick and satellite) then
-        -- Log.info(satellite)
-
-        quality_multiplier = quality_active and satellite_utils.get_quality_multiplier(satellite.quality) or 1
-
-        -- Log.debug(satellite.quality)
-        -- Log.debug(quality_multiplier)
-
         death_tick = (
             tick
             + (   satellite_default_time_to_live
                 * TICKS_PER_MINUTE
-                * quality_multiplier
+                * (quality_active and satellite_utils.get_quality_multiplier(satellite.quality) or 1)
             )
         )
     end
@@ -125,11 +112,9 @@ function satellite_utils.get_quality_multiplier(quality)
 
     local specific_quality = Quality[quality]
     if (not specific_quality) then return return_val end
-    if (not specific_quality.level) then return return_val end
 
-    return satellite_base_quality_factor ^ (prototypes.quality[quality].level)
+    return 1 + (satellite_base_quality_factor - 1) * (specific_quality.level or 0)
 end
-
 
 local update_settings = {}
 
