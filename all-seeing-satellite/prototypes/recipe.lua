@@ -26,7 +26,6 @@ data:extend({
         energy_required = 10,
         enabled = false,
         categories = { "crafting-with-fluid", },
-        category = "crafting-with-fluid",
         ingredients =
         {
             { type = "item",  name = "used-rocket-booster", amount = 1, },

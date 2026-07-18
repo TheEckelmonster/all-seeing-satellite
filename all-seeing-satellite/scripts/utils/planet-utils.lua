@@ -96,7 +96,7 @@ function planet_utils.allow_scan(surface_name)
 
     local satellite_meta_data = get_satellite_meta_data(surface_name)
 
-    return satellite_meta_data and (satellite_meta_data.satellites_in_orbit >= 0 or #satellite_meta_data.satellites >= 0)
+    return satellite_meta_data and (satellite_meta_data.satellites_in_orbit > 0 or #satellite_meta_data.satellites > 0)
 end
 
 locals.get_planet_magnitude = function(surface_name)
