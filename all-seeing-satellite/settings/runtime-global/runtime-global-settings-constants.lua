@@ -76,7 +76,7 @@ local runtime_global_settings_constants = {
             setting_type = "runtime-global",
             order = "",
             default_value = 20,
-            maximum_value = UINT64, -- What should be the maximum, if any?
+            maximum_value = UINT64/60, -- What should be the maximum, if any?
             minimum_value = 0,
         },
         SATELLITE_OUT_OF_FUEL_MESSAGE = {

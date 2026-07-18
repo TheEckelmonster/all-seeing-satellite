@@ -1,14 +1,38 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+Date: 2026-07-18
+  Major Features:
+    - Updated to Factorio version 2.1
+---------------------------------------------------------------------------------------------------
+Version: 0.7.3
+Date: 2026-07-18
+  Changes:
+    - Satellites now automatically launch when the "Send to orbit automatically" checkbox is checked
+  Features:
+    - Improved overall performance significantly
+    - Improved satellite scanning algorithm
+      - Faster and more performant, with fewer duplicate scans
+    - Increased satellite time-to-live maximum to 2^64-1 ticks (maximum possible game tick value)
+    - Satellite out-of-fuel message is now toggleable on/off
+  Bug fixes:
+    - Character getting disassociated from the player when toggling "Satellite Mode"
+      - i.e. a new character entity being created separate from the original one, sometimes continuously
+    - Fixed runtime error when a rocket-silo was placed on a surface from the mod blueprint-sandboxes
+  To do:
+    - [vanilla] Make the "Track satellites launched for research" setting per rocket-silo, rather than global
+  Misc:
+    - Changed license from MIT to CC BY-NC-SA
+---------------------------------------------------------------------------------------------------
 Version: 0.7.2
 Date: 2026-01-16
-  Bug Fixes:
+  Bug fixes:
     - Fixed overwriting the on_entity_died filter with an incomplete one (was missing the character entity)
     - Added missing '.valid' checks to the character entity being provided when setting the player controller to "character"
       - A new character entity should now be properly created if the previous character entity is no longer valid
 ---------------------------------------------------------------------------------------------------
 Version: 0.7.1
 Date: 2025-10-29
-  Bug Fixes:
+  Bug fixes:
     - Added missing nil and '.valid' checks to the character-corpse entity when the player dies while in satellite mode
       - Only encountered this error once while testing another mod, and have not been able to recreate it since
       - The newly added checks should prevent it from occurring again though
@@ -20,7 +44,7 @@ Date: 2025-10-29
 ---------------------------------------------------------------------------------------------------
 Version: 0.7.0
 Date: 2025-10-28
-  Minor Features:
+  Features:
     - Replaced space-age hard requirement with a hidden optional requirement, and an optional requirement for quality
       - Should be compatible now with "Vanilla", i.e. no other mods than this, "base", and "TheEckelmonster-core-library"
     - Now when the "How long will a satellite remain in orbit" setting is set to 0, satellite expiration is disabled
@@ -36,7 +60,7 @@ Date: 2025-10-28
           - i.e. if manually triggered by a player, or the "Send to orbit automatically" checkbox was checked and triggered the launch
           - Defaults to true
           - Set to false if you only want to consider satellites not launched for science-packs as being in "orbit"
-  Bug Fixes:
+  Bug fixes:
     - Fixed potentially getting stuck in satellite mode on version update
     - Fixed some mod setting descriptions not displaying
   Misc:
@@ -49,28 +73,28 @@ Date: 2025-10-28
 ---------------------------------------------------------------------------------------------------
 Version: 0.6.3
 Date: 2025-08-03
-  Bug Fixes:
+  Bug fixes:
     - Stopped using ~hacky method of getting/passing a planet's magnitude from the Data stage to the Control stage
       - Now using the custom defined 'mod-data' prototype added in version 2.0.60
       -> Aids in compatibility going forward/should be more compatibile out of the box now
 ---------------------------------------------------------------------------------------------------
 Version: 0.6.2
 Date: 2025-08-02
-  Bug Fixes:
+  Bug fixes:
     - Fixed logic for getting/parsing a planet's magnitude
 ---------------------------------------------------------------------------------------------------
 Version: 0.6.1
 Date: 2025-07-31
-  Bug Fixes:
+  Bug fixes:
     - Fixed FoW not toggling properly after visiting a surface for the first time
   Misc:
     - Added space-age mod portal flag
 ---------------------------------------------------------------------------------------------------
 Version: 0.6.0
 Date: 2025-06-29
-  Minor Features:
+  Features:
     - Extended how far the player can zoom out in Satellite Mode thanks to player.zoom_limits added in 2.0.46
-  Bug Fixes:
+  Bug fixes:
     - Fixed extreme lag/crashing when toggling Satellite Mode over non-placeable tiles
       - i.e. When in Mech Armor over a large body of water, lava, etc..
     - Similarly to the above, when the player dies and their character was over non-placeable tiles, their view should now be appropriately teleported to where the character actually died
@@ -96,7 +120,7 @@ Date: 29. 04. 2025
 ---------------------------------------------------------------------------------------------------
 Version: 0.5.0
 Date: 2025-04-26
-  Minor Features:
+  Features:
     - Added Satellite scanning
       - Two modes: queue (default) and stack
       If more than one satellite is in orbit, pressing the satellite shortcut/hotkey ('m' by default) will select the scanning tool
@@ -135,7 +159,7 @@ Date: 2025-04-14
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.0
 Date: 2025-03-20
-  Minor Features:
+  Features:
     - Figured out a way of basing minimum satellite launch threshold off of the magnitude (size) of a given planet
       Default is 3 (Nauvis); formula is:
       return_val = launch_threshold_setting * planet_magnitude * planet_magnitude
@@ -170,7 +194,7 @@ Date: 2025-03-19
 ---------------------------------------------------------------------------------------------------
 Version: 0.3.0
 Date: 2025-03-18
-  Minor Features:
+  Features:
     - Satellites now expire after a given amount of time, default 20 minutes
     - Added configurable setting for the duration (in minutes) of a satellite in orbit, default 20 minutes
     - Quality satellites confer a longer life span of ~30% per tier
@@ -187,7 +211,7 @@ Date: 2025-03-18
 ---------------------------------------------------------------------------------------------------
 Version: 0.2.0
 Date: 2025-03-17
-  Minor Features:
+  Features:
     - Added satellite back as an item, recipe, and technology unlock (rocket silo research)
     - A rocket with a satellite in its inventory will automatically launch into orbit
     - Added setting to toggle satellite launch requirement
@@ -197,5 +221,5 @@ Date: 2025-03-17
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.0
 Date: 2025-03-15
-  Minor Features:
+  Features:
     - Initial release
