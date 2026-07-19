@@ -14,10 +14,10 @@ function planet_service.on_surface_created(event)
     if (not surface or not surface.valid) then return end
 
     local planets = Constants.get_planet_data({ reindex = true })
-    Log.info(planets)
+    -- Log.info(planets)
     local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(surface.name)
-    Log.info(satellite_meta_data)
-    if (not satellite_meta_data.valid) then
+    -- Log.info(satellite_meta_data)
+    if (not satellite_meta_data) then
         Satellite_Meta_Repository.save_satellite_meta_data(surface.name)
     end
 end

@@ -14,8 +14,22 @@ data:extend({
         drop_sound = Item_Sounds.mechanical_inventory_move,
         stack_size = 1,
         weight = 1 * tons,
-        rocket_launch_products = not sa_active and {{type = "item", name = "space-science-pack", amount = 1000}} or nil,
+        rocket_launch_products = not sa_active and {{type = "item", name = "space-science-pack", amount = 1000}} or {{ type = "item", name = "used-rocket-booster", amount = 1, }},
         send_to_orbit_mode = "automated"
+    },
+    {
+        type = "item",
+        name = "used-rocket-booster",
+        icon = "__all-seeing-satellite__/graphics/icons/used-rocket-booster.png",
+        subgroup = "space-related",
+        order = "d[rocket-parts]-e[used-rocket-booster]",
+        inventory_move_sound = Item_Sounds.mechanical_inventory_move,
+        pick_sound = Item_Sounds.mechanical_inventory_pickup,
+        drop_sound = Item_Sounds.mechanical_inventory_move,
+        stack_size = 1,
+        weight = 1 * tons,
+        hidden = true,
+        hidden_in_factoriopedia = true,
     },
     {
         type = "selection-tool",
@@ -40,7 +54,7 @@ data:extend({
         alt_select =
         {
             border_color = { 239, 153, 34 },
-            mode = { "any-tile" },
+            mode = { "nothing" },
             cursor_box_type = "copy",
         },
         open_sound = "__base__/sound/item-open.ogg",

@@ -1,6 +1,11 @@
-local Log_Stub = require("__TheEckelmonster-core-library__.libs.log.log-stub")
-local _Log = Log
-if (not _Log) then _Log = Log_Stub end
+local commands = commands
+
+local BOOLEAN = Types.BOOLEAN
+local STRING = Types.STRING
+
+local FALSE = FALSE
+
+local Event_Handler = Event_Handler
 
 local Core_Utils = require("__TheEckelmonster-core-library__.libs.utils.core-utils")
 local String_Utils = require("__TheEckelmonster-core-library__.libs.utils.string-utils")
@@ -16,25 +21,53 @@ local all_seeing_satellite_commands = {}
 
 function all_seeing_satellite_commands.init(event)
     locals.validate_command(event, function(player)
-        _Log.info("commands.init")
+        Log.info("commands.init")
         player.print("Initializing anew")
-        Initialization.init()
+        local maintain_data = true
+
+        if (not (event.parameter == nil or type(event.parameter) ~= STRING or #(string.gsub(event.parameter, " ", "")) < 1)) then
+            if (type(event.parameter) == BOOLEAN) then
+                maintain_data = event.parameter
+            elseif (type(event.parameter == STRING)) then
+                if (event.parameter == FALSE) then
+                    maintain_data = false
+                else
+                    maintain_data = true
+                end
+            end
+        end
+
+        Initialization.init({ maintain_data = maintain_data})
         player.print("Initialization complete")
     end)
 end
 
 function all_seeing_satellite_commands.reinit(event)
     locals.validate_command(event, function(player)
-        _Log.info("commands.reinit")
+        Log.info("commands.reinit")
         player.print("Reinitializing")
-        Initialization.reinit()
+        local maintain_data = true
+
+        if (not (event.parameter == nil or type(event.parameter) ~= STRING or #(string.gsub(event.parameter, " ", "")) < 1)) then
+            if (type(event.parameter) == BOOLEAN) then
+                maintain_data = event.parameter
+            elseif (type(event.parameter == STRING)) then
+                if (event.parameter == FALSE) then
+                    maintain_data = false
+                else
+                    maintain_data = true
+                end
+            end
+        end
+
+        Initialization.reinit({ maintain_data = maintain_data})
         player.print("Reinitialization complete")
     end)
 end
 
 function all_seeing_satellite_commands.print_storage(event)
     locals.validate_command(event, function(player)
-        _Log.info("commands.print_storage")
+        Log.info("commands.print_storage")
 
         local file_name = "storage_" .. game.tick
         local exported_file_name = Core_Utils.table.traversal.traverse_print(storage, file_name, _, { full = true  })
@@ -44,10 +77,10 @@ end
 
 function all_seeing_satellite_commands.print_satellites_launched(event)
     locals.validate_command(event, function(player)
-        _Log.info("commands.print_satellites_launched")
+        Log.info("commands.print_satellites_launched")
         local all_satellite_meta_data = Satellite_Meta_Repository.get_all_satellite_meta_data()
 
-        for planet_name, satellite_meta_data in pairs(all_satellite_meta_data) do
+        for planet_name, satellite_meta_data in pairs(all_satellite_meta_data or {}) do
             log(String_Utils.format_surface_name({ string_data = satellite_meta_data.planet_name })
                 .. ": "
                 .. tostring(satellite_meta_data.satellites_in_orbit)
@@ -62,10 +95,10 @@ end
 
 function all_seeing_satellite_commands.set_do_nth_tick(command)
     locals.validate_command(command, function(player)
-        _Log.info("commands.set_do_nth_tick")
+        Log.info("commands.set_do_nth_tick")
 
         local all_seeing_satellite_data = All_Seeing_Satellite_Repository.get_all_seeing_satellite_data()
-        if (not all_seeing_satellite_data.valid) then return end
+        if (not all_seeing_satellite_data) then return end
 
         if (command.parameter ~= nil and (command.parameter or command.parameter == "true" or command.parameter >= 1)) then
             log("Setting do_nth_tick to true")
@@ -82,16 +115,16 @@ end
 
 function all_seeing_satellite_commands.get_do_nth_tick(command)
     locals.validate_command(command, function(player)
-        _Log.info("commands.get_do_nth_tick")
+        Log.info("commands.get_do_nth_tick")
 
         local all_seeing_satellite_data = All_Seeing_Satellite_Repository.get_all_seeing_satellite_data()
-        if (not all_seeing_satellite_data.valid) then return end
+        if (not all_seeing_satellite_data) then return end
 
         if (all_seeing_satellite_data.do_nth_tick ~= nil) then
             log("do_nth_tick = " .. serpent.block(all_seeing_satellite_data.do_nth_tick))
             player.print("do_nth_tick = " .. serpent.block(all_seeing_satellite_data.do_nth_tick))
         else
-            _Log.error("storage is either nil or invalid")
+            Log.error("storage is either nil or invalid")
             player.print("storage is either nil or invalid; command failed")
         end
     end)
@@ -99,7 +132,7 @@ end
 
 function all_seeing_satellite_commands.print_player_data(event)
     locals.validate_command(event, function(player)
-        _Log.info("commands.print_player_data")
+        Log.info("commands.print_player_data")
         local player_data = Player_Repository.get_player_data(player.index)
 
         local file_name = "player_data_" .. game.tick
@@ -110,16 +143,16 @@ end
 
 function all_seeing_satellite_commands.print_table(event)
     locals.validate_command(event, function(player)
-        _Log.info("commands.print_table")
+        Log.info("commands.print_table")
 
         Core_Utils.commands.print_table({ player = player, event = event })
     end)
 end
 
 function all_seeing_satellite_commands.print_event_handlers(event)
-    _Log.debug("all_seeing_satellite_commands.print_event_handlers")
+    Log.debug("all_seeing_satellite_commands.print_event_handlers")
     locals.validate_command(event, function (player)
-        _Log.info("commands.print_event_handlers")
+        Log.info("commands.print_event_handlers")
 
         if (Event_Handler) then
             local file_name = "Event_Handler.event_names_" .. game.tick
@@ -134,8 +167,7 @@ function all_seeing_satellite_commands.print_event_handlers(event)
 end
 
 function locals.validate_command(event, fun)
-    if (not _Log or not _Log.valid or not _Log._ready) then _Log = Log_Stub end
-    _Log.debug(event)
+    Log.debug(event)
     if (event) then
         local player = nil
 

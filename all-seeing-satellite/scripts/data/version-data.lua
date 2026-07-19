@@ -1,33 +1,32 @@
+local pairs = pairs
+local setmetatable = setmetatable
+
 local Data = require("scripts.data.data")
-local Bug_Fix_Data = require("scripts.data.versions.bug-fix-data")
-local Major_Data = require("scripts.data.versions.major-data")
-local Minor_Data = require("scripts.data.versions.minor-data")
+local Bug_Fix_Data = require("__TheEckelmonster-core-library__.libs.data.versions.bug-fix-data")
+local Major_Data = require("__TheEckelmonster-core-library__.libs.data.versions.major-data")
+local Minor_Data = require("__TheEckelmonster-core-library__.libs.data.versions.minor-data")
 
 local version_data = {}
 
 version_data.major = Major_Data:new()
 version_data.major.value = 0
-version_data.major.valid = true
 version_data.minor = Minor_Data:new()
 version_data.minor.value = 7
-version_data.minor.valid = true
 version_data.bug_fix = Bug_Fix_Data:new()
-version_data.bug_fix.value = 2
-version_data.bug_fix.valid = true
+version_data.bug_fix.value = 3
 
 version_data.string_val = version_data.major.value .. "." .. version_data.minor.value .. "." .. version_data.bug_fix.value
 
 function version_data:new(o)
-    Log.debug("version_data:new")
-    Log.info(o)
+    -- Log.debug("version_data:new")
+    -- Log.info(o)
 
     local defaults = {
         created = self.created,
         updated = self.updated,
-        valid = self.valid,
-        major = self.major,
-        minor = self.minor,
-        bug_fix = self.bug_fix,
+        major = Major_Data:new({ value = version_data.major.value, }),
+        minor = Minor_Data:new({ value = version_data.minor.value, }),
+        bug_fix = Bug_Fix_Data:new({ value = version_data.bug_fix.value, }),
         string_val = self.string_val,
     }
 
@@ -68,8 +67,8 @@ function version_data:set_bug_fix(obj)
 end
 
 function version_data:to_string()
-    Log.debug("version_data:to_string")
-    Log.info(self.string_val)
+    -- Log.debug("version_data:to_string")
+    -- Log.info(self.string_val)
     return self.string_val
 end
 
