@@ -1,9 +1,4 @@
 ---------------------------------------------------------------------------------------------------
-Version: 1.0.0
-Date: 2026-07-18
-  Major Features:
-    - Updated to Factorio version 2.1
----------------------------------------------------------------------------------------------------
 Version: 0.7.3
 Date: 2026-07-18
   Changes:
@@ -22,9 +17,9 @@ Date: 2026-07-18
     - Increased satellite time-to-live maximum to 2^64-1 ticks (maximum possible game tick value)
     - Satellite out-of-fuel message is now toggleable on/off
   Bug fixes:
-    - Character getting disassociated from the player when toggling "Satellite Mode"
+    - Fixed character potentially disassociating from the player when toggling "Satellite Mode"
       - i.e. a new character entity being created separate from the original one, sometimes continuously
-    - Fixed runtime error when a rocket-silo was placed on a surface from the mod blueprint-sandboxes
+    - Fixed runtime error when a rocket-silo was placed on a surface from the mod blueprint-sandboxes (thanks to Frostwasp for the report!)
   To do:
     - [vanilla] Make the "Track satellites launched for research" setting per rocket-silo, rather than global
   Misc:

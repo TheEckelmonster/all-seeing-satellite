@@ -25,6 +25,7 @@ data:extend({
         icon = "__all-seeing-satellite__/graphics/icons/used-rocket-booster.png",
         energy_required = 10,
         enabled = false,
+        category = "crafting-with-fluid",
         categories = { "crafting-with-fluid", },
         ingredients =
         {
