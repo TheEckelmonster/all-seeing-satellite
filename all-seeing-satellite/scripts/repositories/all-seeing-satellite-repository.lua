@@ -1,97 +1,59 @@
+local storage
+local all_seeing_satellite_data
+
+local game
+
 local All_Seeing_Satellite_Data = require("scripts.data.all-seeing-satellite-data")
+local new_All_Seeing_Satelite_Data = All_Seeing_Satellite_Data.new
+
+local function set_game(event, __game, __storage)
+    storage = __storage or _ENV.storage
+
+    storage.all_seeing_satellite = storage.all_seeing_satellite or new_All_Seeing_Satelite_Data(All_Seeing_Satellite_Data)
+    all_seeing_satellite_data = storage.all_seeing_satellite
+
+    game = __game or _ENV.game
+
+    return game
+end
+
+local pairs = pairs
 
 local all_seeing_satellite_repository = {}
+all_seeing_satellite_repository.name = "all_seeing_satellite_repository"
+all_seeing_satellite_repository.set_game = set_game
 
-function all_seeing_satellite_repository.save_all_seeing_satellite_data(optionals)
-    Log.debug("all_seeing_satellite_repository.save_all_seeing_satellite_data")
-    Log.info(optionals)
-
-    local return_val = All_Seeing_Satellite_Data:new()
-
-    if (not game) then return return_val end
-
-    optionals = optionals or {}
-
-    if (not storage) then return return_val end
-    if (not storage.all_seeing_satellite) then storage.all_seeing_satellite = return_val end
-
-    return_val = storage.all_seeing_satellite
-
-    return all_seeing_satellite_repository.update_all_seeing_satellite_data(return_val)
+function all_seeing_satellite_repository.save_all_seeing_satellite_data()
+    -- Log.debug("all_seeing_satellite_repository.save_all_seeing_satellite_data")
+    return set_game() and all_seeing_satellite_data
 end
 
-function all_seeing_satellite_repository.update_all_seeing_satellite_data(update_data, optionals)
-    Log.debug("all_seeing_satellite_repository.update_all_seeing_satellite_data")
-    Log.info(update_data)
-    Log.info(optionals)
+function all_seeing_satellite_repository.update_all_seeing_satellite_data(update_data)
+    -- Log.debug("all_seeing_satellite_repository.update_all_seeing_satellite_data")
+    -- Log.info(update_data)
+    if (not update_data) then return end
 
-    local return_val = All_Seeing_Satellite_Data:new()
+    all_seeing_satellite_data = all_seeing_satellite_data or set_game() and all_seeing_satellite_data
 
-    if (not game) then return return_val end
-    if (not update_data) then return return_val end
+    for k, v in pairs(update_data) do all_seeing_satellite_data[k] = v end
 
-    optionals = optionals or {}
+    all_seeing_satellite_data.updated = (game or set_game()).tick
 
-    if (not storage) then return return_val end
-    if (not storage.all_seeing_satellite) then
-        -- If it doesn't exist, generate it
-        storage.all_seeing_satellite = return_val
-        all_seeing_satellite_repository.save_all_seeing_satellite_data()
-    end
-
-    return_val = storage.all_seeing_satellite
-
-    for k, v in pairs(update_data) do
-        return_val[k] = v
-    end
-
-    return_val.updated = game.tick
-
-    -- Don't think this is necessary, but oh well
-    storage.all_seeing_satellite = return_val
-
-    return return_val
+    return all_seeing_satellite_data
 end
 
-function all_seeing_satellite_repository.delete_all_seeing_satellite_data(optionals)
-    Log.debug("all_seeing_satellite_repository.delete_all_seeing_satellite_data")
-    Log.info(optionals)
-
-    local return_val = false
-
-    if (not game) then return return_val end
-
-    optionals = optionals or {}
-
-    if (not storage) then return return_val end
-    if (storage.all_seeing_satellite ~= nil) then
-        storage.all_seeing_satellite = nil
-    end
-    return_val = true
-
-    return return_val
+function all_seeing_satellite_repository.delete_all_seeing_satellite_data()
+    -- Log.debug("all_seeing_satellite_repository.delete_all_seeing_satellite_data")
+    if (not storage) then return false end
+    storage.all_seeing_satellite = nil
+    return true
 end
 
-function all_seeing_satellite_repository.get_all_seeing_satellite_data(optionals)
-    Log.debug("all_seeing_satellite_repository.get_all_seeing_satellite_data")
-    Log.info(optionals)
-
-    local return_val = All_Seeing_Satellite_Data:new()
-
-    if (not game) then return return_val end
-
-    optionals = optionals or {}
-
-    if (not storage) then return return_val end
-    if (not storage.all_seeing_satellite) then
-        -- If it doesn't exist, generate it
-        storage.all_seeing_satellite = return_val
-        all_seeing_satellite_repository.save_all_seeing_satellite_data()
-    end
-
-    return_val = storage.all_seeing_satellite
-
-    return return_val
+function all_seeing_satellite_repository.get_all_seeing_satellite_data()
+    -- Log.debug("all_seeing_satellite_repository.get_all_seeing_satellite_data")
+    return all_seeing_satellite_data or set_game() and all_seeing_satellite_data
 end
+
+function all_seeing_satellite_repository.init(__storage) storage = __storage end
 
 return all_seeing_satellite_repository

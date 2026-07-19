@@ -1,3 +1,5 @@
+local setmetatable = setmetatable
+
 local Character_Data = require("scripts.data.character-data")
 local Data = require("scripts.data.data")
 

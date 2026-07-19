@@ -1,4 +1,8 @@
+local mods = mods
+
 local Constants = require("scripts.constants.constants")
+
+local UINT64 = 2^64-1
 
 local  prefix = Constants.mod_name
 
@@ -37,22 +41,7 @@ local runtime_global_settings_constants = {
             setting_type = "runtime-global",
             order = "",
             default_value = true,
-        },
-        DO_LAUNCH_ROCKETS = {
-            type = "bool-setting",
-            name = prefix .. "-do-launch-rockets",
-            setting_type = "runtime-global",
-            order = "",
-            default_value = true,
-        },
-        ROCKET_LAUNCH_DELAY = {
-            type = "int-setting",
-            name = prefix .. "-rocket-launch-delay",
-            setting_type = "runtime-global",
-            order = "",
-            default_value = 30,
-            minimum_value = 0,
-            maximum_value = 2 ^ 32,
+            hidden = mods and mods["space-age"] and true or false,
         },
         SATELLITE_BASE_QUALITY_FACTOR = {
             type = "double-setting",
@@ -70,7 +59,7 @@ local runtime_global_settings_constants = {
             order = "",
             default_value = 3,
             maximum_value = 111,
-            minimum_value = 0,
+            minimum_value = 1,
         },
         GLOBAL_LAUNCH_SATELLITE_THRESHOLD_MODIFIER = {
             type = "double-setting",
@@ -79,7 +68,7 @@ local runtime_global_settings_constants = {
             order = "",
             default_value = 1,
             maximum_value = 11,
-            minimum_value = 0,
+            minimum_value = 1,
         },
         DEFAULT_SATELLITE_TIME_TO_LIVE = {
             type = "double-setting",
@@ -87,8 +76,15 @@ local runtime_global_settings_constants = {
             setting_type = "runtime-global",
             order = "",
             default_value = 20,
-            maximum_value = 1111, -- What should be the maximum, if any?
+            maximum_value = UINT64/60, -- What should be the maximum, if any?
             minimum_value = 0,
+        },
+        SATELLITE_OUT_OF_FUEL_MESSAGE = {
+            type = "bool-setting",
+            name = prefix .. "-satellite-out-of-fuel-message",
+            setting_type = "runtime-global",
+            order = "",
+            default_value = true,
         },
         SATELLITE_SCAN_COOLDOWN_DURATION = {
             type = "double-setting",

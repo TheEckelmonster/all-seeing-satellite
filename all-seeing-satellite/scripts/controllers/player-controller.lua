@@ -1,37 +1,80 @@
+local storage
+
+local game
+local get_player
+local get_surface
+
+local function set_game(event, __game, __storage)
+    storage = __storage or _ENV.storage
+
+    game = __game or _ENV.game
+    get_player = get_player or game.get_player
+    get_surface = get_surface or game.get_surface
+
+    Set_Game_Funcs()
+
+    return game
+end
+
+local string_find = string.find
+
+local defines = defines
+local controllers_character = defines.controllers.character
+local controllers_god = defines.controllers.god
+local controllers_remote = defines.controllers.remote
+
+local CHARACTER = "character"
+
+local Data_Utils = Data_Utils
+
 local Character_Repository = require("scripts.repositories.character-repository")
 local Custom_Input_Constants = require("libs.constants.custom-input-constants")
 local Planet_Utils = require("scripts.utils.planet-utils")
+local allow_satellite_mode = Planet_Utils.allow_satellite_mode
 local Player_Service = require("scripts.services.player-service")
+local disable_satellite_mode_and_die = Player_Service.disable_satellite_mode_and_die
+local toggle_satellite_mode = Player_Service.toggle_satellite_mode
 local Player_Repository = require("scripts.repositories.player-repository")
+local delete_player_data = Player_Repository.delete_player_data
+local get_all_player_data = Player_Repository.get_all_player_data
+local get_player_data = Player_Repository.get_player_data
+local save_player_data = Player_Repository.save_player_data
+local update_player_data = Player_Repository.update_player_data
 local Research_Utils = require("scripts.utils.research-utils")
+local has_technology_researched = Research_Utils.has_technology_researched
 local Satellite_Meta_Repository = require("scripts.repositories.satellite-meta-repository")
+local get_satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data
 local String_Utils = require("scripts.utils.string-utils")
+local find_invalid_substrings = String_Utils.find_invalid_substrings
+
+local restrict_satellite_mode = Data_Utils.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_MODE.name })
 
 local player_controller = {}
 player_controller.name = "player_controller"
+player_controller.set_game = set_game
 
 function player_controller.toggle_satellite_mode(event)
-    Log.debug("player_controller.toggle_satellite_mode")
-    Log.info(event)
+    -- Log.debug("player_controller.toggle_satellite_mode")
+    -- Log.info(event)
 
     if (not event) then return end
     if (not event.player_index) then return end
 
-    local player = game.get_player(event.player_index)
+    local player = (game or set_game()) and get_player and get_player(event.player_index)
     if (not player or not player.valid) then return end
 
     local surface = player.surface
     if (not surface or not surface.valid) then return end
 
-    if (String_Utils.find_invalid_substrings(surface.name)) then
+    if (find_invalid_substrings(surface.name)) then
         player.print("Satellite mode is currently not allowed")
         return
     end
 
-    local player_data = Player_Repository.get_player_data(event.player_index)
-    if (not player_data.valid) then
-        player_data = Player_Repository.save_player_data(event.player_index)
-        if (not player_data.valid) then
+    local player_data = get_player_data(event.player_index)
+    if (not player_data) then
+        player_data = save_player_data(event.player_index)
+        if (not player_data) then
             player.print("Satellite mode is currently not allowed")
             return
         end
@@ -42,24 +85,25 @@ function player_controller.toggle_satellite_mode(event)
         return
     end
 
-    local allow_satellite_mode = false
-    if (player.controller_type == defines.controllers.god) then
-        allow_satellite_mode = true
+    local satellite_mode_allowed = false
+    if (player.controller_type == controllers_god) then
+        satellite_mode_allowed = true
     end
 
-    if (not allow_satellite_mode and not Research_Utils.has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name)) then
-        if (Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_MODE.name })) then
+    if (not satellite_mode_allowed and not has_technology_researched(player.force, Constants.DEFAULT_RESEARCH.name)) then
+        if (restrict_satellite_mode) then
             player.print("Rocket Silo/Satellite not researched yet")
             return
         end
     end
 
-    if (not allow_satellite_mode and not Planet_Utils.allow_satellite_mode(surface.name)) then
-        local satellite_meta_data = Satellite_Meta_Repository.get_satellite_meta_data(surface.name)
-        if (not satellite_meta_data.valid) then
-            player.print("Satellite mode is currently not allowed")
-            return
-        end
+    if (not satellite_mode_allowed and not allow_satellite_mode(surface.name)) then
+        local satellite_meta_data = get_satellite_meta_data(surface.name)
+        if (not satellite_meta_data) then return end
+        -- if (not satellite_meta_data.valid) then
+        --     player.print("Satellite mode is currently not allowed")
+        --     return
+        -- end
         player.print("Insufficient satellite(s) orbiting "
             .. surface.name
             .. " : "
@@ -71,14 +115,14 @@ function player_controller.toggle_satellite_mode(event)
         return
     end
 
-    if (not allow_satellite_mode and not player_data.satellite_mode_allowed) then
-        if (player_data.in_space or Settings_Service.get_runtime_global_setting({ setting = Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_MODE.name })) then
+    if (not satellite_mode_allowed and not player_data.satellite_mode_allowed) then
+        if (player_data.in_space or restrict_satellite_mode) then
             player.print("Satellite mode is currently not allowed")
             return
         end
     end
 
-    Player_Service.toggle_satellite_mode(event)
+    toggle_satellite_mode(event)
 end
 Event_Handler:register_event({
     event_name = Custom_Input_Constants.TOGGLE_SATELLITE_MODE.name,
@@ -88,13 +132,13 @@ Event_Handler:register_event({
 })
 
 function player_controller.on_player_created(event)
-    Log.debug("player_controller.on_player_created")
-    Log.info(event)
+    -- Log.debug("player_controller.on_player_created")
+    -- Log.info(event)
 
     if (not event) then return end
     if (not event.player_index) then return end
 
-    Player_Repository.save_player_data(event.player_index)
+    save_player_data(event.player_index)
 end
 Event_Handler:register_event({
     event_name = "on_player_created",
@@ -104,13 +148,13 @@ Event_Handler:register_event({
 })
 
 function player_controller.on_pre_player_died(event)
-    Log.debug("player_controller.on_pre_player_died")
-    Log.info(event)
+    -- Log.debug("player_controller.on_pre_player_died")
+    -- Log.info(event)
 
     if (not event) then return end
     if (not event.player_index) then return end
 
-    Player_Repository.save_player_data(event.player_index)
+    save_player_data(event.player_index)
 end
 Event_Handler:register_event({
     event_name = "on_pre_player_died",
@@ -120,13 +164,13 @@ Event_Handler:register_event({
 })
 
 function player_controller.on_player_died(event)
-    Log.debug("player_controller.player_died")
-    Log.info(event)
+    -- Log.debug("player_controller.player_died")
+    -- Log.info(event)
 
     if (not event) then return end
     if (not event.player_index) then return end
 
-    Player_Repository.save_player_data(event.player_index)
+    save_player_data(event.player_index)
 end
 Event_Handler:register_event({
     event_name = "on_player_died",
@@ -136,35 +180,36 @@ Event_Handler:register_event({
 })
 
 function player_controller.on_entity_died(event)
-    Log.debug("player_controller.on_entity_died")
-    Log.info(event)
+    -- Log.debug("player_controller.on_entity_died")
+    -- Log.info(event)
 
     if (not event) then return end
-    if (not event.entity or not event.entity.name) then return end
-    if (event.entity.name ~= "character") then return end
+    if (not event.entity or not event.entity.valid) then return end
+    if (event.entity.type == nil or event.entity.type ~= CHARACTER) then return end
 
     local all_character_data = Character_Repository.get_all_character_data()
 
     local character_data = nil
+    local unit_number = event.entity.unit_number
 
     for _, _character_data in pairs(all_character_data) do
-        if (_character_data.unit_number == event.entity.unit_number) then
+        if (_character_data.unit_number == unit_number) then
             character_data = _character_data
             break
         end
     end
 
     if (character_data) then
-        local player = game.get_player(character_data.player_index)
+        local player = (game or set_game()) and get_player and get_player(character_data.player_index)
         if (not player or not player.valid) then return end
 
-        if (player.controller_type == defines.controllers.character) then return end
+        if (player.controller_type == controllers_character) then return end
 
-        local player_data = Player_Repository.get_player_data(player.index)
-        if (not player_data or not player_data.valid) then return end
+        local player_data = get_player_data(player.index)
+        if (not player_data) then return end
 
         if (player_data.satellite_mode_toggled) then
-            Player_Service.disable_satellite_mode_and_die({ player_index = character_data.player_index, character = event.entity })
+            disable_satellite_mode_and_die({ player_index = character_data.player_index, character = event.entity })
         end
     end
 end
@@ -183,7 +228,7 @@ function player_controller.on_player_respawned(event)
     if (not event) then return end
     if (not event.player_index) then return end
 
-    Player_Repository.save_player_data(event.player_index)
+    save_player_data(event.player_index)
 end
 Event_Handler:register_event({
     event_name = "on_player_respawned",
@@ -199,7 +244,7 @@ function player_controller.on_player_joined_game(event)
     if (not event) then return end
     if (not event.player_index) then return end
 
-    Player_Repository.update_player_data({ player_index = event.player_index })
+    update_player_data({ player_index = event.player_index })
 end
 Event_Handler:register_event({
     event_name = "on_player_joined_game",
@@ -215,7 +260,7 @@ function player_controller.on_pre_player_left_game(event)
     if (not event) then return end
     if (not event.player_index) then return end
 
-    Player_Repository.save_player_data(event.player_index)
+    save_player_data(event.player_index)
 end
 Event_Handler:register_event({
     event_name = "on_pre_player_left_game",
@@ -231,7 +276,7 @@ function player_controller.on_pre_player_removed(event)
     if (not event) then return end
     if (not event.player_index) then return end
 
-    Player_Repository.delete_player_data(event.player_index)
+    delete_player_data(event.player_index)
 end
 Event_Handler:register_event({
     event_name = "on_pre_player_removed",
@@ -247,11 +292,11 @@ function player_controller.on_surface_cleared(event)
     if (not event) then return end
     if (not event.surface_index) then return end
 
-    local all_player_data = Player_Repository.get_all_player_data()
+    local all_player_data = get_all_player_data()
 
     for player_index, player_data in pairs(all_player_data) do
         if (player_data.surface_index and player_data.surface_index == event.surface_index) then
-            Player_Repository.save_player_data(player_index)
+            save_player_data(player_index)
         end
     end
 end
@@ -269,11 +314,11 @@ function player_controller.on_surface_deleted(event)
     if (not event) then return end
     if (not event.surface_index) then return end
 
-    local all_player_data = Player_Repository.get_all_player_data()
+    local all_player_data = get_all_player_data()
 
     for player_index, player_data in pairs(all_player_data) do
         if (player_data.surface_index and player_data.surface_index == event.surface_index) then
-            Player_Repository.save_player_data(player_index)
+            save_player_data(player_index)
         end
     end
 end
@@ -285,24 +330,18 @@ Event_Handler:register_event({
 })
 
 function player_controller.on_player_changed_surface(event)
-    Log.debug("player_controller.on_player_changed_surface")
-    Log.info(event)
+    -- Log.debug("player_controller.on_player_changed_surface")
+    -- Log.info(event)
 
     if (not event) then return end
     if (not event.player_index) then return end
     if (not event.surface_index) then return end
-    if (not event.launched_by_rocket) then return end
-    local player = game.get_player(event.player_index)
+    local player = (game or set_game()) and get_player and get_player(event.player_index)
 
-    if (player.controller_type == defines.controllers.character) then
-        Log.debug("1")
-        Player_Repository.save_player_data(event.player_index)
-    elseif (player.controller_type == defines.controllers.remote) then
-        Log.debug("2")
-    elseif (player.controller_type == defines.controllers.god) then
-        Log.debug("3")
-    else
-        Log.debug("4")
+    if (player.controller_type == controllers_character) then
+        save_player_data(event.player_index)
+    elseif (player.controller_type == controllers_remote) then
+    elseif (player.controller_type == controllers_god) then
     end
 end
 Event_Handler:register_event({
@@ -313,13 +352,13 @@ Event_Handler:register_event({
 })
 
 function player_controller.on_cargo_pod_finished_ascending(event)
-    Log.debug("player_controller.on_cargo_pod_finished_ascending")
-    Log.info(event)
+    -- Log.debug("player_controller.on_cargo_pod_finished_ascending")
+    -- Log.info(event)
 
     if (not event) then return end
     if (not event.player_index) then return end
 
-    Player_Repository.save_player_data(event.player_index)
+    save_player_data(event.player_index)
 end
 Event_Handler:register_event({
     event_name = "on_cargo_pod_finished_ascending",
@@ -329,19 +368,19 @@ Event_Handler:register_event({
 })
 
 function player_controller.on_cargo_pod_finished_descending(event)
-    Log.debug("player_controller.on_cargo_pod_finished_descending")
-    Log.info(event)
+    -- Log.debug("player_controller.on_cargo_pod_finished_descending")
+    -- Log.info(event)
 
     if (not event) then return end
     if (not event.player_index) then return end
 
-    local player_data = Player_Repository.get_player_data(event.player_index)
-    if (not player_data.valid) then return end -- This should, in theory, only happen if the player does not exist
+    local player_data = get_player_data(event.player_index)
+    if (not player_data) then return end -- This should, in theory, only happen if the player does not exist
 
     if (not event.launched_by_rocket) then
         player_data.in_space = false
         player_data.satellite_mode_allowed = player_data.satellite_mode_stashed
-        Player_Repository.save_player_data(event.player_index)
+        save_player_data(event.player_index)
     end
 end
 Event_Handler:register_event({
@@ -352,8 +391,8 @@ Event_Handler:register_event({
 })
 
 function player_controller.on_rocket_launch_ordered(event)
-    Log.debug("player_controller.on_rocket_launch_ordered")
-    Log.info(event)
+    -- Log.debug("player_controller.on_rocket_launch_ordered")
+    -- Log.info(event)
 
     if (not event) then return end
     if (not event.rocket or not event.rocket.valid) then return end
@@ -364,14 +403,14 @@ function player_controller.on_rocket_launch_ordered(event)
     if (not passenger or not passenger.valid) then return end
 
     if (passenger and passenger.valid and passenger.player and passenger.player.valid) then
-        local player_data = Player_Repository.get_player_data(passenger.player.index)
+        local player_data = get_player_data(passenger.player.index)
 
-        if (not player_data.valid) then return end -- This should, in theory, only happen if the player does not exist
+        if (not player_data) then return end -- This should, in theory, only happen if the player does not exist
 
         player_data.in_space = true
         player_data.satellite_mode_stashed = player_data.satellite_mode_stashed or player_data.satellite_mode_allowed
         player_data.satellite_mode_allowed = false
-        Player_Repository.save_player_data(passenger.player.index)
+        save_player_data(passenger.player.index)
     end
 end
 Event_Handler:register_event({
@@ -382,30 +421,29 @@ Event_Handler:register_event({
 })
 
 function player_controller.on_player_toggled_map_editor(event)
-    Log.debug("player_controller.on_player_toggled_map_editor")
-    Log.info(event)
+    -- Log.debug("player_controller.on_player_toggled_map_editor")
+    -- Log.info(event)
 
-    if (not game) then return end
     if (not event) then return end
     if (not event.player_index) then return end
 
-    local player_data = Player_Repository.get_player_data(event.player_index)
-    if (not player_data.valid) then
-        player_data = Player_Repository.save_player_data(event.player_index)
-        if (not player_data.valid) then return end
+    local player_data = get_player_data(event.player_index)
+    if (not player_data) then
+        player_data = save_player_data(event.player_index)
+        if (not player_data) then return end
     end
 
     if (not player_data.editor_mode_toggled) then
         if (not player_data.character_data.character or not player_data.character_data.character.valid) then
             local character_data = Character_Repository.save_character_data(player_data.player_index)
-            if (character_data.valid) then
-                Player_Repository.update_player_data({
+            if (character_data) then
+                update_player_data({
                     player_index = player_data.player_index,
                     satellite_mode_allowed = player_data.satellite_mode_stashed,
                 })
             end
         else
-            Player_Repository.update_player_data({
+            update_player_data({
                 player_index = player_data.player_index,
                 satellite_mode_allowed = player_data.satellite_mode_stashed,
             })
@@ -420,34 +458,33 @@ Event_Handler:register_event({
 })
 
 function player_controller.on_pre_player_toggled_map_editor(event)
-    Log.debug("player_controller.on_pre_player_toggled_map_editor")
-    Log.info(event)
+    -- Log.debug("player_controller.on_pre_player_toggled_map_editor")
+    -- Log.info(event)
 
-    if (not game) then return end
     if (not event) then return end
     if (not event.player_index) then return end
-    local player = game.get_player(event.player_index)
+    local player = (game or set_game()) and get_player and get_player(event.player_index)
     if (not player or not player.valid) then return end
     local surface = player.surface
     if (not surface or not surface.valid) then return end
 
-    local player_data = Player_Repository.get_player_data(event.player_index)
-    if (not player_data.valid) then
-        player_data = Player_Repository.save_player_data(event.player_index)
-        if (not player_data.valid) then return end
+    local player_data = get_player_data(event.player_index)
+    if (not player_data) then
+        player_data = save_player_data(event.player_index)
+        if (not player_data) then return end
     end
 
     if (player_data.editor_mode_toggled) then
-        Player_Repository.update_player_data({
+        update_player_data({
             player_index = player_data.player_index,
             editor_mode_toggled = false,
             satellite_mode_allowed = player_data.satellite_mode_stashed,
         })
     elseif (not player_data.editor_mode_toggled) then
         if (player_data.satellite_mode_toggled) then
-            Player_Service.toggle_satellite_mode(event)
+            toggle_satellite_mode(event)
         end
-        Player_Repository.update_player_data({
+        update_player_data({
             player_index = player_data.player_index,
             force_index_stashed = player_data.force_index,
             satellite_mode_stashed = player_data.satellite_mode_stashed or player_data.satellite_mode_allowed,
@@ -464,13 +501,13 @@ Event_Handler:register_event({
 })
 
 function player_controller.on_cutscene_cancelled(event)
-    Log.debug("player_controller.on_cutscene_cancelled")
-    Log.info(event)
+    -- Log.debug("player_controller.on_cutscene_cancelled")
+    -- Log.info(event)
 
     if (not event) then return end
     if (not event.player_index or event.player_index < 1) then return end
 
-    Player_Repository.save_player_data(event.player_index)
+    save_player_data(event.player_index)
 end
 Event_Handler:register_event({
     event_name = "on_cutscene_cancelled",
@@ -480,13 +517,13 @@ Event_Handler:register_event({
 })
 
 function player_controller.on_cutscene_finished(event)
-    Log.debug("player_controller.on_cutscene_finished")
-    Log.info(event)
+    -- Log.debug("player_controller.on_cutscene_finished")
+    -- Log.info(event)
 
     if (not event) then return end
     if (not event.player_index or event.player_index < 1) then return end
 
-    Player_Repository.save_player_data(event.player_index)
+    save_player_data(event.player_index)
 end
 Event_Handler:register_event({
     event_name = "on_cutscene_finished",
@@ -494,5 +531,29 @@ Event_Handler:register_event({
     func_name = "player_controller.on_cutscene_finished",
     func = player_controller.on_cutscene_finished,
 })
+
+
+local update_settings = {}
+
+update_settings[Runtime_Global_Settings_Constants.settings.RESTRICT_SATELLITE_MODE.name] = function (event, params) restrict_satellite_mode = params.setting_value end
+
+local STRING = Types.STRING
+local MOD_NAME_PREFIX = MOD_NAME_PREFIX
+function player_controller.on_runtime_mod_setting_changed(event, params)
+    if (not event.setting or type(event.setting) ~= STRING) then return end
+    if (not event.setting_type or type(event.setting_type) ~= STRING) then return end
+
+    if (not (string_find(event.setting, MOD_NAME_PREFIX, 1, true) == 1)) then return end
+
+    if (update_settings[event.setting]) then
+        update_settings[event.setting](event, params)
+    end
+end
+Settings_Registry:register_setting({
+    func_name = "player_controller",
+    func = player_controller.on_runtime_mod_setting_changed
+})
+
+function player_controller.init(__storage) storage = __storage end
 
 return player_controller
