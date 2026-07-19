@@ -9,7 +9,14 @@ Date: 2026-07-18
   Changes:
     - Satellites now automatically launch when the "Send to orbit automatically" checkbox is checked
   Features:
-    - Improved overall performance significantly
+    - Improved overall performance significantly (UPS)
+      - 0.7.2 -> brand new save, best possible performance: 0.08 ms
+      - 0.7.2 -> 500+ hour save, best possible performance: 0.13 ms
+      - 0.7.2 -> 500+ hour save, worst observed performance: 1.3 ms continuous (scanning)
+      - 0.7.3 -> brand new save, average performance: 0.012 ms
+      - 0.7.3 -> 500+ hour save, average performance: 0.021 ms
+      - 0.7.3 -> 500+ hour save, worst observed performance: 0.7 ms 1-off*, 0.08 ms continuous (scanning)
+        - *1 tick spike (depends on how large an area is being selected for scanning)
     - Improved satellite scanning algorithm
       - Faster and more performant, with fewer duplicate scans
     - Increased satellite time-to-live maximum to 2^64-1 ticks (maximum possible game tick value)
