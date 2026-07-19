@@ -7,7 +7,7 @@
     "launch_game_after_build": false,
 
 	"name": "all-seeing-satellite",
-	"version": "0.7.3",
+	"version": "0.7.4",
 	"factorio_version": "2.0",
 	"title": "All Seeing Satellite",
 	"author": "TheEckelmonster",
