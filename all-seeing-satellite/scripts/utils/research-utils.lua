@@ -1,15 +1,14 @@
-local research = {}
+local research_utils = {}
+research_utils.name = "research_utils"
 
-function research.has_technology_researched(force, filter)
-    if (filter and force and force.technologies) then
-        for i, technology in pairs(force.technologies) do
-            if (i and i == filter and technology.researched) then
-                return true
-            end
+function research_utils.has_technology_researched(force, filter)
+    if (filter and force and force.valid and force.technologies) then
+        if (force.technologies[filter]) then
+            return force.technologies[filter].researched
         end
     end
-    Log.warn("rocket-silo technology not researched yet")
+
     return false
 end
 
-return research
+return research_utils

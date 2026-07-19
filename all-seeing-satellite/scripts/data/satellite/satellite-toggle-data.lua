@@ -1,3 +1,5 @@
+local setmetatable = setmetatable
+
 local Data = require("scripts.data.data")
 
 local satellite_toggle_data = {}

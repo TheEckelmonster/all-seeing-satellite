@@ -1,12 +1,17 @@
 local Rocket_Silo_Service = require("scripts.services.rocket-silo-service")
+local rocket_silo_built = Rocket_Silo_Service.rocket_silo_built
+local rocket_silo_mined = Rocket_Silo_Service.rocket_silo_mined
 local String_Utils = require("scripts.utils.string-utils")
+local find_invalid_substrings = String_Utils.find_invalid_substrings
+
+local ROCKET_SILO = "rocket-silo"
 
 local rocket_silo_controller = {}
 rocket_silo_controller.name = "rocket_silo_controller"
 
 function rocket_silo_controller.rocket_silo_built(event)
-    Log.debug("rocket_silo_controller.rocket_silo_built")
-    Log.info(event)
+    -- Log.debug("rocket_silo_controller.rocket_silo_built")
+    -- Log.info(event)
 
     if (not event) then return end
     if (not event.entity or not event.entity.valid) then return end
@@ -15,9 +20,9 @@ function rocket_silo_controller.rocket_silo_built(event)
     if (not rocket_silo.surface or not rocket_silo.surface.valid) then return end
     local surface = rocket_silo.surface
 
-    if (String_Utils.find_invalid_substrings(surface.name)) then return end
+    if (find_invalid_substrings(surface.name)) then return end
 
-    Rocket_Silo_Service.rocket_silo_built(rocket_silo)
+    rocket_silo_built(rocket_silo)
 end
 Event_Handler:register_events({
     {
@@ -51,19 +56,19 @@ Event_Handler:register_events({
 })
 
 function rocket_silo_controller.rocket_silo_mined(event)
-    Log.debug("rocket_silo_controller.rocket_silo_mined")
-    Log.info(event)
+    -- Log.debug("rocket_silo_controller.rocket_silo_mined")
+    -- Log.info(event)
 
     if (not event) then return end
-    if (not event.entity or not event.entity.valid) then return end
+    if (not event.entity or not event.entity.valid or event.entity.type ~= ROCKET_SILO) then return end
 
     local rocket_silo = event.entity
     if (not rocket_silo.surface or not rocket_silo.surface.valid) then return end
     local surface = rocket_silo.surface
 
-    if (String_Utils.find_invalid_substrings(surface.name)) then return end
+    if (find_invalid_substrings(surface.name)) then return end
 
-    Rocket_Silo_Service.rocket_silo_mined(event)
+    rocket_silo_mined(event)
 end
 Event_Handler:register_events({
     {
@@ -95,5 +100,53 @@ Event_Handler:register_events({
         func = rocket_silo_controller.rocket_silo_mined,
     },
 })
+
+function rocket_silo_controller.on_space_platform_built_entity(event)
+    -- Log.debug("rocket_silo_controller.on_space_platform_built_entity")
+    -- Log.info(event)
+
+    if (not event) then return end
+    if (not event.entity or not event.entity.valid) then return end
+
+    local rocket_silo = event.entity
+    if (rocket_silo.type ~= ROCKET_SILO) then return end
+    if (not rocket_silo.surface or not rocket_silo.surface.valid) then return end
+    local surface = rocket_silo.surface
+
+    if (find_invalid_substrings(surface.name)) then return end
+
+    rocket_silo_built(rocket_silo)
+end
+-- Event_Handler:register_event({
+--     event_name = "on_space_platform_built_entity",
+--     source_name = "rocket_silo_controller.on_space_platform_built_entity",
+--     func_name = "rocket_silo_controller.on_space_platform_built_entity",
+--     func = rocket_silo_controller.on_space_platform_built_entity,
+--     filter = rocket_silo_controller.filter,
+-- })
+
+function rocket_silo_controller.on_space_platform_mined_entity(event)
+    -- Log.debug("rocket_silo_controller.on_space_platform_mined_entity")
+    -- Log.info(event)
+
+    if (not event) then return end
+    if (not event.entity or not event.entity.valid) then return end
+
+    local rocket_silo = event.entity
+    if (rocket_silo.type ~= ROCKET_SILO) then return end
+    if (not rocket_silo.surface or not rocket_silo.surface.valid) then return end
+    local surface = rocket_silo.surface
+
+    if (find_invalid_substrings(surface.name)) then return end
+
+    Rocket_Silo_Service.on_space_platform_mined_entity(event)
+end
+-- Event_Handler:register_event({
+--     event_name = "on_space_platform_mined_entity",
+--     source_name = "rocket_silo_controller.on_space_platform_mined_entity",
+--     func_name = "rocket_silo_controller.on_space_platform_mined_entity",
+--     func = rocket_silo_controller.on_space_platform_mined_entity,
+--     filter = rocket_silo_controller.filter,
+-- })
 
 return rocket_silo_controller

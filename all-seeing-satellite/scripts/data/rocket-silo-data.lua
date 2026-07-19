@@ -1,3 +1,5 @@
+local setmetatable = setmetatable
+
 local Data = require("scripts.data.data")
 
 local rocket_silo_data = {}

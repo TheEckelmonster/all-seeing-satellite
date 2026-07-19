@@ -1,3 +1,5 @@
+local type = type
+
 local Planet_Data = require("scripts.data.planet-data")
 local String_Utils = require("scripts.utils.string-utils")
 
@@ -85,12 +87,11 @@ locals.get_planet_data = function(data)
                         name = planet_name,
                         surface = planet_surface,
                         magnitude = planet_magnitude,
-                        valid = true,
                     })
 
                     Log.debug("Adding planet")
                     Log.info(new_planet_data)
-                    table.insert(constants.mod_data.planets, new_planet_data)
+                    constants.mod_data.planets[#constants.mod_data.planets+1] = new_planet_data
                     constants.mod_data.planets_dictionary[planet_name] = new_planet_data
                 end
             end
