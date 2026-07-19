@@ -1,3 +1,4 @@
+require("prototypes.custom-events.custom-events")
 require("prototypes.custom-inputs")
 require("prototypes.item")
 require("prototypes.recipe")
