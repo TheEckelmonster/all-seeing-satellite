@@ -27,6 +27,8 @@ local active_mods = script and script.active_mods
 
 local defines = defines
 local inventory_cargo_unit = defines.inventory.cargo_unit
+local defines_cargo_destination_station = defines.cargo_destination.station
+local defines_cargo_destination_orbit = defines.cargo_destination.orbit
 
 local CARGO_LANDING_PAD = "cargo-landing-pad"
 local MSG_SATELLITE_OUT_OF_FUEL = "messages.satellite-out-of-fuel"
@@ -73,9 +75,11 @@ function satellite_service.track_satellite_launches_ordered(event)
     local cargo_pod_destination = cargo_pod.cargo_pod_destination
     if (    sa_active
         and cargo_pod_destination
-        and cargo_pod_destination.type == defines.cargo_destination.station
-        and cargo_pod_destination.station
-        and cargo_pod_destination.station.type == CARGO_LANDING_PAD
+        and (   cargo_pod_destination.type == defines_cargo_destination_station
+            and cargo_pod_destination.station
+            and cargo_pod_destination.station.type == CARGO_LANDING_PAD
+            or  cargo_pod_destination.type == defines_cargo_destination_orbit
+        )
         and cargo_pod_destination.transform_launch_products
         and cargo_pod_destination.transform_launch_products == true
         and event.launched_by_rocket
