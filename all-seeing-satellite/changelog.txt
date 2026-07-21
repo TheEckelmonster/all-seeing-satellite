@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.7.4
+Date: 2026-07-20
+  Bug fixes:
+    - [Space-Age] Fixed satellites launched manually to "orbit" not contributing to the satellite count for that given planet/surfcace (thanks to Ting_amm for the report!)
+---------------------------------------------------------------------------------------------------
 Version: 0.7.3
 Date: 2026-07-18
   Changes:
